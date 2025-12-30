@@ -655,6 +655,30 @@ function handleLeaveOrDisconnect(socket, opts = {}) {
     }
 
     // Explicit leave or non-progressed disconnect
+    // For PRIVATE rooms with host disconnect, apply grace period (don't delete immediately)
+    if (isDisconnect && !explicit && room.type === "PRIVATE" && room.players.length === 1) {
+      // This is the host disconnecting in a PRIVATE room (waiting for guest)
+      const HOST_GRACE_MS = 30000; // 30-second grace period for host to reconnect
+      
+      room.hostDisconnectedAt = Date.now();
+      room.hostDisconnectCleanup = setTimeout(() => {
+        if (room.hostDisconnectedAt) {
+          // Grace period expired, clean up
+          if (room.code) roomsByCode.delete(room.code);
+          rooms.delete(rid);
+          if (process.env.NODE_ENV !== "production") {
+            console.info("[HOST_GRACE] Expired, deleted room", rid);
+          }
+        }
+      }, HOST_GRACE_MS);
+
+      if (process.env.NODE_ENV !== "production") {
+        console.info("[HOST_DISCONNECT] PRIVATE room grace period started", { roomId: rid, graceMs: HOST_GRACE_MS });
+      }
+      trackSocketRoom(socket.id, null);
+      continue;
+    }
+
     room.players = room.players.filter((p) => p.socketId !== socket.id);
     room.ready && room.ready.delete && room.ready.delete(socket.id);
     trackSocketRoom(socket.id, null);
@@ -908,17 +932,59 @@ io.on("connection", (socket) => {
     socket.data.name = String(name || "Player").slice(0, 20);
     socket.data.playerToken = token || socket.data.playerToken || uuidv4();
     socket.emit("HELLO_ACK", { socketId: socket.id, name: socket.data.name, token: socket.data.playerToken });
+
+    // ✅ Check if this is a host reconnecting to a PRIVATE room in grace period
+    for (const [roomId, room] of rooms) {
+      if (room.type === "PRIVATE" && room.hostDisconnectedAt && room.players.length === 1) {
+        const firstPlayer = room.players[0];
+        if (firstPlayer.playerToken === socket.data.playerToken) {
+          // This is the host reconnecting!
+          firstPlayer.socketId = socket.id;
+          room.hostDisconnectedAt = null;
+          if (room.hostDisconnectCleanup) {
+            clearTimeout(room.hostDisconnectCleanup);
+            room.hostDisconnectCleanup = null;
+          }
+          socket.join(roomId);
+          trackSocketRoom(socket.id, roomId);
+          if (process.env.NODE_ENV !== "production") {
+            console.info("[HOST_RECONNECT] Recovered PRIVATE room", { roomId, code: room.code });
+          }
+          socket.emit("HOST_ROOM_RECOVERED", { roomId, code: room.code });
+          emitRoomState(roomId);
+          break;
+        }
+      }
+    }
   });
 
 // ===== FRIEND INVITE ROOMS =====
 socket.on("GET_ROOM_STATE", ({ roomId }) => {
   const room = rooms.get(roomId);
-  if (room && room.players.some((p) => p.socketId === socket.id)) {
-    console.log("[GET_ROOM_STATE] emitting for", roomId);
-    emitRoomState(roomId);
-  } else {
+  if (!room) {
     socket.emit("ROOM_STATE_FAIL", { roomId, error: "NOT_FOUND" });
+    return;
   }
+
+  // Check if player is in this room
+  const isPlayer = room.players.some((p) => p.socketId === socket.id);
+  if (!isPlayer) {
+    socket.emit("ROOM_STATE_FAIL", { roomId, error: "NOT_IN_ROOM" });
+    return;
+  }
+
+  // If host is disconnected, cancel cleanup on reconnect
+  if (room.hostDisconnectedAt && room.hostDisconnectCleanup) {
+    clearTimeout(room.hostDisconnectCleanup);
+    room.hostDisconnectedAt = null;
+    room.hostDisconnectCleanup = null;
+    if (process.env.NODE_ENV !== "production") {
+      console.info("[HOST_REJOIN] Cancelled host disconnect cleanup for", roomId);
+    }
+  }
+
+  console.log("[GET_ROOM_STATE] syncing state for", roomId);
+  emitRoomState(roomId);
 });
 
 socket.on("pvp:rejoin", ({ roomId, token }) => {
@@ -1067,18 +1133,45 @@ socket.on("pvp:rematch_request", ({ oldRoomId }) => {
   }
 });
 
-socket.on("JOIN_ROOM", ({ code }) => {
+socket.on("JOIN_ROOM", ({ code }, ack) => {
   const key = String(code || "").trim().toUpperCase();
   const roomId = roomsByCode.get(key);
-  if (!roomId) return socket.emit("JOIN_ROOM_FAIL", { error: "NOT_FOUND" });
+  
+  // Room not found
+  if (!roomId) {
+    if (typeof ack === "function") {
+      ack({ ok: false, error: "ROOM_NOT_FOUND" });
+    } else {
+      socket.emit("JOIN_ROOM_FAIL", { error: "NOT_FOUND" });
+    }
+    return;
+  }
 
   const room = rooms.get(roomId);
-  if (!room) return socket.emit("JOIN_ROOM_FAIL", { error: "NOT_FOUND" });
+  if (!room) {
+    if (typeof ack === "function") {
+      ack({ ok: false, error: "ROOM_NOT_FOUND" });
+    } else {
+      socket.emit("JOIN_ROOM_FAIL", { error: "NOT_FOUND" });
+    }
+    return;
+  }
+
   if (DEBUG_PVP) {
     console.log("[JOIN_ROOM]", "roomId", roomId, "mode", room.mode || "ALL");
   }
-  if (room.players.length >= 2) return socket.emit("JOIN_ROOM_FAIL", { error: "FULL" });
 
+  // Room is full
+  if (room.players.length >= 2) {
+    if (typeof ack === "function") {
+      ack({ ok: false, error: "ROOM_FULL" });
+    } else {
+      socket.emit("JOIN_ROOM_FAIL", { error: "FULL" });
+    }
+    return;
+  }
+
+  // Success: add player to room
   room.players.push({ socketId: socket.id, name: socket.data.name || "P2", points: 0, playerToken: getPlayerKey(socket) });
   room.status = "MATCHED";
   room.phase = "READY";
@@ -1086,6 +1179,19 @@ socket.on("JOIN_ROOM", ({ code }) => {
 
   socket.join(roomId);
   trackSocketRoom(socket.id, roomId);
+
+  // Send ack callback with room snapshot
+  if (typeof ack === "function") {
+    ack({
+      ok: true,
+      roomId,
+      room: {
+        phase: room.phase,
+        status: room.status,
+        players: room.players.map((p) => ({ socketId: p.socketId, name: p.name, points: p.points })),
+      },
+    });
+  }
 
   io.to(roomId).emit("MATCH_FOUND", {
     roomId,

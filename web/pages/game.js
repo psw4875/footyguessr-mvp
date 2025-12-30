@@ -1124,6 +1124,62 @@ export default function GamePage({ mode = "", code = "" }) {
     };
   }, []);
 
+  // ✅ Auto-reconnect & rejoin on visibility/focus recovery
+  useEffect(() => {
+    if (!roomId) return;
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        if (process.env.NODE_ENV !== "production") {
+          console.info("[VISIBILITY] page hidden");
+        }
+      } else {
+        // Page became visible (from background)
+        if (process.env.NODE_ENV !== "production") {
+          console.info("[VISIBILITY] page visible, reconnecting if needed");
+        }
+        if (!socket.connected) {
+          socket.connect();
+        }
+        // Rejoin room to sync state
+        socket.emit("GET_ROOM_STATE", { roomId });
+      }
+    };
+
+    const handleFocus = () => {
+      if (process.env.NODE_ENV !== "production") {
+        console.info("[FOCUS] window focused");
+      }
+      if (!socket.connected) {
+        socket.connect();
+      }
+      socket.emit("GET_ROOM_STATE", { roomId });
+    };
+
+    const handlePageShow = (e) => {
+      // bfcache recovery (mobile back/forward)
+      if (e.persisted) {
+        if (process.env.NODE_ENV !== "production") {
+          console.info("[PAGESHOW] bfcache restored");
+        }
+        if (!socket.connected) {
+          socket.connect();
+        }
+        socket.emit("GET_ROOM_STATE", { roomId });
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("pageshow", handlePageShow);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("pageshow", handlePageShow);
+    };
+  }, [roomId]);
+
   const toast = useToast();
 
   useEffect(() => {
@@ -1314,8 +1370,51 @@ export default function GamePage({ mode = "", code = "" }) {
     }
     try {
       hello();
-      socket.emit("JOIN_ROOM", { code });
+      setWaitingForMatch(true); // Show loading spinner
+      const timeout = setTimeout(() => {
+        setWaitingForMatch(false);
+        toast({
+          title: "Connection timeout",
+          description: "Server response took too long. Please try again.",
+          status: "warning",
+          duration: 4000,
+          isClosable: true,
+        });
+      }, 5000);
+
+      socket.emit(
+        "JOIN_ROOM",
+        { code },
+        (resp) => {
+          clearTimeout(timeout);
+          setWaitingForMatch(false);
+          if (resp?.ok) {
+            // Server will emit ROOM_JOINED or MATCH_FOUND
+            if (process.env.NODE_ENV !== "production") {
+              console.info("[JOIN_ROOM_ACK] success", resp);
+            }
+          } else {
+            const errorMsg =
+              resp?.error === "ROOM_NOT_FOUND"
+                ? "Room not found. Check the invite code."
+                : resp?.error === "ROOM_FULL"
+                ? "Room is full."
+                : "Failed to join room. Please try again.";
+            toast({
+              title: "Cannot join room",
+              description: errorMsg,
+              status: "error",
+              duration: 4000,
+              isClosable: true,
+            });
+            if (process.env.NODE_ENV !== "production") {
+              console.info("[JOIN_ROOM_ACK] error", resp);
+            }
+          }
+        }
+      );
     } catch (e) {
+      setWaitingForMatch(false);
       // toast in hello() will be shown
     }
   };
