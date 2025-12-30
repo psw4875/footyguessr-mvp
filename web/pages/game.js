@@ -31,14 +31,21 @@ import { scoreAnswer, pickAdaptiveQuestion } from "../engine";
 
 
 
-// ✅ Ensure HTTPS backend URL (production: https://api.footyguessr.io)
-const SERVER_URL = (() => {
-  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || "https://api.footyguessr.io";
-  // Replace http:// with https:// if running in HTTPS context
-  if (typeof window !== "undefined" && window.location.protocol === "https:" && baseUrl.startsWith("http://")) {
-    return baseUrl.replace(/^http:\/\//, "https://");
+// ✅ Unified API base URL: localhost detection for dev, production for others
+const API_BASE = (() => {
+  // Check environment variable first
+  if (process.env.NEXT_PUBLIC_SERVER_URL) {
+    return process.env.NEXT_PUBLIC_SERVER_URL;
   }
-  return baseUrl;
+  // Auto-detect: localhost/127.0.0.1 = dev, otherwise = production
+  if (typeof window !== "undefined") {
+    const hostname = window.location.hostname;
+    if (hostname === "localhost" || hostname === "127.0.0.1") {
+      return "http://localhost:4000";
+    }
+  }
+  // Production default
+  return "https://api.footyguessr.io";
 })();
 const DEBUG_PVP = String(process.env.NEXT_PUBLIC_DEBUG_PVP || "").toLowerCase() === "1" || String(process.env.NEXT_PUBLIC_DEBUG_PVP || "").toLowerCase() === "true";
 
@@ -115,10 +122,11 @@ function SingleTimeAttack() {
 
     // Build query string for pool filtering
     const poolParam = filterType === "ALL" ? "" : `?pool=${filterType.toLowerCase()}`;
+    const url = `${API_BASE}/api/questions${poolParam}`;
     
-    fetch(`${SERVER_URL}/api/questions${poolParam}`)
+    fetch(url)
       .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        if (!r.ok) throw new Error(`Failed to fetch questions from ${url} (HTTP ${r.status})`);
         return r.json();
       })
       .then((data) => {
@@ -697,7 +705,7 @@ function SingleTimeAttack() {
           {!!loadErr && (
             <Box p={4} borderWidth="1px" borderRadius="md" borderColor="red.300">
               Failed to load questions: {loadErr}
-              <Box mt={2} fontSize="sm" opacity={0.8}>Check server is running on PORT 4000.</Box>
+              <Box mt={2} fontSize="sm" opacity={0.8}>Check that the backend server is accessible at {API_BASE}</Box>
             </Box>
           )}
 
