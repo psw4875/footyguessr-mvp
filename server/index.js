@@ -86,13 +86,18 @@ const allowedOrigins = [
   "https://footyguessr-mvp.vercel.app",
 ];
 
+console.log('[CORS] Allowed origins:', allowedOrigins);
+
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps, Postman, curl)
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin)) {
-      callback(null, true);
+      // Return the specific requesting origin (not just true)
+      console.log('[CORS] Allowing origin:', origin);
+      callback(null, origin);
     } else {
+      console.warn('[CORS] Blocked origin:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -147,7 +152,8 @@ const io = new Server(server, {
       // Allow requests with no origin
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) {
-        callback(null, true);
+        // Return the specific requesting origin (not just true)
+        callback(null, origin);
       } else {
         callback(null, false);
       }
