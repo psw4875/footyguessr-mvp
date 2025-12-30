@@ -1,0 +1,4762 @@
+[
+  {
+    "id": "bra-ger-2014",
+    "imageUrl": "/matches/bra-ger-2014.jpg",
+    "correct": {
+      "teamA": "Brazil",
+      "teamB": "Germany",
+      "score": "1-7"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2014,
+      "stage": "Semi-final",
+      "difficulty": 1,
+      "tags": [
+        "iconic",
+        "blowout"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Brazil",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Germany",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "1-7",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2014,
+      "season": null
+    },
+    "stage": "Semi-final",
+    "difficulty": 1,
+    "tags": [
+      "iconic",
+      "blowout"
+    ]
+  },
+  {
+    "id": "arg-fra-2022",
+    "imageUrl": "/matches/arg-fra-2022.jpg",
+    "correct": {
+      "teamA": "Argentina",
+      "teamB": "France",
+      "score": "3-3"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2022,
+      "stage": "Final",
+      "difficulty": 1,
+      "tags": [
+        "iconic",
+        "final",
+        "classic"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Argentina",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "France",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "3-3",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2022,
+      "season": null
+    },
+    "stage": "Final",
+    "difficulty": 1,
+    "tags": [
+      "iconic",
+      "final",
+      "classic"
+    ]
+  },
+  {
+    "id": "arg-ned-2022",
+    "imageUrl": "/matches/arg-ned-2022.jpg",
+    "correct": {
+      "teamA": "Argentina",
+      "teamB": "Netherlands",
+      "score": "2-2"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2022,
+      "stage": "Quarter-final",
+      "difficulty": 2,
+      "tags": [
+        "penalties",
+        "tense"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Argentina",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Netherlands",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "2-2",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2022,
+      "season": null
+    },
+    "stage": "Quarter-final",
+    "difficulty": 2,
+    "tags": [
+      "penalties",
+      "tense"
+    ]
+  },
+  {
+    "id": "ger-arg-2014",
+    "imageUrl": "/matches/ger-arg-2014.jpg",
+    "correct": {
+      "teamA": "Germany",
+      "teamB": "Argentina",
+      "score": "1-0"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2014,
+      "stage": "Final",
+      "difficulty": 2,
+      "tags": [
+        "final"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Germany",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Argentina",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "1-0",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2014,
+      "season": null
+    },
+    "stage": "Final",
+    "difficulty": 2,
+    "tags": [
+      "final"
+    ]
+  },
+  {
+    "id": "fra-cro-2018",
+    "imageUrl": "/matches/fra-cro-2018.jpg",
+    "correct": {
+      "teamA": "France",
+      "teamB": "Croatia",
+      "score": "4-2"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2018,
+      "stage": "Final",
+      "difficulty": 1,
+      "tags": [
+        "final",
+        "iconic"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "France",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Croatia",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "4-2",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2018,
+      "season": null
+    },
+    "stage": "Final",
+    "difficulty": 1,
+    "tags": [
+      "final",
+      "iconic"
+    ]
+  },
+  {
+    "id": "esp-ned-2010",
+    "imageUrl": "/matches/esp-ned-2010.jpg",
+    "correct": {
+      "teamA": "Spain",
+      "teamB": "Netherlands",
+      "score": "1-0"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2010,
+      "stage": "Final",
+      "difficulty": 3,
+      "tags": [
+        "final"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Spain",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Netherlands",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "1-0",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2010,
+      "season": null
+    },
+    "stage": "Final",
+    "difficulty": 3,
+    "tags": [
+      "final"
+    ]
+  },
+  {
+    "id": "kor-ger-2018",
+    "imageUrl": "/matches/kor-ger-2018.jpg",
+    "correct": {
+      "teamA": "South Korea",
+      "teamB": "Germany",
+      "score": "2-0"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2018,
+      "stage": "Group Stage",
+      "difficulty": 2,
+      "tags": [
+        "upset",
+        "group"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "South Korea",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Germany",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "2-0",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2018,
+      "season": null
+    },
+    "stage": "Group Stage",
+    "difficulty": 2,
+    "tags": [
+      "upset",
+      "group"
+    ]
+  },
+  {
+    "id": "por-esp-2018",
+    "imageUrl": "/matches/por-esp-2018.jpg",
+    "correct": {
+      "teamA": "Portugal",
+      "teamB": "Spain",
+      "score": "3-3"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2018,
+      "stage": "Group Stage",
+      "difficulty": 2,
+      "tags": [
+        "high_scoring",
+        "group",
+        "classic"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Portugal",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Spain",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "3-3",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2018,
+      "season": null
+    },
+    "stage": "Group Stage",
+    "difficulty": 2,
+    "tags": [
+      "high_scoring",
+      "group",
+      "classic"
+    ]
+  },
+  {
+    "id": "bra-arg-2021",
+    "imageUrl": "/matches/bra-arg-2021.jpg",
+    "correct": {
+      "teamA": "Brazil",
+      "teamB": "Argentina",
+      "score": "0-1"
+    },
+    "meta": {
+      "tournament": "Copa América",
+      "year": 2021,
+      "stage": "Final",
+      "difficulty": 4,
+      "tags": [
+        "final",
+        "rivalry"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Brazil",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Argentina",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "0-1",
+    "competition": {
+      "name": "Copa América",
+      "code": null,
+      "year": 2021,
+      "season": null
+    },
+    "stage": "Final",
+    "difficulty": 4,
+    "tags": [
+      "final",
+      "rivalry"
+    ]
+  },
+  {
+    "id": "eng-cro-2018",
+    "imageUrl": "/matches/eng-cro-2018.jpg",
+    "correct": {
+      "teamA": "England",
+      "teamB": "Croatia",
+      "score": "1-2"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2018,
+      "stage": "Semi-final",
+      "difficulty": 3,
+      "tags": [
+        "extra_time"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "England",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Croatia",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "1-2",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2018,
+      "season": null
+    },
+    "stage": "Semi-final",
+    "difficulty": 3,
+    "tags": [
+      "extra_time"
+    ]
+  },
+  {
+    "id": "bel-jpn-2018",
+    "imageUrl": "/matches/bel-jpn-2018.jpg",
+    "correct": {
+      "teamA": "Belgium",
+      "teamB": "Japan",
+      "score": "3-2"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2018,
+      "stage": "Round of 16",
+      "difficulty": 3,
+      "tags": [
+        "comeback",
+        "classic"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Belgium",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Japan",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "3-2",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2018,
+      "season": null
+    },
+    "stage": "Round of 16",
+    "difficulty": 3,
+    "tags": [
+      "comeback",
+      "classic"
+    ]
+  },
+  {
+    "id": "uru-por-2018",
+    "imageUrl": "/matches/uru-por-2018.jpg",
+    "correct": {
+      "teamA": "Uruguay",
+      "teamB": "Portugal",
+      "score": "2-1"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2018,
+      "stage": "Round of 16",
+      "difficulty": 4,
+      "tags": [
+        "knockout"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Uruguay",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Portugal",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "2-1",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2018,
+      "season": null
+    },
+    "stage": "Round of 16",
+    "difficulty": 4,
+    "tags": [
+      "knockout"
+    ]
+  },
+  {
+    "id": "fra-arg-2018",
+    "imageUrl": "/matches/fra-arg-2018.jpg",
+    "correct": {
+      "teamA": "France",
+      "teamB": "Argentina",
+      "score": "4-3"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2018,
+      "stage": "Round of 16",
+      "difficulty": 2,
+      "tags": [
+        "high_scoring",
+        "classic"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "France",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Argentina",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "4-3",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2018,
+      "season": null
+    },
+    "stage": "Round of 16",
+    "difficulty": 2,
+    "tags": [
+      "high_scoring",
+      "classic"
+    ]
+  },
+  {
+    "id": "cro-rus-2018",
+    "imageUrl": "/matches/cro-rus-2018.jpg",
+    "correct": {
+      "teamA": "Croatia",
+      "teamB": "Russia",
+      "score": "2-2"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2018,
+      "stage": "Quarter-final",
+      "difficulty": 4,
+      "tags": [
+        "penalties"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Croatia",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Russia",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "2-2",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2018,
+      "season": null
+    },
+    "stage": "Quarter-final",
+    "difficulty": 4,
+    "tags": [
+      "penalties"
+    ]
+  },
+  {
+    "id": "bra-bel-2018",
+    "imageUrl": "/matches/bra-bel-2018.jpg",
+    "correct": {
+      "teamA": "Brazil",
+      "teamB": "Belgium",
+      "score": "1-2"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2018,
+      "stage": "Quarter-final",
+      "difficulty": 3,
+      "tags": [
+        "upset"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Brazil",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Belgium",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "1-2",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2018,
+      "season": null
+    },
+    "stage": "Quarter-final",
+    "difficulty": 3,
+    "tags": [
+      "upset"
+    ]
+  },
+  {
+    "id": "mex-ger-2018",
+    "imageUrl": "/matches/mex-ger-2018.jpg",
+    "correct": {
+      "teamA": "Mexico",
+      "teamB": "Germany",
+      "score": "1-0"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2018,
+      "stage": "Group Stage",
+      "difficulty": 3,
+      "tags": [
+        "upset",
+        "group"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Mexico",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Germany",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "1-0",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2018,
+      "season": null
+    },
+    "stage": "Group Stage",
+    "difficulty": 3,
+    "tags": [
+      "upset",
+      "group"
+    ]
+  },
+  {
+    "id": "sui-fra-2021",
+    "imageUrl": "/matches/sui-fra-2021.jpg",
+    "correct": {
+      "teamA": "Switzerland",
+      "teamB": "France",
+      "score": "3-3"
+    },
+    "meta": {
+      "tournament": "UEFA Euro",
+      "year": 2021,
+      "stage": "Round of 16",
+      "difficulty": 4,
+      "tags": [
+        "upset",
+        "penalties",
+        "high_scoring"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Switzerland",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "France",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "3-3",
+    "competition": {
+      "name": "UEFA Euro",
+      "code": null,
+      "year": 2021,
+      "season": null
+    },
+    "stage": "Round of 16",
+    "difficulty": 4,
+    "tags": [
+      "upset",
+      "penalties",
+      "high_scoring"
+    ]
+  },
+  {
+    "id": "eng-ger-2021",
+    "imageUrl": "/matches/eng-ger-2021.jpg",
+    "correct": {
+      "teamA": "England",
+      "teamB": "Germany",
+      "score": "2-0"
+    },
+    "meta": {
+      "tournament": "UEFA Euro",
+      "year": 2021,
+      "stage": "Round of 16",
+      "difficulty": 4,
+      "tags": [
+        "derby",
+        "knockout"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "England",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Germany",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "2-0",
+    "competition": {
+      "name": "UEFA Euro",
+      "code": null,
+      "year": 2021,
+      "season": null
+    },
+    "stage": "Round of 16",
+    "difficulty": 4,
+    "tags": [
+      "derby",
+      "knockout"
+    ]
+  },
+  {
+    "id": "ita-bel-2021",
+    "imageUrl": "/matches/ita-bel-2021.jpg",
+    "correct": {
+      "teamA": "Italy",
+      "teamB": "Belgium",
+      "score": "2-1"
+    },
+    "meta": {
+      "tournament": "UEFA Euro",
+      "year": 2021,
+      "stage": "Quarter-final",
+      "difficulty": 4,
+      "tags": [
+        "knockout"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Italy",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Belgium",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "2-1",
+    "competition": {
+      "name": "UEFA Euro",
+      "code": null,
+      "year": 2021,
+      "season": null
+    },
+    "stage": "Quarter-final",
+    "difficulty": 4,
+    "tags": [
+      "knockout"
+    ]
+  },
+  {
+    "id": "esp-cro-2021",
+    "imageUrl": "/matches/esp-cro-2021.jpg",
+    "correct": {
+      "teamA": "Spain",
+      "teamB": "Croatia",
+      "score": "5-3"
+    },
+    "meta": {
+      "tournament": "UEFA Euro",
+      "year": 2021,
+      "stage": "Round of 16",
+      "difficulty": 4,
+      "tags": [
+        "high_scoring",
+        "extra_time"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Spain",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Croatia",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "5-3",
+    "competition": {
+      "name": "UEFA Euro",
+      "code": null,
+      "year": 2021,
+      "season": null
+    },
+    "stage": "Round of 16",
+    "difficulty": 4,
+    "tags": [
+      "high_scoring",
+      "extra_time"
+    ]
+  },
+  {
+    "id": "ned-usa-2022",
+    "imageUrl": "/matches/ned-usa-2022.jpg",
+    "correct": {
+      "teamA": "Netherlands",
+      "teamB": "United States",
+      "score": "3-1"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2022,
+      "stage": "Round of 16",
+      "difficulty": 4,
+      "tags": [
+        "knockout"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Netherlands",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "United States",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "3-1",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2022,
+      "season": null
+    },
+    "stage": "Round of 16",
+    "difficulty": 4,
+    "tags": [
+      "knockout"
+    ]
+  },
+  {
+    "id": "fra-mar-2022",
+    "imageUrl": "/matches/fra-mar-2022.jpg",
+    "correct": {
+      "teamA": "France",
+      "teamB": "Morocco",
+      "score": "2-0"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2022,
+      "stage": "Semi-final",
+      "difficulty": 3,
+      "tags": [
+        "semi_final"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "France",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Morocco",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "2-0",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2022,
+      "season": null
+    },
+    "stage": "Semi-final",
+    "difficulty": 3,
+    "tags": [
+      "semi_final"
+    ]
+  },
+  {
+    "id": "cro-bra-2022",
+    "imageUrl": "/matches/cro-bra-2022.jpg",
+    "correct": {
+      "teamA": "Croatia",
+      "teamB": "Brazil",
+      "score": "1-1"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2022,
+      "stage": "Quarter-final",
+      "difficulty": 3,
+      "tags": [
+        "penalties",
+        "upset"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Croatia",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Brazil",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "1-1",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2022,
+      "season": null
+    },
+    "stage": "Quarter-final",
+    "difficulty": 3,
+    "tags": [
+      "penalties",
+      "upset"
+    ]
+  },
+  {
+    "id": "arg-aus-2022",
+    "imageUrl": "/matches/arg-aus-2022.jpg",
+    "correct": {
+      "teamA": "Argentina",
+      "teamB": "Australia",
+      "score": "2-1"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2022,
+      "stage": "Round of 16",
+      "difficulty": 5,
+      "tags": [
+        "knockout"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Argentina",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Australia",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "2-1",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2022,
+      "season": null
+    },
+    "stage": "Round of 16",
+    "difficulty": 5,
+    "tags": [
+      "knockout"
+    ]
+  },
+  {
+    "id": "jpn-esp-2022",
+    "imageUrl": "/matches/jpn-esp-2022.jpg",
+    "correct": {
+      "teamA": "Japan",
+      "teamB": "Spain",
+      "score": "2-1"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2022,
+      "stage": "Group Stage",
+      "difficulty": 3,
+      "tags": [
+        "upset",
+        "group"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Japan",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Spain",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "2-1",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2022,
+      "season": null
+    },
+    "stage": "Group Stage",
+    "difficulty": 3,
+    "tags": [
+      "upset",
+      "group"
+    ]
+  },
+  {
+    "id": "kor-por-2022",
+    "imageUrl": "/matches/kor-por-2022.jpg",
+    "correct": {
+      "teamA": "South Korea",
+      "teamB": "Portugal",
+      "score": "2-1"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2022,
+      "stage": "Group Stage",
+      "difficulty": 5,
+      "tags": [
+        "group"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "South Korea",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Portugal",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "2-1",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2022,
+      "season": null
+    },
+    "stage": "Group Stage",
+    "difficulty": 5,
+    "tags": [
+      "group"
+    ]
+  },
+  {
+    "id": "bra-sui-2022",
+    "imageUrl": "/matches/bra-sui-2022.jpg",
+    "correct": {
+      "teamA": "Brazil",
+      "teamB": "Switzerland",
+      "score": "1-0"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2022,
+      "stage": "Group Stage",
+      "difficulty": 5,
+      "tags": [
+        "group"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Brazil",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Switzerland",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "1-0",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2022,
+      "season": null
+    },
+    "stage": "Group Stage",
+    "difficulty": 5,
+    "tags": [
+      "group"
+    ]
+  },
+  {
+    "id": "ger-jpn-2022",
+    "imageUrl": "/matches/ger-jpn-2022.jpg",
+    "correct": {
+      "teamA": "Germany",
+      "teamB": "Japan",
+      "score": "1-2"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2022,
+      "stage": "Group Stage",
+      "difficulty": 3,
+      "tags": [
+        "upset",
+        "group"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Germany",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Japan",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "1-2",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2022,
+      "season": null
+    },
+    "stage": "Group Stage",
+    "difficulty": 3,
+    "tags": [
+      "upset",
+      "group"
+    ]
+  },
+  {
+    "id": "arg-mex-2022",
+    "imageUrl": "/matches/arg-mex-2022.jpg",
+    "correct": {
+      "teamA": "Argentina",
+      "teamB": "Mexico",
+      "score": "2-0"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2022,
+      "stage": "Group Stage",
+      "difficulty": 4,
+      "tags": [
+        "group"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Argentina",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Mexico",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "2-0",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2022,
+      "season": null
+    },
+    "stage": "Group Stage",
+    "difficulty": 4,
+    "tags": [
+      "group"
+    ]
+  },
+  {
+    "id": "uru-gha-2022",
+    "imageUrl": "/matches/uru-gha-2022.jpg",
+    "correct": {
+      "teamA": "Uruguay",
+      "teamB": "Ghana",
+      "score": "2-0"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2022,
+      "stage": "Group Stage",
+      "difficulty": 5,
+      "tags": [
+        "group"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Uruguay",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Ghana",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "2-0",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2022,
+      "season": null
+    },
+    "stage": "Group Stage",
+    "difficulty": 5,
+    "tags": [
+      "group"
+    ]
+  },
+  {
+    "id": "ita-eng-2021",
+    "imageUrl": "/matches/ita-eng-2021.jpg",
+    "correct": {
+      "teamA": "Italy",
+      "teamB": "England",
+      "score": "1-1"
+    },
+    "meta": {
+      "tournament": "UEFA Euro",
+      "year": 2021,
+      "stage": "Final",
+      "difficulty": 2,
+      "tags": [
+        "final",
+        "penalties"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Italy",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "England",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "1-1",
+    "competition": {
+      "name": "UEFA Euro",
+      "code": null,
+      "year": 2021,
+      "season": null
+    },
+    "stage": "Final",
+    "difficulty": 2,
+    "tags": [
+      "final",
+      "penalties"
+    ]
+  },
+  {
+    "id": "ita-esp-2021",
+    "imageUrl": "/matches/ita-esp-2021.jpg",
+    "correct": {
+      "teamA": "Italy",
+      "teamB": "Spain",
+      "score": "1-1"
+    },
+    "meta": {
+      "tournament": "UEFA Euro",
+      "year": 2021,
+      "stage": "Semi-final",
+      "difficulty": 4,
+      "tags": [
+        "penalties",
+        "semi_final"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Italy",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Spain",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "1-1",
+    "competition": {
+      "name": "UEFA Euro",
+      "code": null,
+      "year": 2021,
+      "season": null
+    },
+    "stage": "Semi-final",
+    "difficulty": 4,
+    "tags": [
+      "penalties",
+      "semi_final"
+    ]
+  },
+  {
+    "id": "den-eng-2021",
+    "imageUrl": "/matches/den-eng-2021.jpg",
+    "correct": {
+      "teamA": "Denmark",
+      "teamB": "England",
+      "score": "1-2"
+    },
+    "meta": {
+      "tournament": "UEFA Euro",
+      "year": 2021,
+      "stage": "Semi-final",
+      "difficulty": 5,
+      "tags": [
+        "extra_time",
+        "semi_final"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Denmark",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "England",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "1-2",
+    "competition": {
+      "name": "UEFA Euro",
+      "code": null,
+      "year": 2021,
+      "season": null
+    },
+    "stage": "Semi-final",
+    "difficulty": 5,
+    "tags": [
+      "extra_time",
+      "semi_final"
+    ]
+  },
+  {
+    "id": "bel-ita-2021",
+    "imageUrl": "/matches/bel-ita-2021.jpg",
+    "correct": {
+      "teamA": "Belgium",
+      "teamB": "Italy",
+      "score": "1-2"
+    },
+    "meta": {
+      "tournament": "UEFA Euro",
+      "year": 2021,
+      "stage": "Quarter-final",
+      "difficulty": 5,
+      "tags": [
+        "knockout"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Belgium",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Italy",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "1-2",
+    "competition": {
+      "name": "UEFA Euro",
+      "code": null,
+      "year": 2021,
+      "season": null
+    },
+    "stage": "Quarter-final",
+    "difficulty": 5,
+    "tags": [
+      "knockout"
+    ]
+  },
+  {
+    "id": "arg-sau-2022",
+    "imageUrl": "/matches/arg-sau-2022.jpg",
+    "correct": {
+      "teamA": "Argentina",
+      "teamB": "Saudi Arabia",
+      "score": "1-2"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2022,
+      "stage": "Group Stage",
+      "difficulty": 2,
+      "tags": [
+        "upset",
+        "group"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Argentina",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Saudi Arabia",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "1-2",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2022,
+      "season": null
+    },
+    "stage": "Group Stage",
+    "difficulty": 2,
+    "tags": [
+      "upset",
+      "group"
+    ]
+  },
+  {
+    "id": "ger-por-2006",
+    "imageUrl": "/matches/ger-por-2006.jpg",
+    "correct": {
+      "teamA": "Germany",
+      "teamB": "Portugal",
+      "score": "3-1"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2006,
+      "stage": "Third Place Match",
+      "difficulty": 4,
+      "tags": [
+        "third_place"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Germany",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Portugal",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "3-1",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2006,
+      "season": null
+    },
+    "stage": "Third Place Match",
+    "difficulty": 4,
+    "tags": [
+      "third_place"
+    ]
+  },
+  {
+    "id": "ita-fra-2006",
+    "imageUrl": "/matches/ita-fra-2006.jpg",
+    "correct": {
+      "teamA": "Italy",
+      "teamB": "France",
+      "score": "1-1"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2006,
+      "stage": "Final",
+      "difficulty": 2,
+      "tags": [
+        "final",
+        "penalties",
+        "iconic"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Italy",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "France",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "1-1",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2006,
+      "season": null
+    },
+    "stage": "Final",
+    "difficulty": 2,
+    "tags": [
+      "final",
+      "penalties",
+      "iconic"
+    ]
+  },
+  {
+    "id": "bra-cro-2006",
+    "imageUrl": "/matches/bra-cro-2006.jpg",
+    "correct": {
+      "teamA": "Brazil",
+      "teamB": "Croatia",
+      "score": "1-0"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2006,
+      "stage": "Group Stage",
+      "difficulty": 4,
+      "tags": [
+        "group"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Brazil",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Croatia",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "1-0",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2006,
+      "season": null
+    },
+    "stage": "Group Stage",
+    "difficulty": 4,
+    "tags": [
+      "group"
+    ]
+  },
+  {
+    "id": "esp-ger-2008",
+    "imageUrl": "/matches/esp-ger-2008.jpg",
+    "correct": {
+      "teamA": "Spain",
+      "teamB": "Germany",
+      "score": "1-0"
+    },
+    "meta": {
+      "tournament": "UEFA Euro",
+      "year": 2008,
+      "stage": "Final",
+      "difficulty": 3,
+      "tags": [
+        "final"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Spain",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Germany",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "1-0",
+    "competition": {
+      "name": "UEFA Euro",
+      "code": null,
+      "year": 2008,
+      "season": null
+    },
+    "stage": "Final",
+    "difficulty": 3,
+    "tags": [
+      "final"
+    ]
+  },
+  {
+    "id": "tur-cro-2008",
+    "imageUrl": "/matches/tur-cro-2008.jpg",
+    "correct": {
+      "teamA": "Turkey",
+      "teamB": "Croatia",
+      "score": "1-1"
+    },
+    "meta": {
+      "tournament": "UEFA Euro",
+      "year": 2008,
+      "stage": "Quarter-final",
+      "difficulty": 4,
+      "tags": [
+        "penalties",
+        "drama"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Turkey",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Croatia",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "1-1",
+    "competition": {
+      "name": "UEFA Euro",
+      "code": null,
+      "year": 2008,
+      "season": null
+    },
+    "stage": "Quarter-final",
+    "difficulty": 4,
+    "tags": [
+      "penalties",
+      "drama"
+    ]
+  },
+  {
+    "id": "ned-rus-2008",
+    "imageUrl": "/matches/ned-rus-2008.jpg",
+    "correct": {
+      "teamA": "Netherlands",
+      "teamB": "Russia",
+      "score": "1-3"
+    },
+    "meta": {
+      "tournament": "UEFA Euro",
+      "year": 2008,
+      "stage": "Quarter-final",
+      "difficulty": 4,
+      "tags": [
+        "extra_time",
+        "upset"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Netherlands",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Russia",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "1-3",
+    "competition": {
+      "name": "UEFA Euro",
+      "code": null,
+      "year": 2008,
+      "season": null
+    },
+    "stage": "Quarter-final",
+    "difficulty": 4,
+    "tags": [
+      "extra_time",
+      "upset"
+    ]
+  },
+  {
+    "id": "bra-chi-2014",
+    "imageUrl": "/matches/bra-chi-2014.jpg",
+    "correct": {
+      "teamA": "Brazil",
+      "teamB": "Chile",
+      "score": "1-1"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2014,
+      "stage": "Round of 16",
+      "difficulty": 3,
+      "tags": [
+        "penalties",
+        "tense"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Brazil",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Chile",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "1-1",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2014,
+      "season": null
+    },
+    "stage": "Round of 16",
+    "difficulty": 3,
+    "tags": [
+      "penalties",
+      "tense"
+    ]
+  },
+  {
+    "id": "ned-arg-2014",
+    "imageUrl": "/matches/ned-arg-2014.jpg",
+    "correct": {
+      "teamA": "Netherlands",
+      "teamB": "Argentina",
+      "score": "0-0"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2014,
+      "stage": "Semi-final",
+      "difficulty": 3,
+      "tags": [
+        "penalties",
+        "tense"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Netherlands",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Argentina",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "0-0",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2014,
+      "season": null
+    },
+    "stage": "Semi-final",
+    "difficulty": 3,
+    "tags": [
+      "penalties",
+      "tense"
+    ]
+  },
+  {
+    "id": "col-bra-2014",
+    "imageUrl": "/matches/col-bra-2014.jpg",
+    "correct": {
+      "teamA": "Colombia",
+      "teamB": "Brazil",
+      "score": "1-2"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2014,
+      "stage": "Quarter-final",
+      "difficulty": 4,
+      "tags": [
+        "iconic",
+        "knockout"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Colombia",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Brazil",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "1-2",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2014,
+      "season": null
+    },
+    "stage": "Quarter-final",
+    "difficulty": 4,
+    "tags": [
+      "iconic",
+      "knockout"
+    ]
+  },
+  {
+    "id": "esp-ita-2012",
+    "imageUrl": "/matches/esp-ita-2012.jpg",
+    "correct": {
+      "teamA": "Spain",
+      "teamB": "Italy",
+      "score": "4-0"
+    },
+    "meta": {
+      "tournament": "UEFA Euro",
+      "year": 2012,
+      "stage": "Final",
+      "difficulty": 3,
+      "tags": [
+        "final",
+        "blowout"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Spain",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Italy",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "4-0",
+    "competition": {
+      "name": "UEFA Euro",
+      "code": null,
+      "year": 2012,
+      "season": null
+    },
+    "stage": "Final",
+    "difficulty": 3,
+    "tags": [
+      "final",
+      "blowout"
+    ]
+  },
+  {
+    "id": "fra-por-2021",
+    "imageUrl": "/matches/fra-por-2021.jpg",
+    "correct": {
+      "teamA": "France",
+      "teamB": "Portugal",
+      "score": "2-2"
+    },
+    "meta": {
+      "tournament": "UEFA Euro",
+      "year": 2021,
+      "stage": "Group Stage",
+      "difficulty": 4,
+      "tags": [
+        "group",
+        "classic"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "France",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Portugal",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "2-2",
+    "competition": {
+      "name": "UEFA Euro",
+      "code": null,
+      "year": 2021,
+      "season": null
+    },
+    "stage": "Group Stage",
+    "difficulty": 4,
+    "tags": [
+      "group",
+      "classic"
+    ]
+  },
+  {
+    "id": "cro-arg-2018",
+    "imageUrl": "/matches/cro-arg-2018.jpg",
+    "correct": {
+      "teamA": "Croatia",
+      "teamB": "Argentina",
+      "score": "3-0"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2018,
+      "stage": "Group Stage",
+      "difficulty": 3,
+      "tags": [
+        "upset",
+        "group"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Croatia",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Argentina",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "3-0",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2018,
+      "season": null
+    },
+    "stage": "Group Stage",
+    "difficulty": 3,
+    "tags": [
+      "upset",
+      "group"
+    ]
+  },
+  {
+    "id": "tun-fra-2022",
+    "imageUrl": "/matches/tun-fra-2022.jpg",
+    "correct": {
+      "teamA": "Tunisia",
+      "teamB": "France",
+      "score": "1-0"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2022,
+      "stage": "Group Stage",
+      "difficulty": 4,
+      "tags": [
+        "upset",
+        "group"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Tunisia",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "France",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "1-0",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2022,
+      "season": null
+    },
+    "stage": "Group Stage",
+    "difficulty": 4,
+    "tags": [
+      "upset",
+      "group"
+    ]
+  },
+  {
+    "id": "cam-bra-2014",
+    "imageUrl": "/matches/cam-bra-2014.jpg",
+    "correct": {
+      "teamA": "Cameroon",
+      "teamB": "Brazil",
+      "score": "1-4"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2014,
+      "stage": "Group Stage",
+      "difficulty": 3,
+      "tags": [
+        "group"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Cameroon",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Brazil",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "1-4",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2014,
+      "season": null
+    },
+    "stage": "Group Stage",
+    "difficulty": 3,
+    "tags": [
+      "group"
+    ]
+  },
+  {
+    "id": "gha-uru-2010",
+    "imageUrl": "/matches/gha-uru-2010.jpg",
+    "correct": {
+      "teamA": "Ghana",
+      "teamB": "Uruguay",
+      "score": "1-1"
+    },
+    "meta": {
+      "tournament": "FIFA World Cup",
+      "year": 2010,
+      "stage": "Quarter-final",
+      "difficulty": 1,
+      "tags": [
+        "iconic",
+        "handball",
+        "penalties"
+      ],
+      "matchType": "INTERNATIONAL",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Ghana",
+        "type": "NATIONAL_TEAM"
+      },
+      "away": {
+        "name": "Uruguay",
+        "type": "NATIONAL_TEAM"
+      }
+    },
+    "score": "1-1",
+    "competition": {
+      "name": "FIFA World Cup",
+      "code": null,
+      "year": 2010,
+      "season": null
+    },
+    "stage": "Quarter-final",
+    "difficulty": 1,
+    "tags": [
+      "iconic",
+      "handball",
+      "penalties"
+    ]
+  },
+  {
+    "id": "manu-chel-2008",
+    "imageUrl": "/matches/manu-chel-2008.jpg",
+    "correct": {
+      "teamA": "Manchester United",
+      "teamB": "Chelsea",
+      "score": "1-1"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2008,
+      "stage": "Final",
+      "difficulty": 2,
+      "tags": [
+        "final",
+        "penalties"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Manchester United",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Chelsea",
+        "type": "CLUB"
+      }
+    },
+    "score": "1-1",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2008,
+      "season": null
+    },
+    "stage": "Final",
+    "difficulty": 2,
+    "tags": [
+      "final",
+      "penalties"
+    ]
+  },
+  {
+    "id": "bar-manu-2009",
+    "imageUrl": "/matches/bar-manu-2009.jpg",
+    "correct": {
+      "teamA": "Barcelona",
+      "teamB": "Manchester United",
+      "score": "2-0"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2009,
+      "stage": "Final",
+      "difficulty": 2,
+      "tags": [
+        "final",
+        "iconic"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Barcelona",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Manchester United",
+        "type": "CLUB"
+      }
+    },
+    "score": "2-0",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2009,
+      "season": null
+    },
+    "stage": "Final",
+    "difficulty": 2,
+    "tags": [
+      "final",
+      "iconic"
+    ]
+  },
+  {
+    "id": "int-bay-2010",
+    "imageUrl": "/matches/int-bay-2010.jpg",
+    "correct": {
+      "teamA": "Inter Milan",
+      "teamB": "Bayern Munich",
+      "score": "2-0"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2010,
+      "stage": "Final",
+      "difficulty": 3,
+      "tags": [
+        "final"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Inter Milan",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Bayern Munich",
+        "type": "CLUB"
+      }
+    },
+    "score": "2-0",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2010,
+      "season": null
+    },
+    "stage": "Final",
+    "difficulty": 3,
+    "tags": [
+      "final"
+    ]
+  },
+  {
+    "id": "bar-manu-2011",
+    "imageUrl": "/matches/bar-manu-2011.jpg",
+    "correct": {
+      "teamA": "Barcelona",
+      "teamB": "Manchester United",
+      "score": "3-1"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2011,
+      "stage": "Final",
+      "difficulty": 2,
+      "tags": [
+        "final",
+        "iconic"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Barcelona",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Manchester United",
+        "type": "CLUB"
+      }
+    },
+    "score": "3-1",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2011,
+      "season": null
+    },
+    "stage": "Final",
+    "difficulty": 2,
+    "tags": [
+      "final",
+      "iconic"
+    ]
+  },
+  {
+    "id": "chel-bay-2012",
+    "imageUrl": "/matches/chel-bay-2012.jpg",
+    "correct": {
+      "teamA": "Chelsea",
+      "teamB": "Bayern Munich",
+      "score": "1-1"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2012,
+      "stage": "Final",
+      "difficulty": 2,
+      "tags": [
+        "final",
+        "penalties",
+        "upset"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Chelsea",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Bayern Munich",
+        "type": "CLUB"
+      }
+    },
+    "score": "1-1",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2012,
+      "season": null
+    },
+    "stage": "Final",
+    "difficulty": 2,
+    "tags": [
+      "final",
+      "penalties",
+      "upset"
+    ]
+  },
+  {
+    "id": "bay-dor-2013",
+    "imageUrl": "/matches/bay-dor-2013.jpg",
+    "correct": {
+      "teamA": "Bayern Munich",
+      "teamB": "Borussia Dortmund",
+      "score": "2-1"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2013,
+      "stage": "Final",
+      "difficulty": 3,
+      "tags": [
+        "final",
+        "classic"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Bayern Munich",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Borussia Dortmund",
+        "type": "CLUB"
+      }
+    },
+    "score": "2-1",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2013,
+      "season": null
+    },
+    "stage": "Final",
+    "difficulty": 3,
+    "tags": [
+      "final",
+      "classic"
+    ]
+  },
+  {
+    "id": "real-atm-2014",
+    "imageUrl": "/matches/real-atm-2014.jpg",
+    "correct": {
+      "teamA": "Real Madrid",
+      "teamB": "Atlético Madrid",
+      "score": "4-1"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2014,
+      "stage": "Final",
+      "difficulty": 2,
+      "tags": [
+        "final",
+        "extra_time",
+        "iconic"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Real Madrid",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Atlético Madrid",
+        "type": "CLUB"
+      }
+    },
+    "score": "4-1",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2014,
+      "season": null
+    },
+    "stage": "Final",
+    "difficulty": 2,
+    "tags": [
+      "final",
+      "extra_time",
+      "iconic"
+    ]
+  },
+  {
+    "id": "bar-juv-2015",
+    "imageUrl": "/matches/bar-juv-2015.jpg",
+    "correct": {
+      "teamA": "Barcelona",
+      "teamB": "Juventus",
+      "score": "3-1"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2015,
+      "stage": "Final",
+      "difficulty": 3,
+      "tags": [
+        "final"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Barcelona",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Juventus",
+        "type": "CLUB"
+      }
+    },
+    "score": "3-1",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2015,
+      "season": null
+    },
+    "stage": "Final",
+    "difficulty": 3,
+    "tags": [
+      "final"
+    ]
+  },
+  {
+    "id": "real-atm-2016",
+    "imageUrl": "/matches/real-atm-2016.jpg",
+    "correct": {
+      "teamA": "Real Madrid",
+      "teamB": "Atlético Madrid",
+      "score": "1-1"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2016,
+      "stage": "Final",
+      "difficulty": 2,
+      "tags": [
+        "final",
+        "penalties"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Real Madrid",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Atlético Madrid",
+        "type": "CLUB"
+      }
+    },
+    "score": "1-1",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2016,
+      "season": null
+    },
+    "stage": "Final",
+    "difficulty": 2,
+    "tags": [
+      "final",
+      "penalties"
+    ]
+  },
+  {
+    "id": "real-juv-2017",
+    "imageUrl": "/matches/real-juv-2017.jpg",
+    "correct": {
+      "teamA": "Real Madrid",
+      "teamB": "Juventus",
+      "score": "4-1"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2017,
+      "stage": "Final",
+      "difficulty": 2,
+      "tags": [
+        "final",
+        "blowout"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Real Madrid",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Juventus",
+        "type": "CLUB"
+      }
+    },
+    "score": "4-1",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2017,
+      "season": null
+    },
+    "stage": "Final",
+    "difficulty": 2,
+    "tags": [
+      "final",
+      "blowout"
+    ]
+  },
+  {
+    "id": "real-liv-2018",
+    "imageUrl": "/matches/real-liv-2018.jpg",
+    "correct": {
+      "teamA": "Real Madrid",
+      "teamB": "Liverpool",
+      "score": "3-1"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2018,
+      "stage": "Final",
+      "difficulty": 2,
+      "tags": [
+        "final",
+        "iconic"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Real Madrid",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Liverpool",
+        "type": "CLUB"
+      }
+    },
+    "score": "3-1",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2018,
+      "season": null
+    },
+    "stage": "Final",
+    "difficulty": 2,
+    "tags": [
+      "final",
+      "iconic"
+    ]
+  },
+  {
+    "id": "liv-tot-2019",
+    "imageUrl": "/matches/liv-tot-2019.jpg",
+    "correct": {
+      "teamA": "Liverpool",
+      "teamB": "Tottenham Hotspur",
+      "score": "2-0"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2019,
+      "stage": "Final",
+      "difficulty": 3,
+      "tags": [
+        "final"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Liverpool",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Tottenham Hotspur",
+        "type": "CLUB"
+      }
+    },
+    "score": "2-0",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2019,
+      "season": null
+    },
+    "stage": "Final",
+    "difficulty": 3,
+    "tags": [
+      "final"
+    ]
+  },
+  {
+    "id": "bay-psg-2020",
+    "imageUrl": "/matches/bay-psg-2020.jpg",
+    "correct": {
+      "teamA": "Bayern Munich",
+      "teamB": "Paris Saint-Germain",
+      "score": "1-0"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2020,
+      "stage": "Final",
+      "difficulty": 3,
+      "tags": [
+        "final"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Bayern Munich",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Paris Saint-Germain",
+        "type": "CLUB"
+      }
+    },
+    "score": "1-0",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2020,
+      "season": null
+    },
+    "stage": "Final",
+    "difficulty": 3,
+    "tags": [
+      "final"
+    ]
+  },
+  {
+    "id": "chel-man-2021",
+    "imageUrl": "/matches/chel-man-2021.jpg",
+    "correct": {
+      "teamA": "Chelsea",
+      "teamB": "Manchester City",
+      "score": "1-0"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2021,
+      "stage": "Final",
+      "difficulty": 3,
+      "tags": [
+        "final",
+        "derby"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Chelsea",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Manchester City",
+        "type": "CLUB"
+      }
+    },
+    "score": "1-0",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2021,
+      "season": null
+    },
+    "stage": "Final",
+    "difficulty": 3,
+    "tags": [
+      "final",
+      "derby"
+    ]
+  },
+  {
+    "id": "real-liv-2022",
+    "imageUrl": "/matches/real-liv-2022.jpg",
+    "correct": {
+      "teamA": "Real Madrid",
+      "teamB": "Liverpool",
+      "score": "1-0"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2022,
+      "stage": "Final",
+      "difficulty": 3,
+      "tags": [
+        "final"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Real Madrid",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Liverpool",
+        "type": "CLUB"
+      }
+    },
+    "score": "1-0",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2022,
+      "season": null
+    },
+    "stage": "Final",
+    "difficulty": 3,
+    "tags": [
+      "final"
+    ]
+  },
+  {
+    "id": "man-int-2023",
+    "imageUrl": "/matches/man-int-2023.jpg",
+    "correct": {
+      "teamA": "Manchester City",
+      "teamB": "Inter Milan",
+      "score": "1-0"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2023,
+      "stage": "Final",
+      "difficulty": 3,
+      "tags": [
+        "final"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Manchester City",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Inter Milan",
+        "type": "CLUB"
+      }
+    },
+    "score": "1-0",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2023,
+      "season": null
+    },
+    "stage": "Final",
+    "difficulty": 3,
+    "tags": [
+      "final"
+    ]
+  },
+  {
+    "id": "real-dor-2024",
+    "imageUrl": "/matches/real-dor-2024.jpg",
+    "correct": {
+      "teamA": "Real Madrid",
+      "teamB": "Borussia Dortmund",
+      "score": "2-0"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2024,
+      "stage": "Final",
+      "difficulty": 3,
+      "tags": [
+        "final"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Real Madrid",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Borussia Dortmund",
+        "type": "CLUB"
+      }
+    },
+    "score": "2-0",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2024,
+      "season": null
+    },
+    "stage": "Final",
+    "difficulty": 3,
+    "tags": [
+      "final"
+    ]
+  },
+  {
+    "id": "chel-bar-2009",
+    "imageUrl": "/matches/chel-bar-2009.jpg",
+    "correct": {
+      "teamA": "Chelsea",
+      "teamB": "Barcelona",
+      "score": "1-1"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2009,
+      "stage": "Semi-final",
+      "difficulty": 2,
+      "tags": [
+        "controversial",
+        "classic"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Chelsea",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Barcelona",
+        "type": "CLUB"
+      }
+    },
+    "score": "1-1",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2009,
+      "season": null
+    },
+    "stage": "Semi-final",
+    "difficulty": 2,
+    "tags": [
+      "controversial",
+      "classic"
+    ]
+  },
+  {
+    "id": "int-bar-2010",
+    "imageUrl": "/matches/int-bar-2010.jpg",
+    "correct": {
+      "teamA": "Inter Milan",
+      "teamB": "Barcelona",
+      "score": "3-1"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2010,
+      "stage": "Semi-final",
+      "difficulty": 3,
+      "tags": [
+        "upset",
+        "iconic"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Inter Milan",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Barcelona",
+        "type": "CLUB"
+      }
+    },
+    "score": "3-1",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2010,
+      "season": null
+    },
+    "stage": "Semi-final",
+    "difficulty": 3,
+    "tags": [
+      "upset",
+      "iconic"
+    ]
+  },
+  {
+    "id": "bar-chel-2012",
+    "imageUrl": "/matches/bar-chel-2012.jpg",
+    "correct": {
+      "teamA": "Barcelona",
+      "teamB": "Chelsea",
+      "score": "2-2"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2012,
+      "stage": "Semi-final",
+      "difficulty": 2,
+      "tags": [
+        "upset",
+        "iconic"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Barcelona",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Chelsea",
+        "type": "CLUB"
+      }
+    },
+    "score": "2-2",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2012,
+      "season": null
+    },
+    "stage": "Semi-final",
+    "difficulty": 2,
+    "tags": [
+      "upset",
+      "iconic"
+    ]
+  },
+  {
+    "id": "dor-real-2013",
+    "imageUrl": "/matches/dor-real-2013.jpg",
+    "correct": {
+      "teamA": "Borussia Dortmund",
+      "teamB": "Real Madrid",
+      "score": "4-1"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2013,
+      "stage": "Semi-final",
+      "difficulty": 2,
+      "tags": [
+        "blowout",
+        "iconic"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Borussia Dortmund",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Real Madrid",
+        "type": "CLUB"
+      }
+    },
+    "score": "4-1",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2013,
+      "season": null
+    },
+    "stage": "Semi-final",
+    "difficulty": 2,
+    "tags": [
+      "blowout",
+      "iconic"
+    ]
+  },
+  {
+    "id": "bay-bar-2013",
+    "imageUrl": "/matches/bay-bar-2013.jpg",
+    "correct": {
+      "teamA": "Bayern Munich",
+      "teamB": "Barcelona",
+      "score": "4-0"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2013,
+      "stage": "Semi-final",
+      "difficulty": 2,
+      "tags": [
+        "blowout",
+        "iconic"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Bayern Munich",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Barcelona",
+        "type": "CLUB"
+      }
+    },
+    "score": "4-0",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2013,
+      "season": null
+    },
+    "stage": "Semi-final",
+    "difficulty": 2,
+    "tags": [
+      "blowout",
+      "iconic"
+    ]
+  },
+  {
+    "id": "atm-bar-2014",
+    "imageUrl": "/matches/atm-bar-2014.jpg",
+    "correct": {
+      "teamA": "Atlético Madrid",
+      "teamB": "Barcelona",
+      "score": "1-0"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2014,
+      "stage": "Quarter-final",
+      "difficulty": 3,
+      "tags": [
+        "upset",
+        "knockout"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Atlético Madrid",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Barcelona",
+        "type": "CLUB"
+      }
+    },
+    "score": "1-0",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2014,
+      "season": null
+    },
+    "stage": "Quarter-final",
+    "difficulty": 3,
+    "tags": [
+      "upset",
+      "knockout"
+    ]
+  },
+  {
+    "id": "psg-bar-2017",
+    "imageUrl": "/matches/psg-bar-2017.jpg",
+    "correct": {
+      "teamA": "Paris Saint-Germain",
+      "teamB": "Barcelona",
+      "score": "4-0"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2017,
+      "stage": "Round of 16",
+      "difficulty": 2,
+      "tags": [
+        "iconic",
+        "blowout"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Paris Saint-Germain",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Barcelona",
+        "type": "CLUB"
+      }
+    },
+    "score": "4-0",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2017,
+      "season": null
+    },
+    "stage": "Round of 16",
+    "difficulty": 2,
+    "tags": [
+      "iconic",
+      "blowout"
+    ]
+  },
+  {
+    "id": "bar-psg-2017",
+    "imageUrl": "/matches/bar-psg-2017.jpg",
+    "correct": {
+      "teamA": "Barcelona",
+      "teamB": "Paris Saint-Germain",
+      "score": "6-1"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2017,
+      "stage": "Round of 16",
+      "difficulty": 1,
+      "tags": [
+        "comeback",
+        "iconic"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Barcelona",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Paris Saint-Germain",
+        "type": "CLUB"
+      }
+    },
+    "score": "6-1",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2017,
+      "season": null
+    },
+    "stage": "Round of 16",
+    "difficulty": 1,
+    "tags": [
+      "comeback",
+      "iconic"
+    ]
+  },
+  {
+    "id": "liv-bar-2019",
+    "imageUrl": "/matches/liv-bar-2019.jpg",
+    "correct": {
+      "teamA": "Liverpool",
+      "teamB": "Barcelona",
+      "score": "4-0"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2019,
+      "stage": "Semi-final",
+      "difficulty": 1,
+      "tags": [
+        "comeback",
+        "iconic"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Liverpool",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Barcelona",
+        "type": "CLUB"
+      }
+    },
+    "score": "4-0",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2019,
+      "season": null
+    },
+    "stage": "Semi-final",
+    "difficulty": 1,
+    "tags": [
+      "comeback",
+      "iconic"
+    ]
+  },
+  {
+    "id": "tot-aja-2019",
+    "imageUrl": "/matches/tot-aja-2019.jpg",
+    "correct": {
+      "teamA": "Tottenham Hotspur",
+      "teamB": "Ajax",
+      "score": "3-2"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2019,
+      "stage": "Semi-final",
+      "difficulty": 2,
+      "tags": [
+        "comeback",
+        "iconic"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Tottenham Hotspur",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Ajax",
+        "type": "CLUB"
+      }
+    },
+    "score": "3-2",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2019,
+      "season": null
+    },
+    "stage": "Semi-final",
+    "difficulty": 2,
+    "tags": [
+      "comeback",
+      "iconic"
+    ]
+  },
+  {
+    "id": "bay-chel-2020",
+    "imageUrl": "/matches/bay-chel-2020.jpg",
+    "correct": {
+      "teamA": "Bayern Munich",
+      "teamB": "Chelsea",
+      "score": "4-1"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2020,
+      "stage": "Round of 16",
+      "difficulty": 3,
+      "tags": [
+        "knockout"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Bayern Munich",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Chelsea",
+        "type": "CLUB"
+      }
+    },
+    "score": "4-1",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2020,
+      "season": null
+    },
+    "stage": "Round of 16",
+    "difficulty": 3,
+    "tags": [
+      "knockout"
+    ]
+  },
+  {
+    "id": "bay-psg-2021",
+    "imageUrl": "/matches/bay-psg-2021.jpg",
+    "correct": {
+      "teamA": "Bayern Munich",
+      "teamB": "Paris Saint-Germain",
+      "score": "2-3"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2021,
+      "stage": "Quarter-final",
+      "difficulty": 3,
+      "tags": [
+        "high_scoring",
+        "knockout"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Bayern Munich",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Paris Saint-Germain",
+        "type": "CLUB"
+      }
+    },
+    "score": "2-3",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2021,
+      "season": null
+    },
+    "stage": "Quarter-final",
+    "difficulty": 3,
+    "tags": [
+      "high_scoring",
+      "knockout"
+    ]
+  },
+  {
+    "id": "chel-real-2021",
+    "imageUrl": "/matches/chel-real-2021.jpg",
+    "correct": {
+      "teamA": "Chelsea",
+      "teamB": "Real Madrid",
+      "score": "2-0"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2021,
+      "stage": "Semi-final",
+      "difficulty": 3,
+      "tags": [
+        "knockout"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Chelsea",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Real Madrid",
+        "type": "CLUB"
+      }
+    },
+    "score": "2-0",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2021,
+      "season": null
+    },
+    "stage": "Semi-final",
+    "difficulty": 3,
+    "tags": [
+      "knockout"
+    ]
+  },
+  {
+    "id": "real-chel-2022",
+    "imageUrl": "/matches/real-chel-2022.jpg",
+    "correct": {
+      "teamA": "Real Madrid",
+      "teamB": "Chelsea",
+      "score": "2-3"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2022,
+      "stage": "Quarter-final",
+      "difficulty": 3,
+      "tags": [
+        "extra_time",
+        "classic"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Real Madrid",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Chelsea",
+        "type": "CLUB"
+      }
+    },
+    "score": "2-3",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2022,
+      "season": null
+    },
+    "stage": "Quarter-final",
+    "difficulty": 3,
+    "tags": [
+      "extra_time",
+      "classic"
+    ]
+  },
+  {
+    "id": "man-real-2023",
+    "imageUrl": "/matches/man-real-2023.jpg",
+    "correct": {
+      "teamA": "Manchester City",
+      "teamB": "Real Madrid",
+      "score": "4-0"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2023,
+      "stage": "Semi-final",
+      "difficulty": 2,
+      "tags": [
+        "blowout",
+        "iconic"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Manchester City",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Real Madrid",
+        "type": "CLUB"
+      }
+    },
+    "score": "4-0",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2023,
+      "season": null
+    },
+    "stage": "Semi-final",
+    "difficulty": 2,
+    "tags": [
+      "blowout",
+      "iconic"
+    ]
+  },
+  {
+    "id": "ars-bar-2011",
+    "imageUrl": "/matches/ars-bar-2011.jpg",
+    "correct": {
+      "teamA": "Arsenal",
+      "teamB": "Barcelona",
+      "score": "2-1"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2011,
+      "stage": "Round of 16",
+      "difficulty": 3,
+      "tags": [
+        "upset",
+        "knockout"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Arsenal",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Barcelona",
+        "type": "CLUB"
+      }
+    },
+    "score": "2-1",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2011,
+      "season": null
+    },
+    "stage": "Round of 16",
+    "difficulty": 3,
+    "tags": [
+      "upset",
+      "knockout"
+    ]
+  },
+  {
+    "id": "bar-ars-2006",
+    "imageUrl": "/matches/bar-ars-2006.jpg",
+    "correct": {
+      "teamA": "Barcelona",
+      "teamB": "Arsenal",
+      "score": "2-1"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2006,
+      "stage": "Final",
+      "difficulty": 2,
+      "tags": [
+        "final",
+        "iconic",
+        "comeback"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Barcelona",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Arsenal",
+        "type": "CLUB"
+      }
+    },
+    "score": "2-1",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2006,
+      "season": null
+    },
+    "stage": "Final",
+    "difficulty": 2,
+    "tags": [
+      "final",
+      "iconic",
+      "comeback"
+    ]
+  },
+  {
+    "id": "tot-int-2010",
+    "imageUrl": "/matches/tot-int-2010.jpg",
+    "correct": {
+      "teamA": "Tottenham Hotspur",
+      "teamB": "Inter Milan",
+      "score": "3-1"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2010,
+      "stage": "Group Stage",
+      "difficulty": 2,
+      "tags": [
+        "iconic",
+        "upset",
+        "high_scoring"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Tottenham Hotspur",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Inter Milan",
+        "type": "CLUB"
+      }
+    },
+    "score": "3-1",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2010,
+      "season": null
+    },
+    "stage": "Group Stage",
+    "difficulty": 2,
+    "tags": [
+      "iconic",
+      "upset",
+      "high_scoring"
+    ]
+  },
+  {
+    "id": "juv-real-2018",
+    "imageUrl": "/matches/juv-real-2018.jpg",
+    "correct": {
+      "teamA": "Juventus",
+      "teamB": "Real Madrid",
+      "score": "0-3"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2018,
+      "stage": "Quarter-final",
+      "difficulty": 3,
+      "tags": [
+        "blowout",
+        "knockout"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Juventus",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Real Madrid",
+        "type": "CLUB"
+      }
+    },
+    "score": "0-3",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2018,
+      "season": null
+    },
+    "stage": "Quarter-final",
+    "difficulty": 3,
+    "tags": [
+      "blowout",
+      "knockout"
+    ]
+  },
+  {
+    "id": "liv-roma-2018",
+    "imageUrl": "/matches/liv-roma-2018.jpg",
+    "correct": {
+      "teamA": "Liverpool",
+      "teamB": "Roma",
+      "score": "5-2"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2018,
+      "stage": "Semi-final",
+      "difficulty": 2,
+      "tags": [
+        "high_scoring",
+        "classic"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Liverpool",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Roma",
+        "type": "CLUB"
+      }
+    },
+    "score": "5-2",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2018,
+      "season": null
+    },
+    "stage": "Semi-final",
+    "difficulty": 2,
+    "tags": [
+      "high_scoring",
+      "classic"
+    ]
+  },
+  {
+    "id": "roma-bar-2018",
+    "imageUrl": "/matches/roma-bar-2018.jpg",
+    "correct": {
+      "teamA": "Roma",
+      "teamB": "Barcelona",
+      "score": "3-0"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2018,
+      "stage": "Quarter-final",
+      "difficulty": 2,
+      "tags": [
+        "comeback",
+        "iconic"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Roma",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Barcelona",
+        "type": "CLUB"
+      }
+    },
+    "score": "3-0",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2018,
+      "season": null
+    },
+    "stage": "Quarter-final",
+    "difficulty": 2,
+    "tags": [
+      "comeback",
+      "iconic"
+    ]
+  },
+  {
+    "id": "manu-psg-2019",
+    "imageUrl": "/matches/manu-psg-2019.jpg",
+    "correct": {
+      "teamA": "Manchester United",
+      "teamB": "Paris Saint-Germain",
+      "score": "3-1"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2019,
+      "stage": "Round of 16",
+      "difficulty": 2,
+      "tags": [
+        "upset",
+        "iconic"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Manchester United",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Paris Saint-Germain",
+        "type": "CLUB"
+      }
+    },
+    "score": "3-1",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2019,
+      "season": null
+    },
+    "stage": "Round of 16",
+    "difficulty": 2,
+    "tags": [
+      "upset",
+      "iconic"
+    ]
+  },
+  {
+    "id": "aja-real-2019",
+    "imageUrl": "/matches/aja-real-2019.jpg",
+    "correct": {
+      "teamA": "Ajax",
+      "teamB": "Real Madrid",
+      "score": "4-1"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2019,
+      "stage": "Round of 16",
+      "difficulty": 2,
+      "tags": [
+        "upset",
+        "iconic"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Ajax",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Real Madrid",
+        "type": "CLUB"
+      }
+    },
+    "score": "4-1",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2019,
+      "season": null
+    },
+    "stage": "Round of 16",
+    "difficulty": 2,
+    "tags": [
+      "upset",
+      "iconic"
+    ]
+  },
+  {
+    "id": "liv-atm-2020",
+    "imageUrl": "/matches/liv-atm-2020.jpg",
+    "correct": {
+      "teamA": "Liverpool",
+      "teamB": "Atlético Madrid",
+      "score": "2-3"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2020,
+      "stage": "Round of 16",
+      "difficulty": 3,
+      "tags": [
+        "extra_time",
+        "knockout"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Liverpool",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Atlético Madrid",
+        "type": "CLUB"
+      }
+    },
+    "score": "2-3",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2020,
+      "season": null
+    },
+    "stage": "Round of 16",
+    "difficulty": 3,
+    "tags": [
+      "extra_time",
+      "knockout"
+    ]
+  },
+  {
+    "id": "man-lyo-2020",
+    "imageUrl": "/matches/man-lyo-2020.jpg",
+    "correct": {
+      "teamA": "Manchester City",
+      "teamB": "Lyon",
+      "score": "1-3"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2020,
+      "stage": "Quarter-final",
+      "difficulty": 2,
+      "tags": [
+        "upset",
+        "iconic"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Manchester City",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Lyon",
+        "type": "CLUB"
+      }
+    },
+    "score": "1-3",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2020,
+      "season": null
+    },
+    "stage": "Quarter-final",
+    "difficulty": 2,
+    "tags": [
+      "upset",
+      "iconic"
+    ]
+  },
+  {
+    "id": "mil-tot-2011",
+    "imageUrl": "/matches/mil-tot-2011.jpg",
+    "correct": {
+      "teamA": "AC Milan",
+      "teamB": "Tottenham Hotspur",
+      "score": "0-1"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2011,
+      "stage": "Round of 16",
+      "difficulty": 3,
+      "tags": [
+        "upset",
+        "knockout"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "AC Milan",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Tottenham Hotspur",
+        "type": "CLUB"
+      }
+    },
+    "score": "0-1",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2011,
+      "season": null
+    },
+    "stage": "Round of 16",
+    "difficulty": 3,
+    "tags": [
+      "upset",
+      "knockout"
+    ]
+  },
+  {
+    "id": "por-chel-2021",
+    "imageUrl": "/matches/por-chel-2021.jpg",
+    "correct": {
+      "teamA": "Porto",
+      "teamB": "Chelsea",
+      "score": "0-2"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2021,
+      "stage": "Quarter-final",
+      "difficulty": 4,
+      "tags": [
+        "knockout"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Porto",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Chelsea",
+        "type": "CLUB"
+      }
+    },
+    "score": "0-2",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2021,
+      "season": null
+    },
+    "stage": "Quarter-final",
+    "difficulty": 4,
+    "tags": [
+      "knockout"
+    ]
+  },
+  {
+    "id": "vil-bay-2022",
+    "imageUrl": "/matches/vil-bay-2022.jpg",
+    "correct": {
+      "teamA": "Villarreal",
+      "teamB": "Bayern Munich",
+      "score": "1-0"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2022,
+      "stage": "Quarter-final",
+      "difficulty": 2,
+      "tags": [
+        "upset",
+        "knockout"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Villarreal",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Bayern Munich",
+        "type": "CLUB"
+      }
+    },
+    "score": "1-0",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2022,
+      "season": null
+    },
+    "stage": "Quarter-final",
+    "difficulty": 2,
+    "tags": [
+      "upset",
+      "knockout"
+    ]
+  },
+  {
+    "id": "ben-liv-2022",
+    "imageUrl": "/matches/ben-liv-2022.jpg",
+    "correct": {
+      "teamA": "Benfica",
+      "teamB": "Liverpool",
+      "score": "1-3"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2022,
+      "stage": "Quarter-final",
+      "difficulty": 4,
+      "tags": [
+        "knockout"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Benfica",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Liverpool",
+        "type": "CLUB"
+      }
+    },
+    "score": "1-3",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2022,
+      "season": null
+    },
+    "stage": "Quarter-final",
+    "difficulty": 4,
+    "tags": [
+      "knockout"
+    ]
+  },
+  {
+    "id": "nap-mil-2023",
+    "imageUrl": "/matches/nap-mil-2023.jpg",
+    "correct": {
+      "teamA": "Napoli",
+      "teamB": "AC Milan",
+      "score": "0-1"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2023,
+      "stage": "Quarter-final",
+      "difficulty": 4,
+      "tags": [
+        "knockout",
+        "derby"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Napoli",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "AC Milan",
+        "type": "CLUB"
+      }
+    },
+    "score": "0-1",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2023,
+      "season": null
+    },
+    "stage": "Quarter-final",
+    "difficulty": 4,
+    "tags": [
+      "knockout",
+      "derby"
+    ]
+  },
+  {
+    "id": "psg-dor-2024",
+    "imageUrl": "/matches/psg-dor-2024.jpg",
+    "correct": {
+      "teamA": "Paris Saint-Germain",
+      "teamB": "Borussia Dortmund",
+      "score": "0-1"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2024,
+      "stage": "Semi-final",
+      "difficulty": 3,
+      "tags": [
+        "upset",
+        "knockout"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Paris Saint-Germain",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Borussia Dortmund",
+        "type": "CLUB"
+      }
+    },
+    "score": "0-1",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2024,
+      "season": null
+    },
+    "stage": "Semi-final",
+    "difficulty": 3,
+    "tags": [
+      "upset",
+      "knockout"
+    ]
+  },
+  {
+    "id": "bay-juv-2016",
+    "imageUrl": "/matches/bay-juv-2016.jpg",
+    "correct": {
+      "teamA": "Bayern Munich",
+      "teamB": "Juventus",
+      "score": "4-2"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2016,
+      "stage": "Round of 16",
+      "difficulty": 2,
+      "tags": [
+        "extra_time",
+        "comeback",
+        "classic"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Bayern Munich",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Juventus",
+        "type": "CLUB"
+      }
+    },
+    "score": "4-2",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2016,
+      "season": null
+    },
+    "stage": "Round of 16",
+    "difficulty": 2,
+    "tags": [
+      "extra_time",
+      "comeback",
+      "classic"
+    ]
+  },
+  {
+    "id": "gal-real-2013",
+    "imageUrl": "/matches/gal-real-2013.jpg",
+    "correct": {
+      "teamA": "Galatasaray",
+      "teamB": "Real Madrid",
+      "score": "3-2"
+    },
+    "meta": {
+      "tournament": "UEFA Champions League",
+      "year": 2013,
+      "stage": "Quarter-final",
+      "difficulty": 4,
+      "tags": [
+        "high_scoring",
+        "classic"
+      ],
+      "matchType": "CLUB",
+      "competitionCode": null,
+      "season": null,
+      "leg": null,
+      "venueCity": null,
+      "venueStadium": null
+    },
+    "teams": {
+      "home": {
+        "name": "Galatasaray",
+        "type": "CLUB"
+      },
+      "away": {
+        "name": "Real Madrid",
+        "type": "CLUB"
+      }
+    },
+    "score": "3-2",
+    "competition": {
+      "name": "UEFA Champions League",
+      "code": null,
+      "year": 2013,
+      "season": null
+    },
+    "stage": "Quarter-final",
+    "difficulty": 4,
+    "tags": [
+      "high_scoring",
+      "classic"
+    ]
+  }
+]
