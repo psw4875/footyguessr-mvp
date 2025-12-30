@@ -23,15 +23,23 @@ import {
 import { socket } from "../lib/socket";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/router";
-import Head from "next/head";
 import Image from "next/image";
+import MetaHead from "../components/MetaHead";
 import { scoreAnswer, pickAdaptiveQuestion } from "../engine";
 
 
 
 
 
-const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:4000";
+// ✅ Ensure HTTPS backend URL (production: https://api.footyguessr.io)
+const SERVER_URL = (() => {
+  const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || "https://api.footyguessr.io";
+  // Replace http:// with https:// if running in HTTPS context
+  if (typeof window !== "undefined" && window.location.protocol === "https:" && baseUrl.startsWith("http://")) {
+    return baseUrl.replace(/^http:\/\//, "https://");
+  }
+  return baseUrl;
+})();
 const DEBUG_PVP = String(process.env.NEXT_PUBLIC_DEBUG_PVP || "").toLowerCase() === "1" || String(process.env.NEXT_PUBLIC_DEBUG_PVP || "").toLowerCase() === "true";
 
 export async function getServerSideProps(ctx) {
@@ -666,9 +674,7 @@ function SingleTimeAttack() {
   const percent = Math.round((timeLeftMs / 60000) * 100);
 
   return (
-    <>
-      {metaHead}
-      <Container maxW="container.xl" p={4}>
+    <Container maxW="container.xl" p={4}>
       <Grid
         templateColumns={{ base: "1fr", lg: "3fr 1fr" }}
         gap={{ base: 4, lg: 8 }}
@@ -971,8 +977,7 @@ function SingleTimeAttack() {
         </VStack>
       </Grid>
       </Container>
-    </>
-  );
+    );
 }
 
 /** ================== GamePage: Single + PvP 통합 ================== */
@@ -981,37 +986,26 @@ export default function GamePage({ mode = "", code = "" }) {
   const resolvedMode = (router.query.mode || mode || "pvp").toString();
   const resolvedCode = router.query.code?.toString() || code || "";
 
+  // ✅ Derive OG URLs from current hostname dynamically (works in dev & prod)
+  const getOrigin = () => {
+    if (typeof window === "undefined") return "https://footyguessr.io";
+    return window.location.origin;
+  };
+  const origin = getOrigin();
+
   const isInvite = resolvedMode === "pvp" && Boolean(resolvedCode);
   const ogTitle = isInvite ? `FootyGuessr — Private Match (${resolvedCode})` : "FootyGuessr";
   const ogDescription = isInvite ? `Join my private match. Code: ${resolvedCode}` : "Guess the match in one photo.";
   const ogUrl = isInvite
-    ? `https://footyguessr-mvp.vercel.app/game?mode=pvp&code=${encodeURIComponent(resolvedCode)}`
-    : "https://footyguessr-mvp.vercel.app/game";
-  const ogImage = "https://footyguessr-mvp.vercel.app/og/og-default.png";
-
-  const metaHead = (
-    <Head>
-      <title>{ogTitle}</title>
-      <meta name="description" content={ogDescription} />
-      <meta property="og:type" content="website" />
-      <meta property="og:title" content={ogTitle} />
-      <meta property="og:description" content={ogDescription} />
-      <meta property="og:url" content={ogUrl} />
-      <meta property="og:image" content={ogImage} />
-      <meta property="og:image:width" content="1200" />
-      <meta property="og:image:height" content="630" />
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content={ogTitle} />
-      <meta name="twitter:description" content={ogDescription} />
-      <meta name="twitter:image" content={ogImage} />
-    </Head>
-  );
+    ? `${origin}/game?mode=pvp&code=${encodeURIComponent(resolvedCode)}`
+    : `${origin}/game`;
+  const ogImage = `${origin}/og/og-default.png`;
 
   // Single은 그냥 렌더
   if (resolvedMode === "single")
     return (
       <>
-        {metaHead}
+        <MetaHead title={ogTitle} description={ogDescription} url={ogUrl} image={ogImage} />
         <SingleTimeAttack />
       </>
     );
@@ -1801,7 +1795,7 @@ export default function GamePage({ mode = "", code = "" }) {
   if (!roomId) {
     return (
       <>
-        {metaHead}
+        <MetaHead title={ogTitle} description={ogDescription} url={ogUrl} image={ogImage} />
         <Container maxW="container.lg" p={4}>
           <Button onClick={goToMenu} mb={6} variant="outline">
             ← Menu
@@ -1929,7 +1923,7 @@ export default function GamePage({ mode = "", code = "" }) {
 
     return (
       <>
-        {metaHead}
+        <MetaHead title={ogTitle} description={ogDescription} url={ogUrl} image={ogImage} />
         <Container maxW="container.lg" p={4}>
         <Tooltip label="Finish the match to return to menu" isDisabled={!isMenuDisabled}>
           <Button onClick={goToMenu} mb={6} variant="outline" isDisabled={isMenuDisabled}>
@@ -2040,7 +2034,7 @@ export default function GamePage({ mode = "", code = "" }) {
 
   return (
     <>
-      {metaHead}
+      <MetaHead title={ogTitle} description={ogDescription} url={ogUrl} image={ogImage} />
       <Container maxW="container.xl" p={4}>
       <Grid
         templateColumns={{ base: "1fr", lg: "3fr 1fr" }}

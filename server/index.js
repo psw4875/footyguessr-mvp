@@ -73,7 +73,32 @@ const DEBUG_PVP = (String(process.env.DEBUG_PVP || '').toLowerCase() === '1' || 
 import roomStore from "./lib/roomStore.js";
 
 const app = express();
-app.use(cors({ origin: CLIENT_URL, credentials: true }));
+
+// ✅ Trust proxy for EB/nginx environment
+app.set('trust proxy', true);
+
+// ✅ CORS: Allow production domains + localhost
+const allowedOrigins = [
+  CLIENT_URL,
+  "http://localhost:3000",
+  "https://footyguessr.io",
+  "https://www.footyguessr.io",
+  "https://footyguessr-mvp.vercel.app",
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, Postman, curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
+
 app.use(express.json());
 app.get("/api/questions", (req, res) => {
   // Parse pool filter from query: ?pool=club or ?pool=national (default: all)
@@ -117,7 +142,21 @@ app.get("/api/questions", (req, res) => {
 
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: CLIENT_URL, credentials: true },
+  cors: {
+    origin: (origin, callback) => {
+      // Allow requests with no origin
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(null, false);
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST"],
+  },
+  transports: ["websocket", "polling"],
+  allowEIO3: true, // Backward compatibility
 });
 
 // If REDIS_URL is set, wire the socket.io redis adapter dynamically
@@ -1191,6 +1230,10 @@ socket.on("JOIN_ROOM", ({ code }) => {
   });
 });
 
+app.get('/', (_, res) => {
+  res.status(200).send('FootyGuessr server alive');
+});
+
 app.get('/health', (_, res) => {
   res.json({
     status: 'ok',
@@ -1238,5 +1281,5 @@ async function _shutdown(signal) {
 process.on('SIGTERM', () => _shutdown('SIGTERM'));
 process.on('SIGINT', () => _shutdown('SIGINT'));
 
-server.listen(PORT, () => console.log(`server on http://localhost:${PORT}`));
+server.listen(PORT, '0.0.0.0', () => console.log(`[SERVER] listening on 0.0.0.0:${PORT}`));
 
