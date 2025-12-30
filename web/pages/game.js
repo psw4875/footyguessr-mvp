@@ -25,6 +25,63 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { scoreAnswer, pickAdaptiveQuestion } from "../engine";
+import Head from "next/head";
+
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://footyguessr-mvp.vercel.app";
+
+export async function getServerSideProps(ctx) {
+  const mode = (ctx.query.mode || "").toString();
+  const code = (ctx.query.code || "").toString();
+  return { props: { mode, code } };
+}
+
+export default function GamePage({ mode, code }) {
+  const isInvite = mode === "pvp" && !!code;
+
+  const title = isInvite
+    ? `FootyGuessr — Private Match (${code})`
+    : "FootyGuessr — Play";
+  const desc = isInvite
+    ? `Join my private match. Code: ${code}`
+    : "Guess the match from one photo. Teams + score.";
+
+  const url = `${SITE_URL}/game${
+    isInvite ? `?mode=pvp&code=${encodeURIComponent(code)}` : ""
+  }`;
+
+  const image = isInvite
+    ? `${SITE_URL}/og/og-invite.png`
+    : `${SITE_URL}/og/og-default.png`;
+
+  return (
+    <>
+      <Head>
+        <title>{title}</title>
+        <meta name="description" content={desc} />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={desc} />
+        <meta property="og:url" content={url} />
+        <meta property="og:image" content={image} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={desc} />
+        <meta name="twitter:image" content={image} />
+      </Head>
+
+      {/* 아래는 기존 게임 UI 그대로 */}
+      {/* ... */}
+    </>
+  );
+}
+
+
+
 
 const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:4000";
 const DEBUG_PVP = String(process.env.NEXT_PUBLIC_DEBUG_PVP || "").toLowerCase() === "1" || String(process.env.NEXT_PUBLIC_DEBUG_PVP || "").toLowerCase() === "true";
