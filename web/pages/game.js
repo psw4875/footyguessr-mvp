@@ -23,68 +23,22 @@ import {
 import { socket } from "../lib/socket";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/router";
+import Head from "next/head";
 import Image from "next/image";
 import { scoreAnswer, pickAdaptiveQuestion } from "../engine";
-import Head from "next/head";
 
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://footyguessr-mvp.vercel.app";
-
-export async function getServerSideProps(ctx) {
-  const mode = (ctx.query.mode || "").toString();
-  const code = (ctx.query.code || "").toString();
-  return { props: { mode, code } };
-}
-
-export default function GamePage({ mode, code }) {
-  const isInvite = mode === "pvp" && !!code;
-
-  const title = isInvite
-    ? `FootyGuessr — Private Match (${code})`
-    : "FootyGuessr — Play";
-  const desc = isInvite
-    ? `Join my private match. Code: ${code}`
-    : "Guess the match from one photo. Teams + score.";
-
-  const url = `${SITE_URL}/game${
-    isInvite ? `?mode=pvp&code=${encodeURIComponent(code)}` : ""
-  }`;
-
-  const image = isInvite
-    ? `${SITE_URL}/og/og-invite.png`
-    : `${SITE_URL}/og/og-default.png`;
-
-  return (
-    <>
-      <Head>
-        <title>{title}</title>
-        <meta name="description" content={desc} />
-
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content={title} />
-        <meta property="og:description" content={desc} />
-        <meta property="og:url" content={url} />
-        <meta property="og:image" content={image} />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={title} />
-        <meta name="twitter:description" content={desc} />
-        <meta name="twitter:image" content={image} />
-      </Head>
-
-      {/* 아래는 기존 게임 UI 그대로 */}
-      {/* ... */}
-    </>
-  );
-}
 
 
 
 
 const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:4000";
 const DEBUG_PVP = String(process.env.NEXT_PUBLIC_DEBUG_PVP || "").toLowerCase() === "1" || String(process.env.NEXT_PUBLIC_DEBUG_PVP || "").toLowerCase() === "true";
+
+export async function getServerSideProps(ctx) {
+  const mode = typeof ctx?.query?.mode === "string" ? ctx.query.mode : "";
+  const code = typeof ctx?.query?.code === "string" ? ctx.query.code : "";
+  return { props: { mode, code } };
+}
 
 function msLeft(startedAt, durationMs) {
   const now = Date.now();
@@ -712,7 +666,9 @@ function SingleTimeAttack() {
   const percent = Math.round((timeLeftMs / 60000) * 100);
 
   return (
-    <Container maxW="container.xl" p={4}>
+    <>
+      {metaHead}
+      <Container maxW="container.xl" p={4}>
       <Grid
         templateColumns={{ base: "1fr", lg: "3fr 1fr" }}
         gap={{ base: 4, lg: 8 }}
@@ -1014,21 +970,55 @@ function SingleTimeAttack() {
           )}
         </VStack>
       </Grid>
-    </Container>
+      </Container>
+    </>
   );
 }
 
 /** ================== GamePage: Single + PvP 통합 ================== */
-export default function GamePage() {
+export default function GamePage({ mode = "", code = "" }) {
   const router = useRouter();
-  const mode = (router.query.mode || "pvp").toString();
+  const resolvedMode = (router.query.mode || mode || "pvp").toString();
+  const resolvedCode = router.query.code?.toString() || code || "";
+
+  const isInvite = resolvedMode === "pvp" && Boolean(resolvedCode);
+  const ogTitle = isInvite ? `FootyGuessr — Private Match (${resolvedCode})` : "FootyGuessr";
+  const ogDescription = isInvite ? `Join my private match. Code: ${resolvedCode}` : "Guess the match in one photo.";
+  const ogUrl = isInvite
+    ? `https://footyguessr-mvp.vercel.app/game?mode=pvp&code=${encodeURIComponent(resolvedCode)}`
+    : "https://footyguessr-mvp.vercel.app/game";
+  const ogImage = "https://footyguessr-mvp.vercel.app/og/og-default.png";
+
+  const metaHead = (
+    <Head>
+      <title>{ogTitle}</title>
+      <meta name="description" content={ogDescription} />
+      <meta property="og:type" content="website" />
+      <meta property="og:title" content={ogTitle} />
+      <meta property="og:description" content={ogDescription} />
+      <meta property="og:url" content={ogUrl} />
+      <meta property="og:image" content={ogImage} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={ogTitle} />
+      <meta name="twitter:description" content={ogDescription} />
+      <meta name="twitter:image" content={ogImage} />
+    </Head>
+  );
 
   // Single은 그냥 렌더
-  if (mode === "single") return <SingleTimeAttack />;
+  if (resolvedMode === "single")
+    return (
+      <>
+        {metaHead}
+        <SingleTimeAttack />
+      </>
+    );
 
   // PvP
   const roomId = router.query.roomId?.toString() || null;
-  const urlCode = router.query.code?.toString() || "";
+  const urlCode = resolvedCode;
 
   // 로비 입력
   const [name, setName] = useState("");
@@ -1736,7 +1726,7 @@ export default function GamePage() {
       return;
     }
     // 조건: PvP + IN_ROUND + round 존재 + canAnswer=false (즉, startedAt이 미래)
-    const isInCountdown = mode === "pvp" && phase === "IN_ROUND" && round && Date.now() < (round.startedAt ?? 0);
+    const isInCountdown = resolvedMode === "pvp" && phase === "IN_ROUND" && round && Date.now() < (round.startedAt ?? 0);
     
     if (!isInCountdown) {
       setShowPvpCountdownHint(false);
@@ -1759,7 +1749,7 @@ export default function GamePage() {
       if (DEBUG_PVP) console.log("[PVP_COUNTDOWN_HINT] Storage error, showing anyway");
       setShowPvpCountdownHint(true);
     }
-  }, [mode, phase, round?.roundId, round?.startedAt]);
+  }, [resolvedMode, phase, round?.roundId, round?.startedAt]);
 
   // 타이머
   useEffect(() => {
@@ -1810,52 +1800,54 @@ export default function GamePage() {
   // ✅ roomId 없으면 = 로비
   if (!roomId) {
     return (
-      <Container maxW="container.lg" p={4}>
-        <Button onClick={goToMenu} mb={6} variant="outline">
-          ← Menu
-        </Button>
+      <>
+        {metaHead}
+        <Container maxW="container.lg" p={4}>
+          <Button onClick={goToMenu} mb={6} variant="outline">
+            ← Menu
+          </Button>
 
-        <VStack spacing={8} align="stretch">
-          <Box textAlign="center">
-            <Heading as="h1" size="xl">
-              PVP Lobby
-            </Heading>
-          </Box>
+          <VStack spacing={8} align="stretch">
+            <Box textAlign="center">
+              <Heading as="h1" size="xl">
+                PVP Lobby
+              </Heading>
+            </Box>
 
-          <Box p={6} borderWidth="1px" borderRadius="lg" boxShadow="base">
-            <FormControl isRequired isInvalid={nameTouched && !String(name || "").trim()}>
-              <FormLabel htmlFor="nickname">Nickname</FormLabel>
-              <Input
-                id="nickname"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                onBlur={() => setNameTouched(true)}
-                placeholder="Your name"
-                size="lg"
-              />
-              <FormHelperText>
-                Shown to opponent.
-              </FormHelperText>
-              <FormErrorMessage>Enter a nickname to play.</FormErrorMessage>
-            </FormControl>
-          </Box>
-
-          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10}>
             <Box p={6} borderWidth="1px" borderRadius="lg" boxShadow="base">
-              <VStack spacing={4} align="stretch">
-                <Heading as="h3" size="lg">
-                  Matchmaking
-                </Heading>
-                <Text>Play against a random opponent instantly.</Text>
-                <HStack>
-                  <Text fontSize="sm" color="gray.600">Mode</Text>
-                  <Select size="sm" maxW="220px" value={quickMode} onChange={(e) => setQuickMode(e.target.value)} isDisabled={isSearchingQuickMatch}>
-                    <option value="ALL">ALL</option>
-                    <option value="INTERNATIONAL">INTERNATIONAL</option>
-                    <option value="CLUB">CLUB</option>
-                  </Select>
-                </HStack>
-                {isSearchingQuickMatch ? (
+              <FormControl isRequired isInvalid={nameTouched && !String(name || "").trim()}>
+                <FormLabel htmlFor="nickname">Nickname</FormLabel>
+                <Input
+                  id="nickname"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  onBlur={() => setNameTouched(true)}
+                  placeholder="Your name"
+                  size="lg"
+                />
+                <FormHelperText>
+                  Shown to opponent.
+                </FormHelperText>
+                <FormErrorMessage>Enter a nickname to play.</FormErrorMessage>
+              </FormControl>
+            </Box>
+
+            <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10}>
+              <Box p={6} borderWidth="1px" borderRadius="lg" boxShadow="base">
+                <VStack spacing={4} align="stretch">
+                  <Heading as="h3" size="lg">
+                    Matchmaking
+                  </Heading>
+                  <Text>Play against a random opponent instantly.</Text>
+                  <HStack>
+                    <Text fontSize="sm" color="gray.600">Mode</Text>
+                    <Select size="sm" maxW="220px" value={quickMode} onChange={(e) => setQuickMode(e.target.value)} isDisabled={isSearchingQuickMatch}>
+                      <option value="ALL">ALL</option>
+                      <option value="INTERNATIONAL">INTERNATIONAL</option>
+                      <option value="CLUB">CLUB</option>
+                    </Select>
+                  </HStack>
+                  {isSearchingQuickMatch ? (
                   <VStack align="stretch" spacing={3}>
                     <Box p={4} borderWidth="1px" borderRadius="md" textAlign="center" bg="blue.50">
                       <Spinner />
@@ -1907,6 +1899,7 @@ export default function GamePage() {
           </SimpleGrid>
         </VStack>
       </Container>
+      </>
     );
   }
 
@@ -1935,7 +1928,9 @@ export default function GamePage() {
     }
 
     return (
-      <Container maxW="container.lg" p={4}>
+      <>
+        {metaHead}
+        <Container maxW="container.lg" p={4}>
         <Tooltip label="Finish the match to return to menu" isDisabled={!isMenuDisabled}>
           <Button onClick={goToMenu} mb={6} variant="outline" isDisabled={isMenuDisabled}>
             ← Menu
@@ -2039,11 +2034,14 @@ export default function GamePage() {
           </Box>
         </VStack>
       </Container>
+      </>
     );
   }
 
   return (
-    <Container maxW="container.xl" p={4}>
+    <>
+      {metaHead}
+      <Container maxW="container.xl" p={4}>
       <Grid
         templateColumns={{ base: "1fr", lg: "3fr 1fr" }}
         gap={{ base: 4, lg: 8 }}
@@ -2332,6 +2330,7 @@ export default function GamePage() {
           </Box>
         </VStack>
       </Grid>
-    </Container>
+      </Container>
+    </>
   );
 }
