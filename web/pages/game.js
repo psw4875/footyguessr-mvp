@@ -27,6 +27,9 @@ import Image from "next/image";
 import MetaHead from "../components/MetaHead";
 import { scoreAnswer, pickAdaptiveQuestion } from "../engine";
 
+// ✅ Simple 1x1 gray blur placeholder (base64)
+const BLUR_PLACEHOLDER = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8VAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=";
+
 
 
 
@@ -214,6 +217,18 @@ function SingleTimeAttack() {
   const under20SoundPlayedRef = useRef(false);
 
   const imageSrc = useMemo(() => current?.imageUrl || "", [current]);
+
+  // \u2705 Preload next image to improve perceived performance
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!imageSrc) return;
+    const preloader = new window.Image();
+    preloader.src = imageSrc;
+    // Clean up reference
+    return () => {
+      preloader.src = "";
+    };
+  }, [imageSrc]);
 
   const [dailyMode, setDailyMode] = useState(false);
   const [dailyDeck, setDailyDeck] = useState([]);
@@ -808,8 +823,18 @@ function SingleTimeAttack() {
                 overflow="hidden"
                 boxShadow="lg"
               >
-                <Box pos="absolute" top="0" left="0" right="0" bottom="0">
-                  <Image src={imageSrc} alt="match" fill style={{ objectFit: "contain" }} priority />
+                <Box pos="absolute" top="0" left="0" right="0" bottom="0" style={{ aspectRatio: "16/9" }}>
+                  <Image
+                    src={imageSrc}
+                    alt="match"
+                    fill
+                    style={{ objectFit: "contain" }}
+                    sizes="(max-width: 768px) 100vw, 900px"
+                    quality={75}
+                    priority={false}
+                    placeholder="blur"
+                    blurDataURL={BLUR_PLACEHOLDER}
+                  />
                 </Box>
               </Box>
 
@@ -1753,6 +1778,17 @@ export default function GamePage({ mode = "", code = "" }) {
     }
   }, [resolvedMode, phase, round?.roundId, round?.startedAt]);
 
+  // \u2705 Preload current round image for better perceived performance (PvP)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!round?.imageUrl) return;
+    const preloader = new window.Image();
+    preloader.src = round.imageUrl;
+    return () => {
+      preloader.src = "";
+    };
+  }, [round?.imageUrl]);
+
   // 타이머
   useEffect(() => {
     // Leak guard: stop timer after forfeit/abandon
@@ -2186,15 +2222,19 @@ export default function GamePage({ mode = "", code = "" }) {
                 opacity={canAnswer ? 1 : 0.4}
                 transition="all 300ms ease-in-out"
               >
-                <Box pos="absolute" top="0" left="0" right="0" bottom="0">
-                    <Image
-                      src={round.imageUrl}
-                      alt="match"
-                      fill
-                      style={{ objectFit: "contain" }}
-                      priority
-                    />
-                  </Box>
+                <Box pos="absolute" top="0" left="0" right="0" bottom="0" style={{ aspectRatio: "16/9" }}>
+                  <Image
+                    src={round.imageUrl}
+                    alt="match"
+                    fill
+                    style={{ objectFit: "contain" }}
+                    sizes="(max-width: 768px) 100vw, 900px"
+                    quality={75}
+                    priority={currentRound === 1}
+                    placeholder="blur"
+                    blurDataURL={BLUR_PLACEHOLDER}
+                  />
+                </Box>
               </Box>
 
               <SimpleGrid
