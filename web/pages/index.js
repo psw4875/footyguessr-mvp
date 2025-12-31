@@ -59,24 +59,34 @@ export default function Home() {
   return (
     <Container maxW="container.md" p={4}>
       <VStack spacing={6} align="stretch">
-        <Box textAlign="center" mt={8}>
+        {/* SEO Hero Section */}
+        <Box textAlign="center" mt={8} mb={4}>
           <Heading as="h1" size="2xl" mb={3}>
-            ⚽ FootyGuessr
+            FootyGuessr – Football Guessing Game
           </Heading>
-          <Text fontSize="lg" color="gray.800" fontWeight="600">
-            Guess the match in one photo.
+          <Text fontSize="md" color="gray.700" mb={4}>
+            FootyGuessr is a football guessing game where you guess legendary matches, World Cups, and iconic football moments.
           </Text>
         </Box>
 
         <Box p={6} borderWidth="1px" borderRadius="lg" boxShadow="md" bg="blue.50">
-          <Heading as="h2" size="md" mb={1}>
+          <Heading as="h2" size="md" mb={3}>
             How to Play
           </Heading>
           <VStack align="start" spacing={2}>
-            <Text fontSize="sm">• Name both teams you see</Text>
-            <Text fontSize="sm">• Add score for bonus points</Text>
-            <Text fontSize="sm">• 60 seconds—solve as many as you can</Text>
+            <Text fontSize="sm">• Look at the match image</Text>
+            <Text fontSize="sm">• Guess the teams, score, and tournament</Text>
+            <Text fontSize="sm">• Get scored and compete</Text>
           </VStack>
+        </Box>
+
+        <Box textAlign="center">
+          <Heading as="h2" size="md" mb={2}>
+            Play Now
+          </Heading>
+          <Text fontSize="sm" color="gray.600">
+            Test your football knowledge instantly.
+          </Text>
         </Box>
 
         {/* Daily Challenge: Primary CTA */}
