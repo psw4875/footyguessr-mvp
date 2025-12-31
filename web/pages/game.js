@@ -1142,6 +1142,25 @@ export default function GamePage({ mode = "", code = "" }) {
     };
   }, []);
 
+  // ✅ Reset answer inputs whenever round changes (including after resume)
+  useEffect(() => {
+    if (!round) return;
+    // Use roundId as the stable key to detect round changes
+    const roundKey = round.roundId || round.imageUrl || "";
+    if (!roundKey) return;
+
+    // Clear all input fields for the new round
+    setTeamA("");
+    setTeamB("");
+    setScoreA("");
+    setScoreB("");
+    setSubmitted(false);
+
+    if (DEBUG_PVP) {
+      console.log("[ROUND_CHANGE] Reset input fields", { roundKey });
+    }
+  }, [round?.roundId, round?.imageUrl]);
+
   // Socket connection health monitoring (debug mode only)
   useEffect(() => {
     if (!debugMode) return;
