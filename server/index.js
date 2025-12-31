@@ -193,7 +193,7 @@ const rooms = roomStore; // keep Map-like API for existing code
 const roomsByCode = new Map(); // code -> roomId
 const socketRoom = new Map(); // socketId -> roomId for quick cleanup
 const quitStats = new Map(); // key -> { quitTimestamps: number[], quitCountTotal: number, cooldownUntil: number }
-const GRACE_MS = 10_000; // disconnect grace period for in-game
+const GRACE_MS = 45_000; // disconnect grace period for in-game (45s for mobile)
 
 function removeFromQueue(queue, socketId) {
   const idx = queue.indexOf(socketId);
@@ -640,12 +640,15 @@ function handleLeaveOrDisconnect(socket, opts = {}) {
         }, GRACE_MS),
       };
       player.disconnected = true;
+      player.disconnectedAt = Date.now();
       trackSocketRoom(socket.id, null);
       const remaining = room.players.find((p) => p.socketId !== socket.id);
       if (remaining) {
-        io.to(remaining.socketId).emit("pvp:opponent_disconnected", {
+        io.to(remaining.socketId).emit("pvp:player_disconnected", {
           roomId: rid,
+          playerName: player.name,
           deadlineSeconds: Math.ceil(GRACE_MS / 1000),
+          message: "Opponent disconnected. They have 45 seconds to reconnect.",
         });
       }
       if (DEBUG_PVP) {
@@ -878,8 +881,8 @@ function createMatch(sock1, sock2, mode, queueLabel) {
     status: "MATCHED",
     phase: "READY",
     players: [
-      { socketId: sock1.id, name: sock1.data.name || "P1", points: 0, playerToken: getPlayerKey(sock1) },
-      { socketId: sock2.id, name: sock2.data.name || "P2", points: 0, playerToken: getPlayerKey(sock2) },
+      { socketId: sock1.id, name: sock1.data.name || "P1", points: 0, playerToken: getPlayerKey(sock1), playerId: sock1.data.playerId || uuidv4() },
+      { socketId: sock2.id, name: sock2.data.name || "P2", points: 0, playerToken: getPlayerKey(sock2), playerId: sock2.data.playerId || uuidv4() },
     ],
     questionDeck: [],
     round: null,
@@ -928,10 +931,11 @@ io.on("connection", (socket) => {
   socket.on("GET_META", () => {
     socket.emit("META", { teams: TEAM_OPTIONS });
 });
-  socket.on("HELLO", ({ name, token }) => {
+  socket.on("HELLO", ({ name, token, playerId }) => {
     socket.data.name = String(name || "Player").slice(0, 20);
     socket.data.playerToken = token || socket.data.playerToken || uuidv4();
-    socket.emit("HELLO_ACK", { socketId: socket.id, name: socket.data.name, token: socket.data.playerToken });
+    socket.data.playerId = playerId || socket.data.playerId || uuidv4();
+    socket.emit("HELLO_ACK", { socketId: socket.id, name: socket.data.name, token: socket.data.playerToken, playerId: socket.data.playerId });
 
     // ✅ Check if this is a host reconnecting to a PRIVATE room in grace period
     for (const [roomId, room] of rooms) {
@@ -1012,6 +1016,90 @@ socket.on("pvp:rejoin", ({ roomId, token }) => {
   emitRoomState(roomId);
 });
 
+// RESUME: Mobile reconnection with grace period
+socket.on("RESUME", ({ roomId, playerId, playerToken }) => {
+  if (DEBUG_PVP) {
+    console.log("[RESUME] attempt", { roomId, playerId, playerToken, socketId: socket.id });
+  }
+
+  const room = rooms.get(roomId);
+  if (!room) {
+    socket.emit("RESUME_FAILED", { reason: "ROOM_NOT_FOUND" });
+    return;
+  }
+
+  // Find player by playerId or playerToken
+  const pId = playerId || socket.data.playerId;
+  const pToken = playerToken || socket.data.playerToken;
+  const idx = room.players.findIndex(
+    (p) => (pId && p.playerId === pId) || (pToken && p.playerToken === pToken)
+  );
+
+  if (idx === -1) {
+    socket.emit("RESUME_FAILED", { reason: "PLAYER_NOT_IN_ROOM" });
+    return;
+  }
+
+  const player = room.players[idx];
+  const oldSocketId = player.socketId;
+
+  // Check if within grace period
+  if (room.pendingForfeit && room.pendingForfeit.playerToken === player.playerToken) {
+    const remaining = room.pendingForfeit.deadline - Date.now();
+    if (remaining > 0) {
+      // Within grace period - restore player
+      clearTimeout(room.pendingForfeit.timer);
+      room.pendingForfeit = null;
+      player.socketId = socket.id;
+      player.disconnected = false;
+      socket.data.playerId = player.playerId;
+      socket.data.playerToken = player.playerToken;
+      socket.join(roomId);
+      trackSocketRoom(socket.id, roomId);
+
+      // Notify other players
+      socket.to(roomId).emit("pvp:player_reconnected", {
+        roomId,
+        playerName: player.name,
+      });
+
+      if (DEBUG_PVP) {
+        console.log("[RESUME] success - within grace period", {
+          roomId,
+          playerId: player.playerId,
+          remainingGraceMs: remaining,
+        });
+      }
+
+      // Send room snapshot to reconnected player
+      socket.emit("ROOM_SNAPSHOT", {
+        roomId,
+        phase: room.phase,
+        status: room.status,
+        currentRound: room.currentRound,
+        maxRounds: room.maxRounds,
+        round: room.round,
+        players: room.players.map((p) => ({
+          socketId: p.socketId,
+          name: p.name,
+          points: p.points,
+          disconnected: p.disconnected || false,
+        })),
+        answers: room.round?.answers || {},
+      });
+
+      emitRoomState(roomId);
+      return;
+    }
+  }
+
+  // Grace period expired or player was not disconnected
+  socket.emit("RESUME_FAILED", { reason: "GRACE_PERIOD_EXPIRED" });
+  if (DEBUG_PVP) {
+    console.log("[RESUME] failed - grace period expired", { roomId, playerId: player.playerId });
+  }
+});
+
 socket.on("CREATE_ROOM", ({ mode } = {}) => {
   let code = makeRoomCode();
   while (roomsByCode.has(code)) code = makeRoomCode();
@@ -1025,7 +1113,7 @@ socket.on("CREATE_ROOM", ({ mode } = {}) => {
     code,
     status: "WAITING",
     phase: "WAITING",
-    players: [{ socketId: socket.id, name: socket.data.name || "P1", points: 0, playerToken: getPlayerKey(socket) }],
+    players: [{ socketId: socket.id, name: socket.data.name || "P1", points: 0, playerToken: getPlayerKey(socket), playerId: socket.data.playerId || uuidv4() }],
     questionDeck: [],
     round: null,
     roundTimer: null,
@@ -1172,7 +1260,7 @@ socket.on("JOIN_ROOM", ({ code }, ack) => {
   }
 
   // Success: add player to room
-  room.players.push({ socketId: socket.id, name: socket.data.name || "P2", points: 0, playerToken: getPlayerKey(socket) });
+  room.players.push({ socketId: socket.id, name: socket.data.name || "P2", points: 0, playerToken: getPlayerKey(socket), playerId: socket.data.playerId || uuidv4() });
   room.status = "MATCHED";
   room.phase = "READY";
   room.hadTwoPlayers = true;

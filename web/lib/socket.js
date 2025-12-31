@@ -53,6 +53,18 @@ export const socket = io(socketUrl, {
 
 // Socket.io event logging
 if (typeof window !== "undefined") {
+  // Send HELLO handshake with playerId on connect
+  socket.on("connect", () => {
+    try {
+      const playerId = localStorage.getItem("fta_playerId");
+      if (playerId) {
+        socket.emit("HELLO", { playerId });
+      }
+    } catch (e) {
+      console.warn("[SOCKET] localStorage unavailable for playerId", e);
+    }
+  });
+
   // Development logging
   if (process.env.NODE_ENV !== "production") {
     socket.on("connect", () => {

@@ -1104,6 +1104,25 @@ export default function GamePage({ mode = "", code = "" }) {
   const youWinSoundPlayedRef = useRef(false);
   const pvpStartSoundPlayedRef = useRef(false);
 
+  // Reconnection state
+  const [reconnectionStatus, setReconnectionStatus] = useState(null); // null | "reconnecting" | "reconnected"
+  const [playerId, setPlayerId] = useState(null);
+
+  // Initialize or retrieve persistent playerId
+  useEffect(() => {
+    try {
+      let pId = localStorage.getItem("fta_playerId");
+      if (!pId) {
+        pId = `player_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        localStorage.setItem("fta_playerId", pId);
+      }
+      setPlayerId(pId);
+    } catch (e) {
+      console.warn("[PLAYER_ID] localStorage unavailable", e);
+      setPlayerId(`player_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
+    }
+  }, []);
+
   // 메인에서 name 넘겨준 거 받기 + 링크 code 자동 세팅
  
   useEffect(() => {
@@ -1182,10 +1201,21 @@ export default function GamePage({ mode = "", code = "" }) {
           console.info("[VISIBILITY] page visible, reconnecting if needed");
         }
         if (!socket.connected) {
+          setReconnectionStatus("reconnecting");
           socket.connect();
+          // Wait for connection before resuming
+          socket.once("connect", () => {
+            if (playerId && roomId) {
+              socket.emit("RESUME", { roomId, playerId });
+            }
+          });
+        } else {
+          // Already connected, just resume
+          if (playerId && roomId) {
+            setReconnectionStatus("reconnecting");
+            socket.emit("RESUME", { roomId, playerId });
+          }
         }
-        // Rejoin room to sync state
-        socket.emit("GET_ROOM_STATE", { roomId });
       }
     };
 
@@ -1194,9 +1224,17 @@ export default function GamePage({ mode = "", code = "" }) {
         console.info("[FOCUS] window focused");
       }
       if (!socket.connected) {
+        setReconnectionStatus("reconnecting");
         socket.connect();
+        socket.once("connect", () => {
+          if (playerId && roomId) {
+            socket.emit("RESUME", { roomId, playerId });
+          }
+        });
+      } else if (playerId && roomId) {
+        // Connected, attempt resume
+        socket.emit("RESUME", { roomId, playerId });
       }
-      socket.emit("GET_ROOM_STATE", { roomId });
     };
 
     const handlePageShow = (e) => {
@@ -1206,9 +1244,16 @@ export default function GamePage({ mode = "", code = "" }) {
           console.info("[PAGESHOW] bfcache restored");
         }
         if (!socket.connected) {
+          setReconnectionStatus("reconnecting");
           socket.connect();
+          socket.once("connect", () => {
+            if (playerId && roomId) {
+              socket.emit("RESUME", { roomId, playerId });
+            }
+          });
+        } else if (playerId && roomId) {
+          socket.emit("RESUME", { roomId, playerId });
         }
-        socket.emit("GET_ROOM_STATE", { roomId });
       }
     };
 
@@ -1221,7 +1266,7 @@ export default function GamePage({ mode = "", code = "" }) {
       window.removeEventListener("focus", handleFocus);
       window.removeEventListener("pageshow", handlePageShow);
     };
-  }, [roomId]);
+  }, [roomId, playerId]);
 
   const toast = useToast();
 
@@ -1663,6 +1708,82 @@ export default function GamePage({ mode = "", code = "" }) {
     socket.on("pvp:finished", onFinished);
     socket.on("pvp:rematch_started", onRematchStarted);
 
+    // Reconnection event handlers
+    const onPlayerDisconnected = ({ playerName, deadlineSeconds, message }) => {
+      toast({
+        title: "Opponent Disconnected",
+        description: message || `${playerName} disconnected. They have ${deadlineSeconds}s to reconnect.`,
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+      });
+    };
+
+    const onPlayerReconnected = ({ playerName }) => {
+      toast({
+        title: "Opponent Reconnected",
+        description: `${playerName} has rejoined the match.`,
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    };
+
+    const onRoomSnapshot = ({ roomId: snapshotRoomId, phase: snapshotPhase, status: snapshotStatus, currentRound: snapshotCurrentRound, maxRounds: snapshotMaxRounds, round: snapshotRound, players: snapshotPlayers }) => {
+      if (debugMode) {
+        console.log("[RESUME] ROOM_SNAPSHOT received", { snapshotRoomId, snapshotPhase, snapshotStatus, snapshotCurrentRound, snapshotRound });
+      }
+      // Restore state from snapshot
+      if (snapshotPhase) setPhase(snapshotPhase);
+      if (snapshotCurrentRound != null) setCurrentRound(snapshotCurrentRound);
+      if (snapshotMaxRounds != null) setMaxRounds(snapshotMaxRounds);
+      if (snapshotRound) setRound(snapshotRound);
+      if (snapshotPlayers) setPlayers(snapshotPlayers);
+      
+      setReconnectionStatus("reconnected");
+      setTimeout(() => setReconnectionStatus(null), 2000);
+      
+      toast({
+        title: "Reconnected",
+        description: "Successfully rejoined the match.",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+      });
+    };
+
+    const onResumeFailed = ({ reason }) => {
+      if (debugMode) {
+        console.log("[RESUME] RESUME_FAILED", { reason });
+      }
+      setReconnectionStatus(null);
+      
+      if (reason === "GRACE_PERIOD_EXPIRED") {
+        toast({
+          title: "Match Ended",
+          description: "You were disconnected too long. The match has ended.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+        // Return to lobby
+        router.replace("/");
+      } else {
+        toast({
+          title: "Reconnection Failed",
+          description: "Could not rejoin the match.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    };
+
+    socket.on("pvp:player_disconnected", onPlayerDisconnected);
+    socket.on("pvp:player_reconnected", onPlayerReconnected);
+    socket.on("ROOM_SNAPSHOT", onRoomSnapshot);
+    socket.on("RESUME_FAILED", onResumeFailed);
+
     return () => {
       socket.off("ROOM_CREATED", onRoomCreated);
       socket.off("ROOM_JOINED", onRoomJoined);
@@ -1672,8 +1793,12 @@ export default function GamePage({ mode = "", code = "" }) {
       socket.off("pvp:opponent_left", onOpponentLeft);
       socket.off("pvp:finished", onFinished);
       socket.off("pvp:rematch_started", onRematchStarted);
+      socket.off("pvp:player_disconnected", onPlayerDisconnected);
+      socket.off("pvp:player_reconnected", onPlayerReconnected);
+      socket.off("ROOM_SNAPSHOT", onRoomSnapshot);
+      socket.off("RESUME_FAILED", onResumeFailed);
     };
-  }, [router, handleOpponentLeft, toast]);
+  }, [router, handleOpponentLeft, toast, debugMode]);
 
   // in-room 이벤트들 (roomId 있을 때만)
   useEffect(() => {
@@ -2300,6 +2425,20 @@ export default function GamePage({ mode = "", code = "" }) {
     <>
       <MetaHead title={ogTitle} description={ogDescription} url={ogUrl} image={ogImage} />
       <Container maxW="container.xl" p={4}>
+      
+      {/* Reconnection Status Banner */}
+      {reconnectionStatus === "reconnecting" && (
+        <Alert status="info" mb={4} borderRadius="md">
+          <Spinner size="sm" mr={2} />
+          <Text>Reconnecting to match...</Text>
+        </Alert>
+      )}
+      {reconnectionStatus === "reconnected" && (
+        <Alert status="success" mb={4} borderRadius="md">
+          <Text>✓ Reconnected successfully</Text>
+        </Alert>
+      )}
+
       <Grid
         templateColumns={{ base: "1fr", lg: "3fr 1fr" }}
         gap={{ base: 4, lg: 8 }}
