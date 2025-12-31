@@ -66,37 +66,16 @@ export default function Home() {
       />
       <Container maxW="container.md" p={4}>
         <VStack spacing={6} align="stretch">
-          {/* SEO Hero Section */}
-          <Box textAlign="center" mt={8} mb={4}>
+          <Box textAlign="center" mt={8}>
             <Heading as="h1" size="2xl" mb={3}>
-            FootyGuessr – Football Guessing Game
-          </Heading>
-          <Text fontSize="md" color="gray.700" mb={4}>
-            FootyGuessr is a football guessing game where you guess legendary matches, World Cups, and iconic football moments.
-          </Text>
-        </Box>
+              ⚽ FootyGuessr
+            </Heading>
+            <Text fontSize="lg" color="gray.800" fontWeight="600">
+              Guess the match in one photo.
+            </Text>
+          </Box>
 
-        <Box p={6} borderWidth="1px" borderRadius="lg" boxShadow="md" bg="blue.50">
-          <Heading as="h2" size="md" mb={3}>
-            How to Play
-          </Heading>
-          <VStack align="start" spacing={2}>
-            <Text fontSize="sm">• Look at the match image</Text>
-            <Text fontSize="sm">• Guess the teams, score, and tournament</Text>
-            <Text fontSize="sm">• Get scored and compete</Text>
-          </VStack>
-        </Box>
-
-        <Box textAlign="center">
-          <Heading as="h2" size="md" mb={2}>
-            Play Now
-          </Heading>
-          <Text fontSize="sm" color="gray.600">
-            Test your football knowledge instantly.
-          </Text>
-        </Box>
-
-        {/* Daily Challenge: Primary CTA */}
+          {/* Daily Challenge: Primary CTA */}
         <Box p={5} borderWidth="2px" borderRadius="lg" bg={dailyStatus.played ? 'gray.50' : 'orange.50'} borderColor={dailyStatus.played ? 'gray.300' : 'orange.400'} boxShadow="md">
           <VStack spacing={3} align="stretch">
             <Heading size="lg" mb={0}>🔥 Daily Challenge</Heading>
