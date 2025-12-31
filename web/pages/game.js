@@ -1018,6 +1018,9 @@ export default function GamePage({ mode = "", code = "" }) {
   const router = useRouter();
   const resolvedMode = (router.query.mode || mode || "pvp").toString();
   const resolvedCode = router.query.code?.toString() || code || "";
+  
+  // Debug mode: enabled via ?debug=1
+  const debugMode = router.query.debug === "1";
 
   // ✅ Derive OG URLs from current hostname dynamically (works in dev & prod)
   const getOrigin = () => {
@@ -1123,6 +1126,46 @@ export default function GamePage({ mode = "", code = "" }) {
       socket.off("connect", req);
     };
   }, []);
+
+  // Socket connection health monitoring (debug mode only)
+  useEffect(() => {
+    if (!debugMode) return;
+
+    const logSocketEvent = (eventName, data = {}) => {
+      console.log(`[SOCKET_DEBUG] ${eventName}`, {
+        timestamp: Date.now(),
+        time: new Date().toISOString(),
+        transport: socket?.io?.engine?.transport?.name,
+        ...data,
+      });
+    };
+
+    const onConnect = () => logSocketEvent("connect", { socketId: socket.id });
+    const onDisconnect = (reason) => logSocketEvent("disconnect", { reason });
+    const onReconnectAttempt = (attemptNumber) => logSocketEvent("reconnect_attempt", { attemptNumber });
+    const onReconnect = (attemptNumber) => logSocketEvent("reconnect", { attemptNumber });
+    const onConnectError = (error) => logSocketEvent("connect_error", { error: error?.message || String(error) });
+
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
+    socket.io.on("reconnect_attempt", onReconnectAttempt);
+    socket.io.on("reconnect", onReconnect);
+    socket.on("connect_error", onConnectError);
+
+    // Log initial state
+    logSocketEvent("initial_state", {
+      connected: socket.connected,
+      socketId: socket.id,
+    });
+
+    return () => {
+      socket.off("connect", onConnect);
+      socket.off("disconnect", onDisconnect);
+      socket.io.off("reconnect_attempt", onReconnectAttempt);
+      socket.io.off("reconnect", onReconnect);
+      socket.off("connect_error", onConnectError);
+    };
+  }, [debugMode]);
 
   // ✅ Auto-reconnect & rejoin on visibility/focus recovery
   useEffect(() => {
@@ -1661,12 +1704,31 @@ export default function GamePage({ mode = "", code = "" }) {
 
     // 4. 서버로부터 오는 다른 이벤트들을 처리할 리스너 설정
     const onRoundStart = ({ round, currentRound: cr, maxRounds: mr }) => {
+      // Debug logging
+      if (debugMode) {
+        console.log("[ROUND_DEBUG] ROUND_START received", {
+          event: "ROUND_START",
+          timestamp: Date.now(),
+          time: new Date().toISOString(),
+          currentPhase: phase,
+          roundNumber: cr,
+          maxRounds: mr,
+          startedAt: round?.startedAt,
+          startedAtTime: round?.startedAt ? new Date(round.startedAt).toISOString() : null,
+          msUntilStart: round?.startedAt ? Math.max(0, round.startedAt - Date.now()) : 0,
+          imageUrl: round?.imageUrl,
+        });
+      }
+
       // Leak guard: do nothing if match ended by forfeit or abandoned
       if (
         forfeitEnd ||
         phase === "ABANDONED" ||
         (phase === "GAME_END" && (finishNote === "WIN_BY_FORFEIT" || finishedResult?.reason === "FORFEIT"))
       ) {
+        if (debugMode) {
+          console.log("[ROUND_DEBUG] ROUND_START ignored (forfeit/abandoned)", { phase, forfeitEnd });
+        }
         return;
       }
       setCurrentRound(cr ?? 0);
@@ -1695,6 +1757,13 @@ export default function GamePage({ mode = "", code = "" }) {
         ) {
           return;
         }
+        if (debugMode) {
+          console.log("[ROUND_DEBUG] Entering TRANSITION phase", {
+            timestamp: Date.now(),
+            msToStart,
+            countdownSeconds: Math.ceil(msToStart / 1000),
+          });
+        }
         setPhase("TRANSITION");
         const tick = () => {
           // Leak guard: stop tick work if match ended by forfeit
@@ -1709,6 +1778,12 @@ export default function GamePage({ mode = "", code = "" }) {
           const sec = Math.ceil(left / 1000);
           setTransition({ nextRound: cr ?? 0, countdown: sec });
           if (left <= 0) {
+            if (debugMode) {
+              console.log("[ROUND_DEBUG] Transition complete, entering IN_ROUND", {
+                timestamp: Date.now(),
+                roundNumber: cr,
+              });
+            }
             setPhase("IN_ROUND");
             setTransition(null);
             clearInterval(t);
@@ -1717,6 +1792,11 @@ export default function GamePage({ mode = "", code = "" }) {
         const t = setInterval(tick, 200);
         return () => clearInterval(t);
       }
+      if (debugMode) {
+        console.log("[ROUND_DEBUG] No countdown needed, entering IN_ROUND immediately", {
+          timestamp: Date.now(),
+        });
+      }
       setPhase("IN_ROUND");
       setTransition(null);
     };
@@ -1724,12 +1804,33 @@ export default function GamePage({ mode = "", code = "" }) {
     const onOpponentSubmitted = () => setOpponentSubmitted(true);
 
     const onRoomState = (s) => {
+      // Debug logging
+      if (debugMode) {
+        console.log("[ROUND_DEBUG] ROOM_STATE received", {
+          event: "ROOM_STATE",
+          timestamp: Date.now(),
+          time: new Date().toISOString(),
+          currentPhase: phase,
+          serverStatus: s.status,
+          serverPhase: s.phase,
+          roundNumber: s.currentRound,
+          maxRounds: s.maxRounds,
+          hasRound: !!s.round,
+          roundStartedAt: s.round?.startedAt,
+          roundStartedAtTime: s.round?.startedAt ? new Date(s.round.startedAt).toISOString() : null,
+          imageUrl: s.round?.imageUrl,
+        });
+      }
+
       // Leak guard: ignore late room updates after forfeit end
       if (
         forfeitEnd ||
         phase === "ABANDONED" ||
         (phase === "GAME_END" && (finishNote === "WIN_BY_FORFEIT" || finishedResult?.reason === "FORFEIT"))
       ) {
+        if (debugMode) {
+          console.log("[ROUND_DEBUG] ROOM_STATE ignored (forfeit/abandoned)", { phase, forfeitEnd });
+        }
         return;
       }
       const playerList = s.players || [];
@@ -1760,12 +1861,32 @@ export default function GamePage({ mode = "", code = "" }) {
     };
 
     const onRoundResult = ({ correct, results }) => {
+      if (debugMode) {
+        console.log("[ROUND_DEBUG] ROUND_RESULT received", {
+          event: "ROUND_RESULT",
+          timestamp: Date.now(),
+          time: new Date().toISOString(),
+          currentPhase: phase,
+          correct,
+          resultsCount: results?.length,
+        });
+      }
       setPhase("ROUND_RESULT");
       const me = results.find((r) => r.socketId === socket.id);
       setLastResult({ correct, me: me || null, results: results || [] });
     };
 
     const onGameEnd = ({ scoreboard, note }) => {
+      if (debugMode) {
+        console.log("[ROUND_DEBUG] GAME_END received", {
+          event: "GAME_END",
+          timestamp: Date.now(),
+          time: new Date().toISOString(),
+          currentPhase: phase,
+          note,
+          scoreboardCount: scoreboard?.length,
+        });
+      }
       setPhase("GAME_END");
       setServerPhase("FINISHED");
       setMatchFinished(true);
