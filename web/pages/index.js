@@ -11,6 +11,7 @@ import {
   FormHelperText,
 } from "@chakra-ui/react";
 import { socket } from "../lib/socket";
+import MetaHead from "../components/MetaHead";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
@@ -57,11 +58,17 @@ export default function Home() {
   };
 
   return (
-    <Container maxW="container.md" p={4}>
-      <VStack spacing={6} align="stretch">
-        {/* SEO Hero Section */}
-        <Box textAlign="center" mt={8} mb={4}>
-          <Heading as="h1" size="2xl" mb={3}>
+    <>
+      <MetaHead
+        title="FootyGuessr – Guess Legendary Football Matches"
+        description="Guess legendary football matches, World Cups, and iconic football moments in one photo."
+        url="https://footyguessr.io/"
+      />
+      <Container maxW="container.md" p={4}>
+        <VStack spacing={6} align="stretch">
+          {/* SEO Hero Section */}
+          <Box textAlign="center" mt={8} mb={4}>
+            <Heading as="h1" size="2xl" mb={3}>
             FootyGuessr – Football Guessing Game
           </Heading>
           <Text fontSize="md" color="gray.700" mb={4}>
@@ -167,6 +174,7 @@ export default function Home() {
           Status: {status}
         </Text>
       </VStack>
-    </Container>
+      </Container>
+    </>
   );
 }
