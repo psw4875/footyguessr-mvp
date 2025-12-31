@@ -193,7 +193,7 @@ const rooms = roomStore; // keep Map-like API for existing code
 const roomsByCode = new Map(); // code -> roomId
 const socketRoom = new Map(); // socketId -> roomId for quick cleanup
 const quitStats = new Map(); // key -> { quitTimestamps: number[], quitCountTotal: number, cooldownUntil: number }
-const GRACE_MS = 10_000; // disconnect grace period for in-game
+const GRACE_MS = 45_000; // disconnect grace period for in-game
 
 function removeFromQueue(queue, socketId) {
   const idx = queue.indexOf(socketId);
