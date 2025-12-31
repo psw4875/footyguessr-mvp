@@ -1104,6 +1104,21 @@ export default function GamePage({ mode = "", code = "" }) {
   const youWinSoundPlayedRef = useRef(false);
   const pvpStartSoundPlayedRef = useRef(false);
 
+  // ✅ Persist playerToken for reconnection
+  const [playerToken, setPlayerToken] = useState(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      let token = localStorage.getItem("fg_playerToken");
+      if (!token) {
+        token = `player_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
+        localStorage.setItem("fg_playerToken", token);
+      }
+      return token;
+    } catch {
+      return `player_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
+    }
+  });
+
   // 메인에서 name 넘겨준 거 받기 + 링크 code 자동 세팅
  
   useEffect(() => {
@@ -1184,7 +1199,10 @@ export default function GamePage({ mode = "", code = "" }) {
         if (!socket.connected) {
           socket.connect();
         }
-        // Rejoin room to sync state
+        // ✅ Rejoin with playerToken to resume match within grace period
+        if (playerToken) {
+          socket.emit("pvp:rejoin", { roomId, token: playerToken });
+        }
         socket.emit("GET_ROOM_STATE", { roomId });
       }
     };
@@ -1195,6 +1213,9 @@ export default function GamePage({ mode = "", code = "" }) {
       }
       if (!socket.connected) {
         socket.connect();
+      }
+      if (playerToken) {
+        socket.emit("pvp:rejoin", { roomId, token: playerToken });
       }
       socket.emit("GET_ROOM_STATE", { roomId });
     };
@@ -1207,6 +1228,9 @@ export default function GamePage({ mode = "", code = "" }) {
         }
         if (!socket.connected) {
           socket.connect();
+        }
+        if (playerToken) {
+          socket.emit("pvp:rejoin", { roomId, token: playerToken });
         }
         socket.emit("GET_ROOM_STATE", { roomId });
       }
@@ -1221,7 +1245,7 @@ export default function GamePage({ mode = "", code = "" }) {
       window.removeEventListener("focus", handleFocus);
       window.removeEventListener("pageshow", handlePageShow);
     };
-  }, [roomId]);
+  }, [roomId, playerToken]);
 
   const toast = useToast();
 
@@ -1387,7 +1411,7 @@ export default function GamePage({ mode = "", code = "" }) {
       });
       throw new Error("Please enter a nickname");
     }
-    socket.emit("HELLO", { name: n });
+    socket.emit("HELLO", { name: n, token: playerToken });
   };
 
   const createRoom = () => {
