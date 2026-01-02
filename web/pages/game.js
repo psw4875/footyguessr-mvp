@@ -1074,8 +1074,7 @@ function SingleTimeAttack() {
                 <Text><b>Time:</b> {(timeLeftMs / 1000).toFixed(1)}s</Text>
                 <Text><b>Score:</b> {score}</Text>
                 <Text><b>Solved:</b> {solved}</Text>
-                <Text><b>Target Diff:</b> {targetDiff}</Text>
-                <Text><b>Q Diff:</b> {readDifficulty(current)}</Text>
+                {/* Hidden from UI: internal difficulty metrics */}
               </VStack>
               {status === "PLAYING" && (
                 <Box mt={4}>
