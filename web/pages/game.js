@@ -21,6 +21,7 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import { socket } from "../lib/socket";
+import { trackEvent } from "../lib/analytics";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
@@ -299,6 +300,9 @@ function SingleTimeAttack() {
     setTargetDiff(1);
 
     playGameStartSound();
+    
+    // Track game start event
+    trackEvent("game_start", { mode: "practice" });
 
     let first = pickAdaptiveQuestion(questions, usedIdsRef.current, 1);
     // Fallback: if no question returned, pick any random from questions
@@ -379,6 +383,9 @@ function SingleTimeAttack() {
     const deck = pickDailyDeck(questions, dk, 15);
 
     playGameStartSound();
+    
+    // Track game start event for daily mode
+    trackEvent("game_start", { mode: "daily" });
 
     setDailyDeck(deck);
     dailyPosRef.current = 0;
@@ -559,6 +566,12 @@ function SingleTimeAttack() {
     const sB = String(scoreB).trim();
     const scoreStr = sA !== "" && sB !== "" ? `${sA}-${sB}` : "";
 
+    // Track answer submission event
+    trackEvent("answer_submit", { 
+      mode: dailyMode ? "daily" : "practice",
+      round_number: solved + 1
+    });
+
     // IMPORTANT: This scoring logic is shared by BOTH Single mode and Daily Challenge mode.
     // Daily Challenge (dailyMode=true) uses the exact same scoreAnswer function.
     // Scoring rules: +2 one team, +5 both teams, +10 perfect, 0 score-only
@@ -622,6 +635,12 @@ function SingleTimeAttack() {
   // save bests on result and record daily challenge/leaderboard
   useEffect(() => {
     if (status === "RESULT") {
+      // Track game completion event
+      trackEvent("game_complete", {
+        mode: dailyMode ? "daily" : "practice",
+        total_score: score
+      });
+
       try {
         const pb = Number(localStorage.getItem("fta_personalBest") || 0) || 0;
         const todayKey = `fta_today_${new Date().toISOString().slice(0,10)}`;
@@ -1334,6 +1353,15 @@ export default function GamePage({ mode = "", code = "" }) {
     if (!roomId || hasLeftRef.current || !inRoomRef.current) return;
     hasLeftRef.current = true;
     const finished = matchFinishedRef.current || serverPhaseRef.current === "FINISHED";
+    
+    // Track game exit midway event (only if game not finished)
+    if (!finished && phase && ["WAITING", "MATCHED", "TRANSITION", "IN_ROUND", "ROUND_RESULT"].includes(phase)) {
+      trackEvent("game_exit_midway", {
+        mode: "pvp",
+        round_number: currentRound
+      });
+    }
+    
     try {
       if (DEBUG_PVP) {
         console.log("[PVP_LEAVE_EMIT]", { roomId, reason, finished });
@@ -1352,7 +1380,7 @@ export default function GamePage({ mode = "", code = "" }) {
     if (redirect) {
       router.push("/");
     }
-  }, [roomId, router]);
+  }, [roomId, router, phase, currentRound]);
 
   useEffect(() => {
     hasLeftRef.current = false;
@@ -1511,6 +1539,10 @@ export default function GamePage({ mode = "", code = "" }) {
       hello();
       setWaitingForMatch(true);
       setIsSearchingQuickMatch(true);
+      
+      // Track PvP matchmaking start event
+      trackEvent("pvp_matchmaking_start");
+      
       socket.emit("JOIN_QUEUE", { preferenceMode: quickMode });
     } catch (e) {
       setWaitingForMatch(false);
@@ -1554,6 +1586,9 @@ export default function GamePage({ mode = "", code = "" }) {
     };
 
     const onMatchFound = ({ roomId }) => {
+      // Track PvP match found event
+      trackEvent("pvp_match_found");
+      
       setReadySent(false);
       setWaitingForMatch(false);
       setIsSearchingQuickMatch(false);
@@ -1570,7 +1605,10 @@ export default function GamePage({ mode = "", code = "" }) {
     const onQuickCancelled = () => {
       setIsSearchingQuickMatch(false);
       setWaitingForMatch(false);
-    };
+    };// Track PvP match failed event (user blocked from quick matching)
+      trackEvent("pvp_match_failed");
+      
+      
 
     const onQuickBlocked = ({ cooldownUntil }) => {
       setIsSearchingQuickMatch(false);
@@ -1636,7 +1674,13 @@ export default function GamePage({ mode = "", code = "" }) {
     };
 
     const onFinished = (payload) => {
+      // Track PvP game complete event
       const normalized = payload?.result || payload || null;
+      const finalScore = normalized?.points ?? payload?.points ?? 0;
+      trackEvent("pvp_game_complete", {
+        total_score: finalScore
+      });
+
       const reason = normalized?.reason || payload?.reason;
       const winnerSocketId = normalized?.winnerSocketId ?? payload?.winnerSocketId;
       const loserSocketId = normalized?.loserSocketId ?? payload?.loserSocketId;
@@ -2093,6 +2137,12 @@ export default function GamePage({ mode = "", code = "" }) {
     const sA = String(scoreA).trim();
     const sB = String(scoreB).trim();
     const score = sA !== "" && sB !== "" ? `${sA}-${sB}` : "";
+
+    // Track PvP answer submission event
+    trackEvent("answer_submit", {
+      mode: "pvp",
+      round_number: currentRound
+    });
 
     socket.emit("SUBMIT_ANSWER", { roomId, answer: { teamA, teamB, score } });
     setSubmitted(true);

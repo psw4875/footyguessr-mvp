@@ -12,6 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { socket } from "../lib/socket";
 import MetaHead from "../components/MetaHead";
+import { trackEvent } from "../lib/analytics";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
@@ -37,6 +38,7 @@ export default function Home() {
   }, []);
 
   const startSingle = () => {
+    trackEvent("click_practice");
     router.push("/game?mode=single");
   };
 
@@ -53,6 +55,7 @@ export default function Home() {
   }, []);
 
   const startPvpLobby = () => {
+    trackEvent("click_pvp");
     // PVP 로비로 이동 (닉네임은 game.js 로비에서 직접 입력)
     router.push(`/game?mode=pvp&name=${encodeURIComponent(name)}`);
   };
@@ -88,7 +91,10 @@ export default function Home() {
             <Button 
               colorScheme={dailyStatus.played ? 'gray' : 'orange'} 
               w="100%" 
-              size="lg" 
+              size="lg" {
+                trackEvent("click_daily_challenge");
+                router.push('/game?mode=single&daily=1');
+              }
               onClick={() => router.push('/game?mode=single&daily=1')} 
               fontWeight="bold"
               fontSize="md"
