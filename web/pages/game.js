@@ -2462,6 +2462,38 @@ export default function GamePage({ mode = "", code = "" }) {
   return (
     <>
       <MetaHead title={ogTitle} description={ogDescription} url={ogUrl} image={ogImage} />
+      {/* Mobile-only sticky timer for PvP IN_ROUND phase */}
+      {phase === "IN_ROUND" && round && (
+        <Box
+          display={{ base: "block", md: "none" }}
+          position="sticky"
+          top={0}
+          zIndex={10}
+          bg="white"
+          borderBottom="2px solid"
+          borderColor="green.300"
+          p={3}
+          boxShadow="md"
+        >
+          <HStack justify="space-between" align="center">
+            <Text fontSize="sm" fontWeight="bold" color="gray.700">
+              Time Left
+            </Text>
+            <Progress
+              value={(timeLeft / (round.durationMs ?? 1)) * 100}
+              size="sm"
+              colorScheme="green"
+              borderRadius="md"
+              flex={1}
+              mx={3}
+              h="6px"
+            />
+            <Text fontSize="sm" fontWeight="bold" color="gray.700" minW="50px" textAlign="right">
+              {Math.ceil(timeLeft / 1000)}s
+            </Text>
+          </HStack>
+        </Box>
+      )}
       <Container maxW="container.xl" p={4}>
       <Grid
         templateColumns={{ base: "1fr", lg: "3fr 1fr" }}
@@ -2747,7 +2779,7 @@ export default function GamePage({ mode = "", code = "" }) {
                <Text><b>Opponent:</b> {opponentSubmitted ? "Submitted ✅" : "Not yet"}</Text>
             </VStack>
              {round && (
-                <Box mt={4}>
+                <Box mt={4} display={{ base: "none", md: "block" }}>
                     <Text mb={1} fontWeight="bold">Time Left</Text>
                     <Progress value={(timeLeft / round.durationMs) * 100} size="lg" colorScheme="green" borderRadius="md" />
                 </Box>
