@@ -13,6 +13,11 @@
  * Example:
  *   trackEvent('click_daily_challenge');
  *   trackEvent('answer_submit', { mode: 'pvp', round_number: 1 });
+ * 
+ * Debug Mode:
+ *   - Automatically enabled in development (NODE_ENV !== "production")
+ *   - Can be enabled in production via URL: ?debug_mode=true
+ *   - Events appear instantly in GA4 DebugView when enabled
  */
 export function trackEvent(eventName, params = {}) {
   // Only run in browser
@@ -26,7 +31,18 @@ export function trackEvent(eventName, params = {}) {
   }
 
   try {
-    window.gtag("event", eventName, params);
+    // Determine if debug mode should be enabled
+    const isDevEnvironment = process.env.NODE_ENV !== "production";
+    const hasDebugQueryParam = typeof window !== "undefined" && 
+      new URLSearchParams(window.location.search).get("debug_mode") === "true";
+    const debugModeEnabled = isDevEnvironment || hasDebugQueryParam;
+
+    // Merge debug_mode into params (don't overwrite if already set)
+    const finalParams = debugModeEnabled
+      ? { debug_mode: true, ...params }
+      : params;
+
+    window.gtag("event", eventName, finalParams);
   } catch (err) {
     // Silently fail - don't break app if gtag has issues
     // Optional: log in development only
