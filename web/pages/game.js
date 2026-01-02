@@ -28,6 +28,7 @@ import { useRouter } from "next/router";
 import Image from "next/image";
 import MetaHead from "../components/MetaHead";
 import { scoreAnswer, pickAdaptiveQuestion } from "../engine";
+import { MdShare } from "react-icons/md";
 
 // ✅ Simple 1x1 gray blur placeholder (base64)
 const BLUR_PLACEHOLDER = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8VAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=";
@@ -1095,7 +1096,7 @@ function SingleTimeAttack() {
                     <Button variant="outline" flex={1} size="lg" onClick={() => router.push("/")}>Menu</Button>
                     <IconButton
                       aria-label="Share results"
-                      icon={<Text fontSize="xl">↗</Text>}
+                      icon={<MdShare />}
                       size="lg"
                       variant="outline"
                       onClick={handleShareResults}
