@@ -79,6 +79,16 @@ function safeGetLS(key) {
   }
 }
 
+// ✅ Safe localStorage set for SSR: no-op on server
+function safeSetLS(key, value) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // ignore
+  }
+}
+
 function normalizeTeam(s) {
   return String(s || "")
     .trim()
@@ -705,9 +715,9 @@ function SingleTimeAttack() {
   // load local stats
   useEffect(() => {
     try {
-      const pb = Number(localStorage.getItem("fta_personalBest") || 0) || 0;
+      const pb = Number(safeGetLS("fta_personalBest") || 0) || 0;
       const todayKey = `fta_today_${new Date().toISOString().slice(0,10)}`;
-      const td = Number(localStorage.getItem(todayKey) || 0) || 0;
+      const td = Number(safeGetLS(todayKey) || 0) || 0;
       setPersonalBest(pb);
       setTodayBest(td);
     } catch (e) {
@@ -725,15 +735,15 @@ function SingleTimeAttack() {
       });
 
       try {
-        const pb = Number(localStorage.getItem("fta_personalBest") || 0) || 0;
+        const pb = Number(safeGetLS("fta_personalBest") || 0) || 0;
         const todayKey = `fta_today_${new Date().toISOString().slice(0,10)}`;
-        const td = Number(localStorage.getItem(todayKey) || 0) || 0;
+        const td = Number(safeGetLS(todayKey) || 0) || 0;
         if (score > pb) {
-          localStorage.setItem("fta_personalBest", String(score));
+          safeSetLS("fta_personalBest", String(score));
           setPersonalBest(score);
         }
         if (score > td) {
-          localStorage.setItem(todayKey, String(score));
+          safeSetLS(todayKey, String(score));
           setTodayBest(score);
         }
 
@@ -741,13 +751,13 @@ function SingleTimeAttack() {
         if (dailyMode) {
           const dk = getDateKey();
           try {
-            localStorage.setItem(`fta_daily_${dk}`, String(score));
+            safeSetLS(`fta_daily_${dk}`, String(score));
             // ensure user exists
             ensureLocalUser();
             const lbKey = `fta_leaderboard_${dk}`;
-            const raw = localStorage.getItem(lbKey) || "[]";
+            const raw = safeGetLS(lbKey) || "[]";
             const list = JSON.parse(raw);
-            const entry = { userId: userId || localStorage.getItem("fta_userId"), nickname: localNick || localStorage.getItem("fta_nick") || "Player", score, dateKey: dk, ts: Date.now() };
+            const entry = { userId: userId || safeGetLS("fta_userId"), nickname: localNick || safeGetLS("fta_nick") || "Player", score, dateKey: dk, ts: Date.now() };
             // update existing or push
             const idx = list.findIndex((e) => e.userId === entry.userId);
             if (idx !== -1) {
@@ -756,7 +766,7 @@ function SingleTimeAttack() {
               list.push(entry);
             }
             list.sort((a,b)=>b.score - a.score || a.ts - b.ts);
-            localStorage.setItem(lbKey, JSON.stringify(list.slice(0, 200)));
+            safeSetLS(lbKey, JSON.stringify(list.slice(0, 200)));
           } catch (e) {
             // ignore
           }
@@ -771,7 +781,7 @@ function SingleTimeAttack() {
       try {
         const dk = getDateKey();
         const key = `fta_leaderboard_${dk}`;
-        const raw = localStorage.getItem(key) || '[]';
+        const raw = safeGetLS(key) || '[]';
         const list = JSON.parse(raw);
         list.sort((a,b)=>b.score - a.score || a.ts - b.ts);
         setItems(list.slice(0,20));
@@ -783,7 +793,7 @@ function SingleTimeAttack() {
     return (
       <VStack align="stretch" spacing={2}>
         {items.map((p, idx) => {
-          const isMe = p.userId && (p.userId === userId || p.userId === localStorage.getItem('fta_userId'));
+          const isMe = p.userId && (p.userId === userId || p.userId === safeGetLS('fta_userId'));
           return (
             <HStack key={`${p.userId}_${p.ts}`} justify="space-between" bg={isMe ? 'orange.50' : undefined} p={isMe ? 2 : 0} borderRadius={isMe ? 'md' : undefined}>
               <Text width="28px">{idx + 1}</Text>
@@ -911,7 +921,7 @@ function SingleTimeAttack() {
               <Text fontSize="sm" color="gray.700" mb={3}>New puzzle daily. Compete on the global leaderboard.</Text>
               {(() => {
                 const dk = new Date().toISOString().slice(0,10);
-                const played = localStorage.getItem(`fta_daily_${dk}`);
+                const played = safeGetLS(`fta_daily_${dk}`);
                 const playedScore = played ? Number(played) : null;
                 return (
                   <>
@@ -1048,10 +1058,10 @@ function SingleTimeAttack() {
                       try {
                         const dk = getDateKey();
                         const key = `fta_leaderboard_${dk}`;
-                        const raw = localStorage.getItem(key) || '[]';
+                        const raw = safeGetLS(key) || '[]';
                         const list = JSON.parse(raw);
                         const total = list.length || 0;
-                        const idx = list.findIndex((e) => e.userId === (userId || localStorage.getItem('fta_userId')));
+                        const idx = list.findIndex((e) => e.userId === (userId || safeGetLS('fta_userId')));
                         const rank = idx >= 0 ? idx + 1 : null;
                         return (
                           <Box bg="white" p={3} borderRadius="md" textAlign="center" border="1px" borderColor="gray.200">
