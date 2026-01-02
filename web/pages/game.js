@@ -69,6 +69,16 @@ function msLeft(startedAt, durationMs) {
   return Math.max(0, left);
 }
 
+// ✅ Safe localStorage access for SSR: returns null on server, actual value on client
+function safeGetLS(key) {
+  if (typeof window === "undefined") return null;
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
 function normalizeTeam(s) {
   return String(s || "")
     .trim()
@@ -436,6 +446,7 @@ function SingleTimeAttack() {
   }
 
   function ensureLocalUser() {
+    if (typeof window === "undefined") return;
     try {
       let id = localStorage.getItem("fta_userId");
       if (!id) {
@@ -507,7 +518,7 @@ function SingleTimeAttack() {
     if (q.daily === '1' || q.daily === 1) {
       // only start if not already playing or played
       const dk = getDateKey();
-      const played = localStorage.getItem(`fta_daily_${dk}`);
+      const played = safeGetLS(`fta_daily_${dk}`);
       if (!played) startDailyChallenge();
       if (q.leaderboard === '1') setShowLeaderboard(true);
     }
