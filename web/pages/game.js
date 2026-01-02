@@ -294,6 +294,76 @@ function SingleTimeAttack() {
     return normalizeTeam(teamA) === normalizeTeam(teamB);
   }, [teamA, teamB, teamAValid, teamBValid]);
 
+  // Share results handler for Single mode
+  const handleShareResults = async () => {
+    const shareText = 
+      `FootyGuessr — 60s Rush (Single)\n` +
+      `Score: ${score} pts | Correct: ${solved} | Perfect: ${perfect}\n` +
+      `Both teams: ${bothTeams} | One team: ${oneTeam}`;
+    
+    const shareUrl = `${typeof window !== "undefined" ? window.location.origin : "https://footyguessr.io"}/game?mode=single`;
+    const sharePayload = `${shareText}\n\nPlay: ${shareUrl}`;
+
+    let shareMethod = null;
+
+    // Try Web Share API first
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({
+          title: "FootyGuessr",
+          text: sharePayload,
+          url: shareUrl,
+        });
+        shareMethod = "web_share";
+        toast({
+          title: "Shared!",
+          status: "success",
+          duration: 1800,
+          isClosable: true,
+        });
+      } catch (err) {
+        // User cancelled or share failed (except user cancel)
+        if (err.name !== "AbortError") {
+          // Fall through to clipboard
+          shareMethod = null;
+        }
+      }
+    }
+
+    // Fallback to clipboard if Web Share API unavailable or failed
+    if (!shareMethod && typeof navigator !== "undefined" && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(sharePayload);
+        shareMethod = "clipboard";
+        toast({
+          title: "Copied!",
+          status: "success",
+          duration: 1800,
+          isClosable: true,
+        });
+      } catch (err) {
+        toast({
+          title: "Failed to copy",
+          description: "Please try again.",
+          status: "error",
+          duration: 2000,
+          isClosable: true,
+        });
+        return;
+      }
+    }
+
+    // Track share event in GA4 if available
+    if (shareMethod && typeof window !== "undefined" && window.gtag) {
+      window.gtag?.("event", "share_result", {
+        mode: "single",
+        score,
+        correct: solved,
+        method: shareMethod,
+      });
+    }
+  };
+
   const startGame = () => {
     if (!questions.length) return;
     usedIdsRef.current = new Set();
@@ -986,6 +1056,7 @@ function SingleTimeAttack() {
                   )}
                   <HStack spacing={3} mt={4}>
                     <Button colorScheme="teal" w="100%" size="lg" onClick={startGame} isDisabled={loadingQ || !questions.length}>Play Again</Button>
+                    <Button variant="outline" w="100%" size="lg" onClick={handleShareResults}>Share</Button>
                     <Button variant="outline" w="100%" size="lg" onClick={() => router.push("/")}>Menu</Button>
                   </HStack>
                 </Box>
