@@ -19,6 +19,7 @@ import {
   Spinner,
   Select,
   Tooltip,
+  IconButton,
 } from "@chakra-ui/react";
 import { socket } from "../lib/socket";
 import { trackEvent } from "../lib/analytics";
@@ -1089,10 +1090,17 @@ function SingleTimeAttack() {
                       <Text fontSize="sm" color="orange.700">🐐 GOAT level. Messi or Ronaldo? You decide.</Text>
                     </Box>
                   )}
-                  <HStack spacing={3} mt={4}>
-                    <Button colorScheme="teal" w="100%" size="lg" onClick={startGame} isDisabled={loadingQ || !questions.length}>Play Again</Button>
-                    <Button variant="outline" w="100%" size="lg" onClick={handleShareResults}>Share</Button>
-                    <Button variant="outline" w="100%" size="lg" onClick={() => router.push("/")}>Menu</Button>
+                  <HStack spacing={3} mt={4} align="stretch">
+                    <Button colorScheme="teal" flex={1} size="lg" onClick={startGame} isDisabled={loadingQ || !questions.length}>Play Again</Button>
+                    <Button variant="outline" flex={1} size="lg" onClick={() => router.push("/")}>Menu</Button>
+                    <IconButton
+                      aria-label="Share results"
+                      icon={<Text fontSize="xl">↗</Text>}
+                      size="lg"
+                      variant="outline"
+                      onClick={handleShareResults}
+                      title="Share results"
+                    />
                   </HStack>
                 </Box>
               )}
