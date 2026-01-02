@@ -784,6 +784,8 @@ function SingleTimeAttack() {
   }
 
   const percent = Math.round((timeLeftMs / 60000) * 100);
+  const singleTimeRatio = timeLeftMs / 60000;
+  const singleTimerColorScheme = singleTimeRatio > 0.5 ? "green" : singleTimeRatio > 0.2 ? "orange" : "red";
 
   return (
     <>
@@ -796,7 +798,7 @@ function SingleTimeAttack() {
           zIndex={10}
           bg="white"
           borderBottom="2px solid"
-          borderColor="green.300"
+          borderColor={singleTimeRatio > 0.5 ? "green.300" : singleTimeRatio > 0.2 ? "orange.300" : "red.300"}
           p={3}
           boxShadow="md"
         >
@@ -807,14 +809,14 @@ function SingleTimeAttack() {
             <Progress
               value={percent}
               size="sm"
-              colorScheme="green"
+              colorScheme={singleTimerColorScheme}
               borderRadius="md"
               flex={1}
               mx={3}
               h="6px"
             />
             <Text fontSize="sm" fontWeight="bold" color="gray.700" minW="50px" textAlign="right">
-              {(timeLeftMs / 1000).toFixed(1)}s
+              {Math.ceil(timeLeftMs / 1000)}s
             </Text>
           </HStack>
         </Box>
@@ -1104,14 +1106,14 @@ function SingleTimeAttack() {
             <Box p={4} borderWidth="1px" borderRadius="lg" boxShadow="base">
               <Heading size="md" mb={3}>📊 Stats</Heading>
               <VStack align="stretch" spacing={2}>
-                <Text display={{ base: "none", md: "block" }}><b>Time:</b> {(timeLeftMs / 1000).toFixed(1)}s</Text>
+                <Text display={{ base: "none", md: "block" }}><b>Time:</b> {Math.ceil(timeLeftMs / 1000)}s</Text>
                 <Text><b>Score:</b> {score}</Text>
                 <Text><b>Solved:</b> {solved}</Text>
                 {/* Hidden from UI: internal difficulty metrics */}
               </VStack>
               {status === "PLAYING" && (
                 <Box mt={4} display={{ base: "none", md: "block" }}>
-                  <Progress value={percent} size="lg" colorScheme="green" borderRadius="md" />
+                  <Progress value={percent} size="lg" colorScheme={singleTimerColorScheme} borderRadius="md" />
                 </Box>
               )}
             </Box>
@@ -2498,35 +2500,41 @@ export default function GamePage({ mode = "", code = "" }) {
       <MetaHead title={ogTitle} description={ogDescription} url={ogUrl} image={ogImage} />
       {/* Mobile-only sticky timer for PvP IN_ROUND phase */}
       {phase === "IN_ROUND" && round && (
-        <Box
-          display={{ base: "block", md: "none" }}
-          position="sticky"
-          top={0}
-          zIndex={10}
-          bg="white"
-          borderBottom="2px solid"
-          borderColor="green.300"
-          p={3}
-          boxShadow="md"
-        >
-          <HStack justify="space-between" align="center">
-            <Text fontSize="sm" fontWeight="bold" color="gray.700">
-              Time Left
-            </Text>
-            <Progress
-              value={(timeLeft / (round.durationMs ?? 1)) * 100}
-              size="sm"
-              colorScheme="green"
-              borderRadius="md"
-              flex={1}
-              mx={3}
-              h="6px"
-            />
-            <Text fontSize="sm" fontWeight="bold" color="gray.700" minW="50px" textAlign="right">
-              {Math.ceil(timeLeft / 1000)}s
-            </Text>
-          </HStack>
-        </Box>
+        (() => {
+          const pvpTimeRatio = timeLeft / (round.durationMs ?? 1);
+          const pvpTimerColorScheme = pvpTimeRatio > 0.5 ? "green" : pvpTimeRatio > 0.2 ? "orange" : "red";
+          return (
+            <Box
+              display={{ base: "block", md: "none" }}
+              position="sticky"
+              top={0}
+              zIndex={10}
+              bg="white"
+              borderBottom="2px solid"
+              borderColor={pvpTimeRatio > 0.5 ? "green.300" : pvpTimeRatio > 0.2 ? "orange.300" : "red.300"}
+              p={3}
+              boxShadow="md"
+            >
+              <HStack justify="space-between" align="center">
+                <Text fontSize="sm" fontWeight="bold" color="gray.700">
+                  Time Left
+                </Text>
+                <Progress
+                  value={pvpTimeRatio * 100}
+                  size="sm"
+                  colorScheme={pvpTimerColorScheme}
+                  borderRadius="md"
+                  flex={1}
+                  mx={3}
+                  h="6px"
+                />
+                <Text fontSize="sm" fontWeight="bold" color="gray.700" minW="50px" textAlign="right">
+                  {Math.ceil(timeLeft / 1000)}s
+                </Text>
+              </HStack>
+            </Box>
+          );
+        })()
       )}
       <Container maxW="container.xl" p={4}>
       <Grid
@@ -2813,10 +2821,16 @@ export default function GamePage({ mode = "", code = "" }) {
                <Text><b>Opponent:</b> {opponentSubmitted ? "Submitted ✅" : "Not yet"}</Text>
             </VStack>
              {round && (
-                <Box mt={4} display={{ base: "none", md: "block" }}>
-                    <Text mb={1} fontWeight="bold">Time Left</Text>
-                    <Progress value={(timeLeft / round.durationMs) * 100} size="lg" colorScheme="green" borderRadius="md" />
-                </Box>
+                (() => {
+                  const pvpSidebarRatio = timeLeft / round.durationMs;
+                  const pvpSidebarColorScheme = pvpSidebarRatio > 0.5 ? "green" : pvpSidebarRatio > 0.2 ? "orange" : "red";
+                  return (
+                    <Box mt={4} display={{ base: "none", md: "block" }}>
+                      <Text mb={1} fontWeight="bold">Time Left</Text>
+                      <Progress value={pvpSidebarRatio * 100} size="lg" colorScheme={pvpSidebarColorScheme} borderRadius="md" />
+                    </Box>
+                  );
+                })()
              )}
           </Box>
         </VStack>
