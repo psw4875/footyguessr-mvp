@@ -91,11 +91,11 @@ export default function Home() {
             <Button 
               colorScheme={dailyStatus.played ? 'gray' : 'orange'} 
               w="100%" 
-              size="lg" {
+              size="lg" 
+              onClick={() => {
                 trackEvent("click_daily_challenge");
                 router.push('/game?mode=single&daily=1');
-              }
-              onClick={() => router.push('/game?mode=single&daily=1')} 
+              }}
               fontWeight="bold"
               fontSize="md"
               py={6}
