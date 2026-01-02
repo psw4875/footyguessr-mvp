@@ -60,8 +60,8 @@ export default function Home() {
   return (
     <>
       <MetaHead
-        title="FootyGuessr – Guess Legendary Football Matches"
-        description="Guess legendary football matches, World Cups, and iconic football moments in one photo."
+        title="FootyGuessr: Guess Football Matches Quiz Game"
+        description="Free online football quiz. Identify iconic matches from one photo. Play 60s solo mode, compete in 1v1 PvP battles, or join daily challenges. Test your soccer knowledge now!"
         url="https://footyguessr.io/"
       />
       <Container maxW="container.md" p={4}>
