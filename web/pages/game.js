@@ -324,17 +324,18 @@ function SingleTimeAttack() {
       `Both teams: ${bothTeams} | One team: ${oneTeam}`;
     
     const shareUrl = `${typeof window !== "undefined" ? window.location.origin : "https://footyguessr.io"}/game?mode=single`;
-    const sharePayload = `${shareText}\n\nPlay: ${shareUrl}`;
+    // Full payload with URL for clipboard/sharing (appears only once in text)
+    const fullPayload = `${shareText}\n\nPlay: ${shareUrl}`;
 
     let shareMethod = null;
 
     // Try Web Share API first
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
+        // Mobile: use text only, omit url param to prevent duplication
         await navigator.share({
           title: "FootyGuessr",
-          text: sharePayload,
-          url: shareUrl,
+          text: fullPayload,
         });
         shareMethod = "web_share";
         toast({
@@ -355,7 +356,8 @@ function SingleTimeAttack() {
     // Fallback to clipboard if Web Share API unavailable or failed
     if (!shareMethod && typeof navigator !== "undefined" && navigator.clipboard) {
       try {
-        await navigator.clipboard.writeText(sharePayload);
+        // Desktop: copy the full payload with result summary + URL
+        await navigator.clipboard.writeText(fullPayload);
         shareMethod = "clipboard";
         toast({
           title: "Copied!",
