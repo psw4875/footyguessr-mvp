@@ -786,21 +786,54 @@ function SingleTimeAttack() {
   const percent = Math.round((timeLeftMs / 60000) * 100);
 
   return (
-    <Container maxW="container.xl" p={4}>
-      <Grid
-        templateColumns={{ base: "1fr", lg: "3fr 1fr" }}
-        gap={{ base: 4, lg: 8 }}
-      >
-        {/* Left Column: Main Game Area */}
-        <VStack spacing={4} align="stretch">
-          <HStack>
-            <Button onClick={() => router.push("/")} variant="outline" size={{ base: "sm", md: "md" }}>
-              ← Menu
-            </Button>
-            <Heading as="h2" size={{ base: "md", md: "lg" }} isTruncated>
-              60s Rush — Single
-            </Heading>
+    <>
+      {/* Mobile-only sticky timer for Single mode IN_PROGRESS phase */}
+      {status === "PLAYING" && (
+        <Box
+          display={{ base: "block", md: "none" }}
+          position="sticky"
+          top={0}
+          zIndex={10}
+          bg="white"
+          borderBottom="2px solid"
+          borderColor="green.300"
+          p={3}
+          boxShadow="md"
+        >
+          <HStack justify="space-between" align="center">
+            <Text fontSize="sm" fontWeight="bold" color="gray.700">
+              Time Left
+            </Text>
+            <Progress
+              value={percent}
+              size="sm"
+              colorScheme="green"
+              borderRadius="md"
+              flex={1}
+              mx={3}
+              h="6px"
+            />
+            <Text fontSize="sm" fontWeight="bold" color="gray.700" minW="50px" textAlign="right">
+              {(timeLeftMs / 1000).toFixed(1)}s
+            </Text>
           </HStack>
+        </Box>
+      )}
+      <Container maxW="container.xl" p={4}>
+        <Grid
+          templateColumns={{ base: "1fr", lg: "3fr 1fr" }}
+          gap={{ base: 4, lg: 8 }}
+        >
+          {/* Left Column: Main Game Area */}
+          <VStack spacing={4} align="stretch">
+            <HStack>
+              <Button onClick={() => router.push("/")} variant="outline" size={{ base: "sm", md: "md" }}>
+                ← Menu
+              </Button>
+              <Heading as="h2" size={{ base: "md", md: "lg" }} isTruncated>
+                60s Rush — Single
+              </Heading>
+            </HStack>
 
           {loadingQ && (
             <Box p={4} borderWidth="1px" borderRadius="md">Loading questions from server...</Box>
@@ -1071,13 +1104,13 @@ function SingleTimeAttack() {
             <Box p={4} borderWidth="1px" borderRadius="lg" boxShadow="base">
               <Heading size="md" mb={3}>📊 Stats</Heading>
               <VStack align="stretch" spacing={2}>
-                <Text><b>Time:</b> {(timeLeftMs / 1000).toFixed(1)}s</Text>
+                <Text display={{ base: "none", md: "block" }}><b>Time:</b> {(timeLeftMs / 1000).toFixed(1)}s</Text>
                 <Text><b>Score:</b> {score}</Text>
                 <Text><b>Solved:</b> {solved}</Text>
                 {/* Hidden from UI: internal difficulty metrics */}
               </VStack>
               {status === "PLAYING" && (
-                <Box mt={4}>
+                <Box mt={4} display={{ base: "none", md: "block" }}>
                   <Progress value={percent} size="lg" colorScheme="green" borderRadius="md" />
                 </Box>
               )}
@@ -1099,8 +1132,9 @@ function SingleTimeAttack() {
         </VStack>
       </Grid>
       </Container>
+    </>
     );
-}
+  }
 
 /** ================== GamePage: Single + PvP 통합 ================== */
 export default function GamePage({ mode = "", code = "" }) {
