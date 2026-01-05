@@ -23,6 +23,7 @@ export default function Home() {
 
   useEffect(() => {
     try {
+      // Use UTC date key for global consistency
       const dk = new Date().toISOString().slice(0, 10);
       const key = `fta_daily_${dk}`;
       const raw = localStorage.getItem(key);

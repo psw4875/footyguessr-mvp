@@ -168,7 +168,7 @@ app.post("/api/leaderboard/submit", async (req, res) => {
 
   const { mode, date, name, clientId, score, solved, correct, perfect, bothTeams, oneTeam } = req.body;
 
-  console.log("[LEADERBOARD] POST submit date=" + date + " score=" + score);
+  console.log(`[LEADERBOARD_SUBMIT] UTC date: ${date} | score: ${score} | clientId: ${clientId} | name: "${name}"`);
 
   // Validate inputs
   if (mode !== "daily") {
@@ -287,7 +287,7 @@ app.get("/api/leaderboard", async (req, res) => {
   // Validate limit
   const limitNum = Math.min(50, Math.max(1, parseInt(limit, 10) || 20));
 
-  console.log("[LEADERBOARD] GET request date=" + date + " limit=" + limitNum);
+  console.log(`[LEADERBOARD_FETCH] UTC date: ${date} | limit: ${limitNum}`);
 
   try {
     const supabase = getSupabase();
@@ -342,7 +342,7 @@ app.post("/api/leaderboard/update-name", async (req, res) => {
     return res.status(400).json({ ok: false, error: "Name cannot be empty after trim" });
   }
   
-  console.log("[LEADERBOARD] update-name payload", { date, client_id: finalClientId, name: displayName });
+  console.log(`[LEADERBOARD_UPDATE_NAME] UTC date: ${date} | clientId: ${finalClientId} | name: "${displayName}"`);
 
   try {
     const supabase = getSupabase();

@@ -421,7 +421,9 @@ function SingleTimeAttack() {
   // This ALWAYS runs when isDaily=true and router.isReady, regardless of showLeaderboardPanel
   const fetchTodaysLeaderboard = useCallback(async (dateKey) => {
     const serverUrl = API_BASE;
-    const today = dateKey || getDateKey(); // YYYY-MM-DD
+    const today = dateKey || getDateKey(); // YYYY-MM-DD (UTC)
+
+    console.log(`[LEADERBOARD_FETCH] UTC date key: ${today}`);
 
     // Prevent duplicate fetch for same date
     if (leaderboardFetchedDateRef.current === today) {
@@ -467,9 +469,9 @@ function SingleTimeAttack() {
     if (!dailyMode || !clientId || status !== "RESULT") return;
 
     const serverUrl = API_BASE;
-    const today = getDateKey(); // YYYY-MM-DD
+    const today = getDateKey(); // YYYY-MM-DD (UTC)
 
-    console.log(`[LEADERBOARD] submitting score=${score} name="${leaderboardName}" date=${today}`);
+    console.log(`[LEADERBOARD_SUBMIT] UTC date key: ${today} | score: ${score} | name: "${leaderboardName}" | clientId: ${clientId}`);
     
     try {
       const response = await fetch(`${serverUrl}/api/leaderboard/submit`, {
@@ -561,9 +563,8 @@ function SingleTimeAttack() {
   };
 
   function getDateKey() {
-    // Use local timezone (not UTC) to ensure same date across all devices in same timezone
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    // Use UTC timezone globally; Daily Challenge resets at 00:00 UTC for all users
+    return new Date().toISOString().slice(0, 10);
   }
 
   function pickDailyDeck(questions, dateKey, count = 15) {
@@ -856,7 +857,7 @@ function SingleTimeAttack() {
   useEffect(() => {
     try {
       const pb = Number(safeGetLS("fta_personalBest") || 0) || 0;
-      const todayKey = `fta_today_${new Date().toISOString().slice(0,10)}`;
+      const todayKey = `fta_today_${getDateKey()}`;
       const td = Number(safeGetLS(todayKey) || 0) || 0;
       setPersonalBest(pb);
       setTodayBest(td);
@@ -879,7 +880,7 @@ function SingleTimeAttack() {
 
       try {
         const pb = Number(safeGetLS("fta_personalBest") || 0) || 0;
-        const todayKey = `fta_today_${new Date().toISOString().slice(0,10)}`;
+        const todayKey = `fta_today_${getDateKey()}`;
         const td = Number(safeGetLS(todayKey) || 0) || 0;
         if (score > pb) {
           safeSetLS("fta_personalBest", String(score));
@@ -1199,9 +1200,9 @@ function SingleTimeAttack() {
 
             <Box mt={4} p={5} borderWidth="2px" borderRadius="md" bg="orange.50" borderColor="orange.400">
               <Heading size="md" mb={2}>🔥 Daily Challenge</Heading>
-              <Text fontSize="sm" color="gray.700" mb={3}>New puzzle daily. Compete on the global leaderboard.</Text>
+              <Text fontSize="sm" color="gray.700" mb={3}>New puzzle daily. Compete on the global leaderboard. Resets at 00:00 UTC.</Text>
               {(() => {
-                const dk = new Date().toISOString().slice(0,10);
+                const dk = getDateKey();
                 const played = safeGetLS(`fta_daily_${dk}`);
                 const playedScore = played ? Number(played) : null;
                 return (
