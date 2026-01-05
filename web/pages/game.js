@@ -258,6 +258,17 @@ function SingleTimeAttack() {
   const [dailyDeck, setDailyDeck] = useState([]);
   const dailyPosRef = useRef(0);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const isDailyQuery = useMemo(() => {
+    const q = router.query || {};
+    return q.daily === "1" || q.daily === 1;
+  }, [router.query]);
+
+  const hasLeaderboardQuery = useMemo(() => {
+    const q = router.query || {};
+    return q.leaderboard === "1" || q.leaderboard === 1;
+  }, [router.query]);
+
+  const leaderboardEnabled = dailyMode || isDailyQuery || hasLeaderboardQuery;
   const [userId, setUserId] = useState(null);
   const [localNick, setLocalNick] = useState("");
   const [clientId, setClientId] = useState(null); // Anonymous clientId for leaderboard
@@ -401,7 +412,7 @@ function SingleTimeAttack() {
     const serverUrl = API_BASE;
     const today = getDateKey(); // YYYY-MM-DD
 
-    console.log("[LEADERBOARD] submit date=" + today);
+    console.log(`[LEADERBOARD] submit date=${today} enabled=${leaderboardEnabled}`);
     
     try {
       const response = await fetch(`${serverUrl}/api/leaderboard/submit`, {
@@ -445,7 +456,7 @@ function SingleTimeAttack() {
       return;
     }
 
-    console.log("[LEADERBOARD] fetch date=" + today);
+    console.log(`[LEADERBOARD] fetch date=${today} enabled=${leaderboardEnabled}`);
     leaderboardFetchedDateRef.current = today;
     
     setLeaderboardLoading(true);
@@ -468,7 +479,7 @@ function SingleTimeAttack() {
     } finally {
       setLeaderboardLoading(false);
     }
-  }, []);
+  }, [leaderboardEnabled]);
 
   const startGame = () => {
     if (!questions.length) return;
@@ -612,15 +623,17 @@ function SingleTimeAttack() {
 
   // Auto-start daily if query param present (from Home CTA)
   useEffect(() => {
-    const q = router.query || {};
-    if (q.daily === '1' || q.daily === 1) {
+    if (isDailyQuery) {
       // only start if not already playing or played
       const dk = getDateKey();
       const played = safeGetLS(`fta_daily_${dk}`);
       if (!played) startDailyChallenge();
-      if (q.leaderboard === '1') setShowLeaderboard(true);
     }
-  }, [router.query]);
+
+    if (leaderboardEnabled) {
+      setShowLeaderboard(true);
+    }
+  }, [isDailyQuery, leaderboardEnabled]);
 
   // Initialize stable anonymous clientId on client only
   useEffect(() => {
@@ -887,15 +900,15 @@ function SingleTimeAttack() {
 
   // Fetch leaderboard when in daily mode (on mount or date change)
   useEffect(() => {
-    if (dailyMode) {
+    if (leaderboardEnabled && dailyMode) {
       const today = getDateKey();
       fetchTodaysLeaderboard(today);
     }
-  }, [dailyMode, fetchTodaysLeaderboard]);
+  }, [dailyMode, fetchTodaysLeaderboard, leaderboardEnabled]);
 
   // Submit daily score to backend leaderboard when Daily Challenge ends
   useEffect(() => {
-    if (status === "RESULT" && dailyMode && clientId) {
+    if (status === "RESULT" && dailyMode && clientId && leaderboardEnabled) {
       // Small delay to ensure state is settled
       const timer = setTimeout(() => {
         submitDailyToLeaderboard();
@@ -906,7 +919,7 @@ function SingleTimeAttack() {
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [status, dailyMode, clientId, fetchTodaysLeaderboard]);
+  }, [status, dailyMode, clientId, fetchTodaysLeaderboard, leaderboardEnabled]);
 
   function TodayLeaderboard() {
     const [items, setItems] = useState([]);
