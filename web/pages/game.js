@@ -261,7 +261,8 @@ function SingleTimeAttack() {
   const [userId, setUserId] = useState(null);
   const [localNick, setLocalNick] = useState("");
   const [clientId, setClientId] = useState(null); // Anonymous clientId for leaderboard
-  const [leaderboardItems, setLeaderboardItems] = useState([]); // Top scores for today
+  const [todayTopScores, setTodayTopScores] = useState([]); // Top scores for today (from server)
+  const [myTodayScore, setMyTodayScore] = useState(null); // My score for today
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
 
   const goatSounds = useMemo(() => ["/sfx/goat1.mp3", "/sfx/goat2.mp3"], []);
@@ -455,15 +456,15 @@ function SingleTimeAttack() {
 
       if (response.ok) {
         const data = await response.json();
-        setLeaderboardItems(data.items || []);
+        setTodayTopScores(data.items || []);
         console.log("[LEADERBOARD] fetch success fetched=" + (data.items?.length || 0) + " items");
       } else {
         console.warn("[LEADERBOARD] fetch failed status=" + response.status);
-        setLeaderboardItems([]);
+        setTodayTopScores([]);
       }
     } catch (err) {
       console.error("[LEADERBOARD] fetch error", err);
-      setLeaderboardItems([]);
+      setTodayTopScores([]);
     } finally {
       setLeaderboardLoading(false);
     }
@@ -559,6 +560,8 @@ function SingleTimeAttack() {
     ensureLocalUser();
     const dk = getDateKey();
     const deck = pickDailyDeck(questions, dk, 15);
+
+    setMyTodayScore(null);
 
     playGameStartSound();
     
@@ -832,6 +835,9 @@ function SingleTimeAttack() {
   // save bests on result and record daily challenge/leaderboard
   useEffect(() => {
     if (status === "RESULT") {
+      if (dailyMode) {
+        setMyTodayScore(score);
+      }
       // Track game completion event
       trackEvent("game_complete", {
         mode: dailyMode ? "daily" : "practice",
@@ -1206,24 +1212,25 @@ function SingleTimeAttack() {
                   </VStack>
 
                   {/* Daily Leaderboard Display */}
-                  {leaderboardItems.length > 0 && (
-                    <Box mt={5} p={4} bg="gray.50" borderRadius="md" borderWidth="1px" borderColor="gray.200">
-                      <Heading size="sm" mb={3}>📊 Today's Top Scores</Heading>
+                  <Box mt={5} p={4} bg="gray.50" borderRadius="md" borderWidth="1px" borderColor="gray.200">
+                    <Heading size="sm" mb={3}>📊 Today's Top Scores</Heading>
+                    <Text fontSize="sm" color="gray.600" mb={2}>My score today: {myTodayScore ?? "-"}</Text>
+                    {todayTopScores.length > 0 ? (
                       <VStack align="stretch" spacing={2}>
-                        {leaderboardItems.slice(0, 10).map((item, idx) => {
+                        {todayTopScores.slice(0, 10).map((item, idx) => {
                           const isCurrentPlayer = clientId && item.client_id === clientId;
-                          // Display name with client_id suffix if name is generic
+                          // Display name with client_id suffix
                           const displayName = (() => {
                             const name = item.name || "Player";
+                            const suffix = item.client_id ? item.client_id.slice(-4) : "????";
                             if (name === "Player" || name === "Anonymous" || !name.trim()) {
-                              const suffix = item.client_id ? item.client_id.slice(-4) : "????";
                               return `Player#${suffix}`;
                             }
-                            return name;
+                            return `${name}#${suffix}`;
                           })();
                           return (
                             <HStack
-                              key={`${item.client_id}_${idx}`}
+                              key={`${item.client_id || idx}_${idx}`}
                               justify="space-between"
                               p={2}
                               bg={isCurrentPlayer ? "orange.100" : "white"}
@@ -1242,11 +1249,13 @@ function SingleTimeAttack() {
                           );
                         })}
                       </VStack>
-                      {leaderboardLoading && (
-                        <Spinner size="sm" mt={2} />
-                      )}
-                    </Box>
-                  )}
+                    ) : (
+                      <Text fontSize="sm" color="gray.600">No scores yet.</Text>
+                    )}
+                    {leaderboardLoading && (
+                      <Spinner size="sm" mt={2} />
+                    )}
+                  </Box>
 
                   <HStack spacing={3} mt={4}>
                     <Button colorScheme="orange" w="100%" size="lg" onClick={() => router.push('/game?mode=single&daily=1&leaderboard=1')}>📊 Full Leaderboard</Button>
