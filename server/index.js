@@ -168,6 +168,8 @@ app.post("/api/leaderboard/submit", async (req, res) => {
 
   const { mode, date, name, clientId, score, solved, correct, perfect, bothTeams, oneTeam } = req.body;
 
+  console.log("[LEADERBOARD] POST submit date=" + date + " score=" + score);
+
   // Validate inputs
   if (mode !== "daily") {
     return res.status(400).json({ ok: false, error: "Only mode='daily' supported" });
@@ -256,6 +258,7 @@ app.post("/api/leaderboard/submit", async (req, res) => {
       }
     }
 
+    console.log("[LEADERBOARD] POST success stored=" + shouldInsert);
     res.json({ ok: true, stored: shouldInsert });
   } catch (err) {
     console.error("[LEADERBOARD] submit error:", err);
@@ -284,6 +287,8 @@ app.get("/api/leaderboard", async (req, res) => {
   // Validate limit
   const limitNum = Math.min(50, Math.max(1, parseInt(limit, 10) || 20));
 
+  console.log("[LEADERBOARD] GET request date=" + date + " limit=" + limitNum);
+
   try {
     const supabase = getSupabase();
 
@@ -302,6 +307,7 @@ app.get("/api/leaderboard", async (req, res) => {
       return res.status(500).json({ ok: false, error: err.message });
     }
 
+    console.log("[LEADERBOARD] GET success returned=" + (items?.length || 0) + " items");
     res.json({ ok: true, items: items || [] });
   } catch (err) {
     console.error("[LEADERBOARD] error:", err);

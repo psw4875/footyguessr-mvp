@@ -398,6 +398,8 @@ function SingleTimeAttack() {
     const serverUrl = API_BASE;
     const today = getDateKey(); // YYYY-MM-DD
 
+    console.log("[LEADERBOARD] submit date=" + today);
+    
     try {
       const response = await fetch(`${serverUrl}/api/leaderboard/submit`, {
         method: "POST",
@@ -418,11 +420,11 @@ function SingleTimeAttack() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("[LEADERBOARD] submit success", data);
+        console.log("[LEADERBOARD] submit success stored=" + data.stored);
         // Optionally track in GA
         trackEvent("leaderboard_submit", { mode: "daily", stored: data.stored });
       } else {
-        console.warn("[LEADERBOARD] submit failed", response.status);
+        console.warn("[LEADERBOARD] submit failed status=" + response.status);
       }
     } catch (err) {
       console.error("[LEADERBOARD] submit error", err);
@@ -436,6 +438,8 @@ function SingleTimeAttack() {
     const serverUrl = API_BASE;
     const today = getDateKey(); // YYYY-MM-DD
 
+    console.log("[LEADERBOARD] fetch date=" + today);
+    
     setLeaderboardLoading(true);
     try {
       const response = await fetch(
@@ -445,9 +449,9 @@ function SingleTimeAttack() {
       if (response.ok) {
         const data = await response.json();
         setLeaderboardItems(data.items || []);
-        console.log("[LEADERBOARD] fetch success", data.items?.length);
+        console.log("[LEADERBOARD] fetch success fetched=" + (data.items?.length || 0));
       } else {
-        console.warn("[LEADERBOARD] fetch failed", response.status);
+        console.warn("[LEADERBOARD] fetch failed status=" + response.status);
         setLeaderboardItems([]);
       }
     } catch (err) {
@@ -514,7 +518,9 @@ function SingleTimeAttack() {
   };
 
   function getDateKey() {
-    return new Date().toISOString().slice(0, 10);
+    // Use local timezone (not UTC) to ensure same date across all devices in same timezone
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
 
   function pickDailyDeck(questions, dateKey, count = 15) {
