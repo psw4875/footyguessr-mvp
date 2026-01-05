@@ -266,8 +266,9 @@ function SingleTimeAttack() {
 
   // Leaderboard visibility toggle (UI only, does NOT gate data fetching)
   const [showLeaderboardPanel, setShowLeaderboardPanel] = useState(false);
-  const [editingName, setEditingName] = useState(false);
-  const [leaderboardNameInput, setLeaderboardNameInput] = useState("");
+  const [isEditingName, setIsEditingName] = useState(false);
+  // Use ref to maintain stable draft state across renders (prevents input remount issues)
+  const draftNameRef = useRef("");
 
   // Anonymous client ID for leaderboard tracking
   const [clientId, setClientId] = useState(null);
@@ -280,7 +281,7 @@ function SingleTimeAttack() {
   
   // Get leaderboard display name (nickname or Player#suffix)
   const leaderboardName = useMemo(() => {
-    const stored = safeGetLS("leaderboard_name") || "";
+    const stored = safeGetLS("fg_leaderboard_name") || "";
     if (stored.trim()) return stored.trim();
     // Fallback: Player# + last 4 chars of clientId
     if (clientId) {
@@ -940,15 +941,50 @@ function SingleTimeAttack() {
   }, [status, dailyMode, clientId, submitDailyToLeaderboard]);
 
   function TodayLeaderboard() {
-    const [nameModalOpen, setNameModalOpen] = useState(false);
-    
-    const handleSaveName = () => {
-      const trimmed = leaderboardNameInput.trim();
-      if (trimmed) {
-        safeSetLS("leaderboard_name", trimmed);
+    const handleOpenEdit = () => {
+      // Initialize draft name ONLY when opening edit mode (not on every render)
+      draftNameRef.current = leaderboardName;
+      setIsEditingName(true);
+    };
+
+    const handleSaveName = async () => {
+      const trimmed = draftNameRef.current.trim().slice(0, 12);
+      if (!trimmed) {
+        draftNameRef.current = "";
+        setIsEditingName(false);
+        return;
       }
-      setEditingName(false);
-      setLeaderboardNameInput("");
+
+      // Save to localStorage
+      safeSetLS("fg_leaderboard_name", trimmed);
+      
+      // Update Supabase (upsert name in leaderboard_scores)
+      if (clientId) {
+        try {
+          const response = await fetch(`${API_BASE}/api/leaderboard/update-name`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              date: getDateKey(),
+              clientId,
+              name: trimmed,
+            }),
+          });
+          if (response.ok) {
+            console.log("[LEADERBOARD] name updated successfully");
+            // Refetch leaderboard to show updated names
+            leaderboardFetchedDateRef.current = null; // Reset to force refetch
+            await fetchTodaysLeaderboard(getDateKey());
+          } else {
+            console.warn("[LEADERBOARD] update-name failed status=" + response.status);
+          }
+        } catch (err) {
+          console.error("[LEADERBOARD] update-name error", err);
+        }
+      }
+
+      draftNameRef.current = "";
+      setIsEditingName(false);
     };
 
     if (leaderboardLoading) {
@@ -972,28 +1008,39 @@ function SingleTimeAttack() {
             size="xs"
             variant="outline"
             onClick={() => {
-              setLeaderboardNameInput(leaderboardName);
-              setEditingName(!editingName);
+              if (isEditingName) {
+                // Close without saving
+                draftNameRef.current = "";
+                setIsEditingName(false);
+              } else {
+                handleOpenEdit();
+              }
             }}
           >
-            {editingName ? "✕" : "✎ Edit"}
+            {isEditingName ? "✕" : "✎ Edit"}
           </Button>
         </HStack>
 
         {/* Edit Name Input */}
-        {editingName && (
+        {isEditingName && (
           <HStack spacing={2} w="100%">
             <Input
               size="sm"
-              placeholder="Enter your name"
-              value={leaderboardNameInput}
-              onChange={(e) => setLeaderboardNameInput(e.target.value)}
-              maxLength={30}
+              placeholder="Enter your name (max 12 chars)"
+              value={draftNameRef.current}
+              onChange={(e) => {
+                draftNameRef.current = e.target.value;
+                // Force re-render to reflect input changes
+                setIsEditingName(true);
+              }}
+              maxLength={12}
+              autoFocus
               onKeyDown={(e) => {
-                if (e.key === "Enter") handleSaveName();
-                if (e.key === "Escape") {
-                  setEditingName(false);
-                  setLeaderboardNameInput("");
+                if (e.key === "Enter") {
+                  handleSaveName();
+                } else if (e.key === "Escape") {
+                  draftNameRef.current = "";
+                  setIsEditingName(false);
                 }
               }}
             />
@@ -1007,7 +1054,9 @@ function SingleTimeAttack() {
         <VStack align="stretch" spacing={1}>
           {topScores.map((entry, idx) => {
             const isMyScore = entry.client_id === clientId;
-            const displayName = entry.name || `Player#${entry.client_id?.slice(-4) || "anon"}`;
+            // Display format: name#suffix or Player#suffix
+            const suffix = entry.client_id?.slice(-4) || "anon";
+            const displayName = entry.name ? `${entry.name}#${suffix}` : `Player#${suffix}`;
             
             return (
               <HStack

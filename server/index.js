@@ -315,6 +315,63 @@ app.get("/api/leaderboard", async (req, res) => {
   }
 });
 
+// Update name for a leaderboard entry (upsert)
+app.post("/api/leaderboard/update-name", async (req, res) => {
+  if (!isSupabaseReady()) {
+    return res.status(503).json({ ok: false, error: "Leaderboard unavailable" });
+  }
+
+  const { date, clientId, name } = req.body;
+
+  // Validate inputs
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return res.status(400).json({ ok: false, error: "Invalid date format (YYYY-MM-DD)" });
+  }
+  if (!clientId || clientId.length < 8 || clientId.length > 80) {
+    return res.status(400).json({ ok: false, error: "Invalid clientId" });
+  }
+
+  // Normalize and validate name (limit to 12 chars for display)
+  const displayName = (name || "").trim().slice(0, 12) || "Player";
+  
+  console.log("[LEADERBOARD] update-name date=" + date + " clientId=" + clientId + " name=" + displayName);
+
+  try {
+    const supabase = getSupabase();
+
+    // Upsert: update name if row exists for this date/client, insert if not
+    const { error: upsertErr } = await supabase
+      .from("leaderboard_scores")
+      .upsert(
+        {
+          mode: "daily",
+          date,
+          client_id: clientId,
+          name: displayName,
+          score: 0,
+          solved: 0,
+          correct: 0,
+          perfect: 0,
+          both_teams: 0,
+          one_team: 0,
+          created_at: new Date().toISOString(),
+        },
+        { onConflict: "mode,date,client_id" }
+      );
+
+    if (upsertErr) {
+      console.error("[LEADERBOARD] update-name failed:", upsertErr);
+      return res.status(500).json({ ok: false, error: upsertErr.message });
+    }
+
+    console.log("[LEADERBOARD] update-name success");
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("[LEADERBOARD] update-name error:", err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 // ===== END LEADERBOARD ENDPOINTS =====
 
 const server = http.createServer(app);
