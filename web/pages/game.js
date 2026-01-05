@@ -257,24 +257,38 @@ function SingleTimeAttack() {
   const [dailyMode, setDailyMode] = useState(false);
   const [dailyDeck, setDailyDeck] = useState([]);
   const dailyPosRef = useRef(0);
-  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  // Check if daily mode is active (from query or state)
   const isDailyQuery = useMemo(() => {
     const q = router.query || {};
     return q.daily === "1" || q.daily === 1;
   }, [router.query]);
+  const isDaily = dailyMode || isDailyQuery;
 
-  const hasLeaderboardQuery = useMemo(() => {
-    const q = router.query || {};
-    return q.leaderboard === "1" || q.leaderboard === 1;
-  }, [router.query]);
+  // Leaderboard visibility toggle (UI only, does NOT gate data fetching)
+  const [showLeaderboardPanel, setShowLeaderboardPanel] = useState(false);
+  const [editingName, setEditingName] = useState(false);
+  const [leaderboardNameInput, setLeaderboardNameInput] = useState("");
 
-  const leaderboardEnabled = dailyMode || isDailyQuery || hasLeaderboardQuery;
-  const [userId, setUserId] = useState(null);
-  const [localNick, setLocalNick] = useState("");
-  const [clientId, setClientId] = useState(null); // Anonymous clientId for leaderboard
-  const [todayTopScores, setTodayTopScores] = useState([]); // Top scores for today (from server)
-  const [myTodayScore, setMyTodayScore] = useState(null); // My score for today
+  // Anonymous client ID for leaderboard tracking
+  const [clientId, setClientId] = useState(null);
+  
+  // Leaderboard data states (independent of visibility)
+  const [topScores, setTopScores] = useState([]); // Array of all top scores for today
+  const [myEntry, setMyEntry] = useState(null); // This client's best score (if any)
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
+  const [leaderboardError, setLeaderboardError] = useState(null);
+  
+  // Get leaderboard display name (nickname or Player#suffix)
+  const leaderboardName = useMemo(() => {
+    const stored = safeGetLS("leaderboard_name") || "";
+    if (stored.trim()) return stored.trim();
+    // Fallback: Player# + last 4 chars of clientId
+    if (clientId) {
+      const suffix = clientId.slice(-4);
+      return `Player#${suffix}`;
+    }
+    return "Anonymous";
+  }, [clientId]);
 
   const goatSounds = useMemo(() => ["/sfx/goat1.mp3", "/sfx/goat2.mp3"], []);
 
@@ -404,15 +418,15 @@ function SingleTimeAttack() {
     }
   };
 
-  // Submit daily challenge result to leaderboard
-  const submitDailyToLeaderboard = async () => {
+  // Submit daily challenge result to leaderboard (refetch after success)
+  const submitDailyToLeaderboard = useCallback(async () => {
     // Guard: only submit if in daily mode with valid client ID and completed result
     if (!dailyMode || !clientId || status !== "RESULT") return;
 
     const serverUrl = API_BASE;
     const today = getDateKey(); // YYYY-MM-DD
 
-    console.log(`[LEADERBOARD] submit date=${today} enabled=${leaderboardEnabled}`);
+    console.log(`[LEADERBOARD] submitting score=${score} name="${leaderboardName}" date=${today}`);
     
     try {
       const response = await fetch(`${serverUrl}/api/leaderboard/submit`, {
@@ -421,11 +435,11 @@ function SingleTimeAttack() {
         body: JSON.stringify({
           mode: "daily",
           date: today,
-          name: localNick || "Anonymous",
+          name: leaderboardName,
           clientId,
           score: Number(score ?? 0),
           solved: Number(solved ?? 0),
-          correct: Number(solved ?? 0), // correct = solved count
+          correct: Number(solved ?? 0),
           perfect: Number(perfect ?? 0),
           bothTeams: Number(bothTeams ?? 0),
           oneTeam: Number(oneTeam ?? 0),
@@ -434,32 +448,35 @@ function SingleTimeAttack() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("[LEADERBOARD] submit success stored=" + data.stored);
-        // Optionally track in GA
+        console.log("[LEADERBOARD] submit success, refetching...");
         trackEvent("leaderboard_submit", { mode: "daily", stored: data.stored });
+        // Refetch leaderboard after successful submit
+        const today = getDateKey();
+        leaderboardFetchedDateRef.current = null; // Reset to force refetch
+        await fetchTodaysLeaderboard(today);
       } else {
         console.warn("[LEADERBOARD] submit failed status=" + response.status);
       }
     } catch (err) {
       console.error("[LEADERBOARD] submit error", err);
     }
-  };
+  }, [dailyMode, clientId, status, score, leaderboardName, fetchTodaysLeaderboard, solved, perfect, bothTeams, oneTeam]);
 
-  // Fetch today's leaderboard
+  // Fetch today's leaderboard (independent of UI visibility flag)
+  // This ALWAYS runs when isDaily=true and router.isReady, regardless of showLeaderboardPanel
   const fetchTodaysLeaderboard = useCallback(async (dateKey) => {
     const serverUrl = API_BASE;
     const today = dateKey || getDateKey(); // YYYY-MM-DD
 
     // Prevent duplicate fetch for same date
     if (leaderboardFetchedDateRef.current === today) {
-      console.log("[LEADERBOARD] already fetched for date=" + today);
-      return;
+      return; // Already fetched, skip
     }
 
-    console.log(`[LEADERBOARD] fetch date=${today} enabled=${leaderboardEnabled}`);
     leaderboardFetchedDateRef.current = today;
-    
     setLeaderboardLoading(true);
+    setLeaderboardError(null);
+    
     try {
       const response = await fetch(
         `${serverUrl}/api/leaderboard?mode=daily&date=${today}&limit=20`
@@ -467,19 +484,27 @@ function SingleTimeAttack() {
 
       if (response.ok) {
         const data = await response.json();
-        setTodayTopScores(data.items || []);
-        console.log("[LEADERBOARD] fetch success fetched=" + (data.items?.length || 0) + " items");
+        const items = data.items || [];
+        setTopScores(items);
+        
+        // Extract this client's entry if present
+        const myScore = items.find((item) => item.client_id === clientId);
+        setMyEntry(myScore || null);
       } else {
-        console.warn("[LEADERBOARD] fetch failed status=" + response.status);
-        setTodayTopScores([]);
+        console.warn("[LEADERBOARD] fetch failed, status=" + response.status);
+        setLeaderboardError(`Failed to load scores (${response.status})`);
+        setTopScores([]);
+        setMyEntry(null);
       }
     } catch (err) {
-      console.error("[LEADERBOARD] fetch error", err);
-      setTodayTopScores([]);
+      console.error("[LEADERBOARD] fetch error:", err);
+      setLeaderboardError("Network error loading scores");
+      setTopScores([]);
+      setMyEntry(null);
     } finally {
       setLeaderboardLoading(false);
     }
-  }, [leaderboardEnabled]);
+  }, [clientId]);
 
   const startGame = () => {
     if (!questions.length) return;
@@ -623,17 +648,13 @@ function SingleTimeAttack() {
 
   // Auto-start daily if query param present (from Home CTA)
   useEffect(() => {
-    if (isDailyQuery) {
+    if (isDailyQuery && router.isReady) {
       // only start if not already playing or played
       const dk = getDateKey();
       const played = safeGetLS(`fta_daily_${dk}`);
       if (!played) startDailyChallenge();
     }
-
-    if (leaderboardEnabled) {
-      setShowLeaderboard(true);
-    }
-  }, [isDailyQuery, leaderboardEnabled]);
+  }, [isDailyQuery, router.isReady]);
 
   // Initialize stable anonymous clientId on client only
   useEffect(() => {
@@ -898,56 +919,114 @@ function SingleTimeAttack() {
     }
   }, [status]);
 
-  // Fetch leaderboard when in daily mode (on mount or date change)
+  // Fetch leaderboard when in daily mode (on mount or when isDaily becomes true)
+  // This is INDEPENDENT of showLeaderboardPanel visibility
   useEffect(() => {
-    if (leaderboardEnabled && dailyMode) {
-      const today = getDateKey();
-      fetchTodaysLeaderboard(today);
-    }
-  }, [dailyMode, fetchTodaysLeaderboard, leaderboardEnabled]);
+    if (!isDaily || !router.isReady || !clientId) return;
+    
+    const today = getDateKey();
+    fetchTodaysLeaderboard(today);
+  }, [isDaily, router.isReady, clientId, fetchTodaysLeaderboard]);
 
   // Submit daily score to backend leaderboard when Daily Challenge ends
+  // After submit, refetch once to show updated scores
   useEffect(() => {
-    if (status === "RESULT" && dailyMode && clientId && leaderboardEnabled) {
-      // Small delay to ensure state is settled
+    if (status === "RESULT" && dailyMode && clientId) {
       const timer = setTimeout(() => {
         submitDailyToLeaderboard();
-        // Refetch after submit to get updated list
-        const today = getDateKey();
-        leaderboardFetchedDateRef.current = null; // Reset to allow refetch
-        fetchTodaysLeaderboard(today);
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [status, dailyMode, clientId, fetchTodaysLeaderboard, leaderboardEnabled]);
+  }, [status, dailyMode, clientId, submitDailyToLeaderboard]);
 
   function TodayLeaderboard() {
-    const [items, setItems] = useState([]);
-    useEffect(() => {
-      try {
-        const dk = getDateKey();
-        const key = `fta_leaderboard_${dk}`;
-        const raw = safeGetLS(key) || '[]';
-        const list = JSON.parse(raw);
-        list.sort((a,b)=>b.score - a.score || a.ts - b.ts);
-        setItems(list.slice(0,20));
-      } catch (e) { setItems([]); }
-    }, [showLeaderboard]);
+    const [nameModalOpen, setNameModalOpen] = useState(false);
+    
+    const handleSaveName = () => {
+      const trimmed = leaderboardNameInput.trim();
+      if (trimmed) {
+        safeSetLS("leaderboard_name", trimmed);
+      }
+      setEditingName(false);
+      setLeaderboardNameInput("");
+    };
 
-    if (!items || items.length === 0) return <Text fontSize="sm" color="gray.600">No scores yet.</Text>;
+    if (leaderboardLoading) {
+      return <HStack><Spinner size="sm" /><Text fontSize="sm">Loading scores...</Text></HStack>;
+    }
+
+    if (leaderboardError) {
+      return <Text fontSize="sm" color="red.600">{leaderboardError}</Text>;
+    }
+
+    if (!topScores || topScores.length === 0) {
+      return <Text fontSize="sm" color="gray.600">No scores yet.</Text>;
+    }
 
     return (
-      <VStack align="stretch" spacing={2}>
-        {items.map((p, idx) => {
-          const isMe = p.userId && (p.userId === userId || p.userId === safeGetLS('fta_userId'));
-          return (
-            <HStack key={`${p.userId}_${p.ts}`} justify="space-between" bg={isMe ? 'orange.50' : undefined} p={isMe ? 2 : 0} borderRadius={isMe ? 'md' : undefined}>
-              <Text width="28px">{idx + 1}</Text>
-              <Text flex="1" isTruncated>{p.nickname}</Text>
-              <Text fontWeight="bold">{p.score}</Text>
-            </HStack>
-          );
-        })}
+      <VStack align="stretch" spacing={3}>
+        {/* Edit Name Button */}
+        <HStack justify="space-between" align="center">
+          <Text fontSize="xs" color="gray.600">Your name: <b>{leaderboardName}</b></Text>
+          <Button
+            size="xs"
+            variant="outline"
+            onClick={() => {
+              setLeaderboardNameInput(leaderboardName);
+              setEditingName(!editingName);
+            }}
+          >
+            {editingName ? "✕" : "✎ Edit"}
+          </Button>
+        </HStack>
+
+        {/* Edit Name Input */}
+        {editingName && (
+          <HStack spacing={2} w="100%">
+            <Input
+              size="sm"
+              placeholder="Enter your name"
+              value={leaderboardNameInput}
+              onChange={(e) => setLeaderboardNameInput(e.target.value)}
+              maxLength={30}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSaveName();
+                if (e.key === "Escape") {
+                  setEditingName(false);
+                  setLeaderboardNameInput("");
+                }
+              }}
+            />
+            <Button size="sm" colorScheme="teal" onClick={handleSaveName}>
+              Save
+            </Button>
+          </HStack>
+        )}
+
+        {/* Leaderboard List */}
+        <VStack align="stretch" spacing={1}>
+          {topScores.map((entry, idx) => {
+            const isMyScore = entry.client_id === clientId;
+            const displayName = entry.name || `Player#${entry.client_id?.slice(-4) || "anon"}`;
+            
+            return (
+              <HStack
+                key={`${entry.client_id}_${idx}`}
+                justify="space-between"
+                px={2}
+                py={1}
+                borderRadius="sm"
+                bg={isMyScore ? "orange.100" : undefined}
+                borderLeft={isMyScore ? "3px solid" : undefined}
+                borderLeftColor={isMyScore ? "orange.500" : undefined}
+              >
+                <Text w="28px" fontSize="sm" fontWeight="bold">#{idx + 1}</Text>
+                <Text flex="1" fontSize="sm" isTruncated>{displayName}</Text>
+                <Text fontSize="sm" fontWeight="bold">{entry.score}</Text>
+              </HStack>
+            );
+          })}
+        </VStack>
       </VStack>
     );
   }
@@ -1075,8 +1154,8 @@ function SingleTimeAttack() {
                       <Button colorScheme="orange" onClick={() => startDailyChallenge()} isDisabled={!!played || loadingQ || !questions.length} w="100%" size="lg">
                         {played ? "✓ Done" : "🏆 Play Daily"}
                       </Button>
-                      <Button variant="outline" onClick={() => setShowLeaderboard((v) => !v)} w="100%" size="lg">
-                        {showLeaderboard ? "Hide" : "📊 Scores"}
+                      <Button variant="outline" onClick={() => setShowLeaderboardPanel((v) => !v)} w="100%" size="lg">
+                        {showLeaderboardPanel ? "Hide" : "📊 Scores"}
                       </Button>
                     </HStack>
                     {playedScore != null && (
@@ -1084,10 +1163,14 @@ function SingleTimeAttack() {
                         <Text fontSize="sm">My score today: <b>{playedScore}</b></Text>
                       </Box>
                     )}
-                    {showLeaderboard && (
+                    {isDaily && (
                       <Box mt={3} borderTop="1px" pt={3}>
                         <Heading size="sm" mb={2}>Today’s Leaderboard</Heading>
-                        <TodayLeaderboard />
+                        {showLeaderboardPanel ? (
+                          <TodayLeaderboard />
+                        ) : (
+                          <Text fontSize="xs" color="gray.500">Click "📊 Scores" to view</Text>
+                        )}
                       </Box>
                     )}
                   </>
