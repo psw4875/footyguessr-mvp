@@ -263,6 +263,8 @@ function SingleTimeAttack() {
   const [leaderboardItems, setLeaderboardItems] = useState([]); // Top scores for today
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
 
+  const goatSounds = useMemo(() => ["/sfx/goat1.mp3", "/sfx/goat2.mp3"], []);
+
   const getCanonicalTeam = useCallback(
     (value) => {
       const norm = normalizeTeam(value);
