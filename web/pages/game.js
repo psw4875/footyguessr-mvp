@@ -259,8 +259,9 @@ function SingleTimeAttack() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [userId, setUserId] = useState(null);
   const [localNick, setLocalNick] = useState("");
-
-  const goatSounds = useMemo(() => ["/sfx/goat1.mp3", "/sfx/goat2.mp3"], []);
+  const [clientId, setClientId] = useState(null); // Anonymous clientId for leaderboard
+  const [leaderboardItems, setLeaderboardItems] = useState([]); // Top scores for today
+  const [leaderboardLoading, setLeaderboardLoading] = useState(false);
 
   const getCanonicalTeam = useCallback(
     (value) => {
@@ -385,6 +386,73 @@ function SingleTimeAttack() {
         correct: solved,
         method: shareMethod,
       });
+    }
+  };
+
+  // Submit daily challenge result to leaderboard
+  const submitDailyToLeaderboard = async () => {
+    if (!dailyMode || !clientId) return;
+
+    const serverUrl = API_BASE;
+    const today = getDateKey(); // YYYY-MM-DD
+
+    try {
+      const response = await fetch(`${serverUrl}/api/leaderboard/submit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "daily",
+          date: today,
+          name: localNick || "Anonymous",
+          clientId,
+          score,
+          solved,
+          correct,
+          perfect,
+          bothTeams,
+          oneTeam,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("[LEADERBOARD] submit success", data);
+        // Optionally track in GA
+        trackEvent("leaderboard_submit", { mode: "daily", stored: data.stored });
+      } else {
+        console.warn("[LEADERBOARD] submit failed", response.status);
+      }
+    } catch (err) {
+      console.error("[LEADERBOARD] submit error", err);
+    }
+  };
+
+  // Fetch today's leaderboard
+  const fetchTodaysLeaderboard = async () => {
+    if (!dailyMode) return;
+
+    const serverUrl = API_BASE;
+    const today = getDateKey(); // YYYY-MM-DD
+
+    setLeaderboardLoading(true);
+    try {
+      const response = await fetch(
+        `${serverUrl}/api/leaderboard?mode=daily&date=${today}&limit=20`
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setLeaderboardItems(data.items || []);
+        console.log("[LEADERBOARD] fetch success", data.items?.length);
+      } else {
+        console.warn("[LEADERBOARD] fetch failed", response.status);
+        setLeaderboardItems([]);
+      }
+    } catch (err) {
+      console.error("[LEADERBOARD] fetch error", err);
+      setLeaderboardItems([]);
+    } finally {
+      setLeaderboardLoading(false);
     }
   };
 
@@ -535,6 +603,25 @@ function SingleTimeAttack() {
       if (q.leaderboard === '1') setShowLeaderboard(true);
     }
   }, [router.query]);
+
+  // Initialize stable anonymous clientId on client only
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const existingId = safeGetLS("fg_client_id");
+    if (existingId) {
+      setClientId(existingId);
+    } else {
+      // Generate new crypto UUID if available, fallback to random string
+      let newId;
+      if (typeof window !== "undefined" && window.crypto?.randomUUID) {
+        newId = window.crypto.randomUUID();
+      } else {
+        newId = `fg_${Math.random().toString(36).slice(2, 18)}_${Date.now().toString(36)}`;
+      }
+      safeSetLS("fg_client_id", newId);
+      setClientId(newId);
+    }
+  }, []);
 
   // 결과 화면 사운드: 50점 이상은 염소 사운드 중 랜덤 1개, 20점 미만은 under20.mp3 (각각 한 번만)
   useEffect(() => {
@@ -776,6 +863,18 @@ function SingleTimeAttack() {
       } catch (e) {}
     }
   }, [status]);
+
+  // Submit daily score to backend leaderboard when Daily Challenge ends
+  useEffect(() => {
+    if (status === "RESULT" && dailyMode && clientId) {
+      // Small delay to ensure state is settled
+      const timer = setTimeout(() => {
+        submitDailyToLeaderboard();
+        fetchTodaysLeaderboard();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [status, dailyMode, clientId]);
 
   function TodayLeaderboard() {
     const [items, setItems] = useState([]);
@@ -1079,8 +1178,43 @@ function SingleTimeAttack() {
                       <Text fontSize="sm" color="blue.700" fontWeight="500">✨ Come back tomorrow for a new set!</Text>
                     </Box>
                   </VStack>
+
+                  {/* Daily Leaderboard Display */}
+                  {leaderboardItems.length > 0 && (
+                    <Box mt={5} p={4} bg="gray.50" borderRadius="md" borderWidth="1px" borderColor="gray.200">
+                      <Heading size="sm" mb={3}>📊 Today's Top Scores</Heading>
+                      <VStack align="stretch" spacing={2}>
+                        {leaderboardItems.slice(0, 10).map((item, idx) => {
+                          const isCurrentPlayer = clientId && item.client_id === clientId;
+                          return (
+                            <HStack
+                              key={`${item.client_id}_${idx}`}
+                              justify="space-between"
+                              p={2}
+                              bg={isCurrentPlayer ? "orange.100" : "white"}
+                              borderRadius="sm"
+                              borderWidth={isCurrentPlayer ? "2px" : "1px"}
+                              borderColor={isCurrentPlayer ? "orange.400" : "gray.200"}
+                            >
+                              <Text width="28px" fontWeight="bold">{idx + 1}</Text>
+                              <Text flex="1" isTruncated fontSize="sm">
+                                {item.name}
+                              </Text>
+                              <Text fontWeight="bold" fontSize="sm" textAlign="right" minW="45px">
+                                {item.score}
+                              </Text>
+                            </HStack>
+                          );
+                        })}
+                      </VStack>
+                      {leaderboardLoading && (
+                        <Spinner size="sm" mt={2} />
+                      )}
+                    </Box>
+                  )}
+
                   <HStack spacing={3} mt={4}>
-                    <Button colorScheme="orange" w="100%" size="lg" onClick={() => router.push('/game?mode=single&daily=1&leaderboard=1')}>📊 Leaderboard</Button>
+                    <Button colorScheme="orange" w="100%" size="lg" onClick={() => router.push('/game?mode=single&daily=1&leaderboard=1')}>📊 Full Leaderboard</Button>
                     <Button variant="outline" w="100%" size="lg" onClick={() => router.push('/')}>Menu</Button>
                   </HStack>
                 </Box>

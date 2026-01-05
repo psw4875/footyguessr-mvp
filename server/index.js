@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { initSupabase, getSupabase, isSupabaseReady } from "./lib/supabase.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -144,6 +145,171 @@ app.get("/api/questions", (req, res) => {
   res.json(filtered);
 });
 
+// ===== LEADERBOARD ENDPOINTS =====
+
+// Initialize Supabase on startup
+initSupabase();
+
+// Health check for leaderboard (verify Supabase connection)
+app.get("/api/leaderboard/health", (req, res) => {
+  res.json({
+    ok: true,
+    leaderboard: {
+      enabled: isSupabaseReady(),
+    },
+  });
+});
+
+// Submit result to leaderboard
+app.post("/api/leaderboard/submit", async (req, res) => {
+  if (!isSupabaseReady()) {
+    return res.status(503).json({ ok: false, error: "Leaderboard unavailable" });
+  }
+
+  const { mode, date, name, clientId, score, solved, correct, perfect, bothTeams, oneTeam } = req.body;
+
+  // Validate inputs
+  if (mode !== "daily") {
+    return res.status(400).json({ ok: false, error: "Only mode='daily' supported" });
+  }
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return res.status(400).json({ ok: false, error: "Invalid date format (YYYY-MM-DD)" });
+  }
+  if (!clientId || clientId.length < 8 || clientId.length > 80) {
+    return res.status(400).json({ ok: false, error: "Invalid clientId (8..80 chars)" });
+  }
+
+  // Normalize name
+  let displayName = (name || "").trim().slice(0, 20) || "Anonymous";
+
+  // Validate scores
+  const scoreNum = Number(score);
+  const solvedNum = Number(solved);
+  const correctNum = Number(correct);
+  const perfectNum = Number(perfect);
+  const bothTeamsNum = Number(bothTeams);
+  const oneTeamNum = Number(oneTeam);
+
+  if (
+    !Number.isFinite(scoreNum) || scoreNum < 0 || scoreNum > 1000 ||
+    !Number.isFinite(solvedNum) || solvedNum < 0 || solvedNum > 999 ||
+    !Number.isFinite(correctNum) || correctNum < 0 || correctNum > 999 ||
+    !Number.isFinite(perfectNum) || perfectNum < 0 || perfectNum > 999 ||
+    !Number.isFinite(bothTeamsNum) || bothTeamsNum < 0 || bothTeamsNum > 999 ||
+    !Number.isFinite(oneTeamNum) || oneTeamNum < 0 || oneTeamNum > 999
+  ) {
+    return res.status(400).json({ ok: false, error: "Invalid score values" });
+  }
+
+  try {
+    const supabase = getSupabase();
+
+    // Get current best score for this client on this date
+    const { data: existing, error: selectErr } = await supabase
+      .from("leaderboard_scores")
+      .select("*")
+      .eq("mode", "daily")
+      .eq("date", date)
+      .eq("client_id", clientId)
+      .order("score", { ascending: false })
+      .order("solved", { ascending: false })
+      .order("created_at", { ascending: true })
+      .limit(1);
+
+    if (selectErr) {
+      console.error("[LEADERBOARD] select failed:", selectErr);
+      return res.status(500).json({ ok: false, error: selectErr.message });
+    }
+
+    let shouldInsert = true;
+
+    // Best-only logic: only insert if new score is better
+    if (existing && existing.length > 0) {
+      const best = existing[0];
+      const isBetter =
+        scoreNum > best.score ||
+        (scoreNum === best.score && solvedNum > best.solved);
+
+      shouldInsert = isBetter;
+    }
+
+    if (shouldInsert) {
+      const { error: insertErr } = await supabase
+        .from("leaderboard_scores")
+        .insert({
+          mode: "daily",
+          date,
+          name: displayName,
+          client_id: clientId,
+          score: scoreNum,
+          solved: solvedNum,
+          correct: correctNum,
+          perfect: perfectNum,
+          both_teams: bothTeamsNum,
+          one_team: oneTeamNum,
+          created_at: new Date().toISOString(),
+        });
+
+      if (insertErr) {
+        console.error("[LEADERBOARD] insert failed:", insertErr);
+        return res.status(500).json({ ok: false, error: insertErr.message });
+      }
+    }
+
+    res.json({ ok: true, stored: shouldInsert });
+  } catch (err) {
+    console.error("[LEADERBOARD] submit error:", err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// Fetch leaderboard for a given date
+app.get("/api/leaderboard", async (req, res) => {
+  if (!isSupabaseReady()) {
+    return res.status(503).json({ ok: false, error: "Leaderboard unavailable" });
+  }
+
+  const { mode = "daily", date, limit = "20" } = req.query;
+
+  // Only allow daily mode
+  if (mode !== "daily") {
+    return res.status(400).json({ ok: false, error: "Only mode='daily' supported" });
+  }
+
+  // Validate date
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return res.status(400).json({ ok: false, error: "Invalid date format (YYYY-MM-DD)" });
+  }
+
+  // Validate limit
+  const limitNum = Math.min(50, Math.max(1, parseInt(limit, 10) || 20));
+
+  try {
+    const supabase = getSupabase();
+
+    const { data: items, error: err } = await supabase
+      .from("leaderboard_scores")
+      .select("name, score, solved, correct, perfect, both_teams, one_team, client_id, created_at")
+      .eq("mode", "daily")
+      .eq("date", date)
+      .order("score", { ascending: false })
+      .order("solved", { ascending: false })
+      .order("created_at", { ascending: true })
+      .limit(limitNum);
+
+    if (err) {
+      console.error("[LEADERBOARD] fetch error:", err);
+      return res.status(500).json({ ok: false, error: err.message });
+    }
+
+    res.json({ ok: true, items: items || [] });
+  } catch (err) {
+    console.error("[LEADERBOARD] error:", err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// ===== END LEADERBOARD ENDPOINTS =====
 
 const server = http.createServer(app);
 const io = new Server(server, {
