@@ -267,8 +267,6 @@ function SingleTimeAttack() {
   // Leaderboard visibility toggle (UI only, does NOT gate data fetching)
   const [showLeaderboardPanel, setShowLeaderboardPanel] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
-  // Use ref to maintain stable draft state across renders (prevents input remount issues)
-  const draftNameRef = useRef("");
 
   // Anonymous client ID for leaderboard tracking
   const [clientId, setClientId] = useState(null);
@@ -941,16 +939,19 @@ function SingleTimeAttack() {
   }, [status, dailyMode, clientId, submitDailyToLeaderboard]);
 
   function TodayLeaderboard() {
+    // Separate state for input to prevent IME/re-render issues
+    const [inputValue, setInputValue] = useState("");
+
     const handleOpenEdit = () => {
-      // Initialize draft name ONLY when opening edit mode (not on every render)
-      draftNameRef.current = leaderboardName;
+      // Initialize input with current name when opening edit mode
+      setInputValue(leaderboardName);
       setIsEditingName(true);
     };
 
     const handleSaveName = async () => {
-      const trimmed = draftNameRef.current.trim().slice(0, 12);
+      const trimmed = inputValue.trim().slice(0, 12);
       if (!trimmed) {
-        draftNameRef.current = "";
+        setInputValue("");
         setIsEditingName(false);
         return;
       }
@@ -958,7 +959,9 @@ function SingleTimeAttack() {
       // Save to localStorage
       safeSetLS("fg_leaderboard_name", trimmed);
       
-      // Update Supabase (upsert name in leaderboard_scores)
+      console.log("[LEADERBOARD] update-name payload", { date: getDateKey(), client_id: clientId, name: trimmed });
+
+      // Update Supabase
       if (clientId) {
         try {
           const response = await fetch(`${API_BASE}/api/leaderboard/update-name`, {
@@ -966,7 +969,7 @@ function SingleTimeAttack() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               date: getDateKey(),
-              clientId,
+              client_id: clientId,
               name: trimmed,
             }),
           });
@@ -975,15 +978,26 @@ function SingleTimeAttack() {
             // Refetch leaderboard to show updated names
             leaderboardFetchedDateRef.current = null; // Reset to force refetch
             await fetchTodaysLeaderboard(getDateKey());
+            setInputValue("");
+            setIsEditingName(false);
           } else {
-            console.warn("[LEADERBOARD] update-name failed status=" + response.status);
+            const data = await response.json();
+            console.warn("[LEADERBOARD] update-name failed status=" + response.status, data);
+            // Keep edit open on failure so user can retry
           }
         } catch (err) {
           console.error("[LEADERBOARD] update-name error", err);
+          // Keep edit open on error
         }
+      } else {
+        // No clientId yet, just close and try again next time
+        setInputValue("");
+        setIsEditingName(false);
       }
+    };
 
-      draftNameRef.current = "";
+    const handleCancel = () => {
+      setInputValue("");
       setIsEditingName(false);
     };
 
@@ -1009,9 +1023,7 @@ function SingleTimeAttack() {
             variant="outline"
             onClick={() => {
               if (isEditingName) {
-                // Close without saving
-                draftNameRef.current = "";
-                setIsEditingName(false);
+                handleCancel();
               } else {
                 handleOpenEdit();
               }
@@ -1027,20 +1039,15 @@ function SingleTimeAttack() {
             <Input
               size="sm"
               placeholder="Enter your name (max 12 chars)"
-              value={draftNameRef.current}
-              onChange={(e) => {
-                draftNameRef.current = e.target.value;
-                // Force re-render to reflect input changes
-                setIsEditingName(true);
-              }}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
               maxLength={12}
               autoFocus
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   handleSaveName();
                 } else if (e.key === "Escape") {
-                  draftNameRef.current = "";
-                  setIsEditingName(false);
+                  handleCancel();
                 }
               }}
             />

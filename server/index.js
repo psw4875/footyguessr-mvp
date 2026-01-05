@@ -315,56 +315,52 @@ app.get("/api/leaderboard", async (req, res) => {
   }
 });
 
-// Update name for a leaderboard entry (upsert)
+// Update name for a leaderboard entry
 app.post("/api/leaderboard/update-name", async (req, res) => {
   if (!isSupabaseReady()) {
     return res.status(503).json({ ok: false, error: "Leaderboard unavailable" });
   }
 
-  const { date, clientId, name } = req.body;
+  // Support both snake_case and camelCase for client_id (frontend might send either)
+  const { date, clientId, client_id, name } = req.body;
+  const finalClientId = client_id || clientId;
 
   // Validate inputs
   if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
     return res.status(400).json({ ok: false, error: "Invalid date format (YYYY-MM-DD)" });
   }
-  if (!clientId || clientId.length < 8 || clientId.length > 80) {
+  if (!finalClientId || finalClientId.length < 8 || finalClientId.length > 80) {
     return res.status(400).json({ ok: false, error: "Invalid clientId" });
+  }
+  if (!name || typeof name !== "string") {
+    return res.status(400).json({ ok: false, error: "Name is required" });
   }
 
   // Normalize and validate name (limit to 12 chars for display)
-  const displayName = (name || "").trim().slice(0, 12) || "Player";
+  const displayName = String(name || "").trim().slice(0, 12);
+  if (!displayName) {
+    return res.status(400).json({ ok: false, error: "Name cannot be empty after trim" });
+  }
   
-  console.log("[LEADERBOARD] update-name date=" + date + " clientId=" + clientId + " name=" + displayName);
+  console.log("[LEADERBOARD] update-name payload", { date, client_id: finalClientId, name: displayName });
 
   try {
     const supabase = getSupabase();
 
-    // Upsert: update name if row exists for this date/client, insert if not
-    const { error: upsertErr } = await supabase
+    // Update existing row for this date/mode/client (do NOT create if missing)
+    const { error: updateErr } = await supabase
       .from("leaderboard_scores")
-      .upsert(
-        {
-          mode: "daily",
-          date,
-          client_id: clientId,
-          name: displayName,
-          score: 0,
-          solved: 0,
-          correct: 0,
-          perfect: 0,
-          both_teams: 0,
-          one_team: 0,
-          created_at: new Date().toISOString(),
-        },
-        { onConflict: "mode,date,client_id" }
-      );
+      .update({ name: displayName })
+      .eq("mode", "daily")
+      .eq("date", date)
+      .eq("client_id", finalClientId);
 
-    if (upsertErr) {
-      console.error("[LEADERBOARD] update-name failed:", upsertErr);
-      return res.status(500).json({ ok: false, error: upsertErr.message });
+    if (updateErr) {
+      console.error("[LEADERBOARD] update-name failed:", updateErr);
+      return res.status(500).json({ ok: false, error: updateErr.message });
     }
 
-    console.log("[LEADERBOARD] update-name success");
+    console.log("[LEADERBOARD] name updated successfully");
     res.json({ ok: true });
   } catch (err) {
     console.error("[LEADERBOARD] update-name error:", err);
