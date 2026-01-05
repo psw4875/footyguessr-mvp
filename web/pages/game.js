@@ -418,50 +418,6 @@ function SingleTimeAttack() {
     }
   };
 
-  // Submit daily challenge result to leaderboard (refetch after success)
-  const submitDailyToLeaderboard = useCallback(async () => {
-    // Guard: only submit if in daily mode with valid client ID and completed result
-    if (!dailyMode || !clientId || status !== "RESULT") return;
-
-    const serverUrl = API_BASE;
-    const today = getDateKey(); // YYYY-MM-DD
-
-    console.log(`[LEADERBOARD] submitting score=${score} name="${leaderboardName}" date=${today}`);
-    
-    try {
-      const response = await fetch(`${serverUrl}/api/leaderboard/submit`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mode: "daily",
-          date: today,
-          name: leaderboardName,
-          clientId,
-          score: Number(score ?? 0),
-          solved: Number(solved ?? 0),
-          correct: Number(solved ?? 0),
-          perfect: Number(perfect ?? 0),
-          bothTeams: Number(bothTeams ?? 0),
-          oneTeam: Number(oneTeam ?? 0),
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log("[LEADERBOARD] submit success, refetching...");
-        trackEvent("leaderboard_submit", { mode: "daily", stored: data.stored });
-        // Refetch leaderboard after successful submit
-        const today = getDateKey();
-        leaderboardFetchedDateRef.current = null; // Reset to force refetch
-        await fetchTodaysLeaderboard(today);
-      } else {
-        console.warn("[LEADERBOARD] submit failed status=" + response.status);
-      }
-    } catch (err) {
-      console.error("[LEADERBOARD] submit error", err);
-    }
-  }, [dailyMode, clientId, status, score, leaderboardName, fetchTodaysLeaderboard, solved, perfect, bothTeams, oneTeam]);
-
   // Fetch today's leaderboard (independent of UI visibility flag)
   // This ALWAYS runs when isDaily=true and router.isReady, regardless of showLeaderboardPanel
   const fetchTodaysLeaderboard = useCallback(async (dateKey) => {
@@ -505,6 +461,50 @@ function SingleTimeAttack() {
       setLeaderboardLoading(false);
     }
   }, [clientId]);
+
+  // Submit daily challenge result to leaderboard (refetch after success)
+  const submitDailyToLeaderboard = useCallback(async () => {
+    // Guard: only submit if in daily mode with valid client ID and completed result
+    if (!dailyMode || !clientId || status !== "RESULT") return;
+
+    const serverUrl = API_BASE;
+    const today = getDateKey(); // YYYY-MM-DD
+
+    console.log(`[LEADERBOARD] submitting score=${score} name="${leaderboardName}" date=${today}`);
+    
+    try {
+      const response = await fetch(`${serverUrl}/api/leaderboard/submit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "daily",
+          date: today,
+          name: leaderboardName,
+          clientId,
+          score: Number(score ?? 0),
+          solved: Number(solved ?? 0),
+          correct: Number(solved ?? 0),
+          perfect: Number(perfect ?? 0),
+          bothTeams: Number(bothTeams ?? 0),
+          oneTeam: Number(oneTeam ?? 0),
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("[LEADERBOARD] submit success, refetching...");
+        trackEvent("leaderboard_submit", { mode: "daily", stored: data.stored });
+        // Refetch leaderboard after successful submit
+        const today = getDateKey();
+        leaderboardFetchedDateRef.current = null; // Reset to force refetch
+        await fetchTodaysLeaderboard(today);
+      } else {
+        console.warn("[LEADERBOARD] submit failed status=" + response.status);
+      }
+    } catch (err) {
+      console.error("[LEADERBOARD] submit error", err);
+    }
+  }, [dailyMode, clientId, status, score, leaderboardName, fetchTodaysLeaderboard, solved, perfect, bothTeams, oneTeam]);
 
   const startGame = () => {
     if (!questions.length) return;
