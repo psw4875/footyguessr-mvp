@@ -238,6 +238,7 @@ function SingleTimeAttack() {
   const goatSoundPlayedRef = useRef(false);
   const goatSelectedSrcRef = useRef(null);
   const under20SoundPlayedRef = useRef(false);
+  const leaderboardFetchedDateRef = useRef(null); // Guard: track last fetched date
 
   const imageSrc = useMemo(() => current?.imageUrl || "", [current]);
 
@@ -433,13 +434,18 @@ function SingleTimeAttack() {
   };
 
   // Fetch today's leaderboard
-  const fetchTodaysLeaderboard = async () => {
-    if (!dailyMode) return;
-
+  const fetchTodaysLeaderboard = useCallback(async (dateKey) => {
     const serverUrl = API_BASE;
-    const today = getDateKey(); // YYYY-MM-DD
+    const today = dateKey || getDateKey(); // YYYY-MM-DD
+
+    // Prevent duplicate fetch for same date
+    if (leaderboardFetchedDateRef.current === today) {
+      console.log("[LEADERBOARD] already fetched for date=" + today);
+      return;
+    }
 
     console.log("[LEADERBOARD] fetch date=" + today);
+    leaderboardFetchedDateRef.current = today;
     
     setLeaderboardLoading(true);
     try {
@@ -450,7 +456,7 @@ function SingleTimeAttack() {
       if (response.ok) {
         const data = await response.json();
         setLeaderboardItems(data.items || []);
-        console.log("[LEADERBOARD] fetch success fetched=" + (data.items?.length || 0));
+        console.log("[LEADERBOARD] fetch success fetched=" + (data.items?.length || 0) + " items");
       } else {
         console.warn("[LEADERBOARD] fetch failed status=" + response.status);
         setLeaderboardItems([]);
@@ -461,7 +467,7 @@ function SingleTimeAttack() {
     } finally {
       setLeaderboardLoading(false);
     }
-  };
+  }, []);
 
   const startGame = () => {
     if (!questions.length) return;
@@ -873,17 +879,28 @@ function SingleTimeAttack() {
     }
   }, [status]);
 
+  // Fetch leaderboard when in daily mode (on mount or date change)
+  useEffect(() => {
+    if (dailyMode) {
+      const today = getDateKey();
+      fetchTodaysLeaderboard(today);
+    }
+  }, [dailyMode, fetchTodaysLeaderboard]);
+
   // Submit daily score to backend leaderboard when Daily Challenge ends
   useEffect(() => {
     if (status === "RESULT" && dailyMode && clientId) {
       // Small delay to ensure state is settled
       const timer = setTimeout(() => {
         submitDailyToLeaderboard();
-        fetchTodaysLeaderboard();
+        // Refetch after submit to get updated list
+        const today = getDateKey();
+        leaderboardFetchedDateRef.current = null; // Reset to allow refetch
+        fetchTodaysLeaderboard(today);
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [status, dailyMode, clientId]);
+  }, [status, dailyMode, clientId, fetchTodaysLeaderboard]);
 
   function TodayLeaderboard() {
     const [items, setItems] = useState([]);
@@ -1195,6 +1212,15 @@ function SingleTimeAttack() {
                       <VStack align="stretch" spacing={2}>
                         {leaderboardItems.slice(0, 10).map((item, idx) => {
                           const isCurrentPlayer = clientId && item.client_id === clientId;
+                          // Display name with client_id suffix if name is generic
+                          const displayName = (() => {
+                            const name = item.name || "Player";
+                            if (name === "Player" || name === "Anonymous" || !name.trim()) {
+                              const suffix = item.client_id ? item.client_id.slice(-4) : "????";
+                              return `Player#${suffix}`;
+                            }
+                            return name;
+                          })();
                           return (
                             <HStack
                               key={`${item.client_id}_${idx}`}
@@ -1207,7 +1233,7 @@ function SingleTimeAttack() {
                             >
                               <Text width="28px" fontWeight="bold">{idx + 1}</Text>
                               <Text flex="1" isTruncated fontSize="sm">
-                                {item.name}
+                                {displayName}
                               </Text>
                               <Text fontWeight="bold" fontSize="sm" textAlign="right" minW="45px">
                                 {item.score}
