@@ -393,7 +393,8 @@ function SingleTimeAttack() {
 
   // Submit daily challenge result to leaderboard
   const submitDailyToLeaderboard = async () => {
-    if (!dailyMode || !clientId) return;
+    // Guard: only submit if in daily mode with valid client ID and completed result
+    if (!dailyMode || !clientId || status !== "RESULT") return;
 
     const serverUrl = API_BASE;
     const today = getDateKey(); // YYYY-MM-DD
@@ -409,12 +410,12 @@ function SingleTimeAttack() {
           date: today,
           name: localNick || "Anonymous",
           clientId,
-          score,
-          solved,
-          correct,
-          perfect,
-          bothTeams,
-          oneTeam,
+          score: Number(score ?? 0),
+          solved: Number(solved ?? 0),
+          correct: Number(solved ?? 0), // correct = solved count
+          perfect: Number(perfect ?? 0),
+          bothTeams: Number(bothTeams ?? 0),
+          oneTeam: Number(oneTeam ?? 0),
         }),
       });
 
