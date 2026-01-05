@@ -39,28 +39,94 @@ if (typeof window !== "undefined") {
   }
 }
 
-// ✅ Create socket singleton with secure configuration
-export const socket = io(socketUrl, {
-  transports: ["websocket", "polling"], // websocket priority, fallback to polling
-  autoConnect: true,
-  withCredentials: true, // Include CORS credentials
-  reconnection: true,
-  reconnectionDelay: 1000,
-  reconnectionDelayMax: 5000,
-  reconnectionAttempts: 10,
-  timeout: 20000,
-});
+// ✅ Lazy socket singleton: not created until explicitly connected
+let socketInstance = null;
+let isConnecting = false;
 
-// Socket.io event logging
-if (typeof window !== "undefined") {
+/**
+ * Get or lazily create the socket instance.
+ * Does not auto-connect; call connectSocket() to connect.
+ */
+export const getSocket = () => {
+  if (!socketInstance && typeof window !== "undefined") {
+    socketInstance = io(socketUrl, {
+      autoConnect: false, // Lazy: do not connect on creation
+      transports: ["polling", "websocket"], // Polling first for robustness, then try websocket
+      upgrade: true,
+      rememberUpgrade: true,
+      withCredentials: true, // Include CORS credentials
+      reconnection: true,
+      reconnectionDelay: 500,
+      reconnectionDelayMax: 5000,
+      reconnectionAttempts: 5,
+      timeout: 10000,
+    });
+
+    setupSocketLogging(socketInstance);
+  }
+  return socketInstance;
+};
+
+/**
+ * Lazily connect socket for PvP and multiplayer features.
+ * Safe to call multiple times.
+ */
+export const connectSocket = () => {
+  if (typeof window === "undefined") return;
+  const socket = getSocket();
+  if (socket && !socket.connected && !isConnecting) {
+    isConnecting = true;
+    console.log("[SOCKET] connecting to", socketUrl);
+    socket.connect();
+    setTimeout(() => {
+      isConnecting = false;
+    }, 500);
+  }
+};
+
+/**
+ * Disconnect socket and clean up for Single/Daily play.
+ */
+export const disconnectSocket = () => {
+  const socket = getSocket();
+  if (socket && socket.connected) {
+    console.log("[SOCKET] disconnecting");
+    socket.disconnect();
+  }
+};
+
+/**
+ * Export singleton with lazy getters for backward compatibility.
+ * Accessing socket.on, socket.emit, etc. auto-creates but does NOT auto-connect.
+ */
+export const socket = new Proxy(
+  {},
+  {
+    get: (target, prop) => {
+      const sock = getSocket();
+      if (sock && typeof sock[prop] === "function") {
+        return sock[prop].bind(sock);
+      }
+      return sock?.[prop];
+    },
+  }
+);
+
+/**
+ * Setup logging for socket events.
+ */
+function setupSocketLogging(socket) {
+  if (typeof window === "undefined") return;
+
   // Development logging
   if (process.env.NODE_ENV !== "production") {
     socket.on("connect", () => {
-      console.info("[SOCKET] connected", socket.id);
+      const transport = socket.io?.engine?.transport?.name || "unknown";
+      console.info("[SOCKET] connected", { id: socket.id, transport, url: socketUrl });
     });
 
     socket.on("disconnect", (reason) => {
-      console.info("[SOCKET] disconnected", reason);
+      console.info("[SOCKET] disconnected", { reason });
     });
 
     socket.on("error", (err) => {
@@ -76,8 +142,13 @@ if (typeof window !== "undefined") {
     });
   }
 
-  // Production + Development logging
+  // Production + Development logging for connection errors
   socket.on("connect_error", (err) => {
-    console.info("[SOCKET] connect_error", err?.message, err);
+    const transport = socket.io?.engine?.transport?.name || "unknown";
+    console.warn("[SOCKET] connect_error", {
+      message: err?.message,
+      transport,
+      url: socketUrl,
+    });
   });
 }

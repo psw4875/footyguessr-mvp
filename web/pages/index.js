@@ -10,7 +10,6 @@ import {
   FormLabel,
   FormHelperText,
 } from "@chakra-ui/react";
-import { socket } from "../lib/socket";
 import MetaHead from "../components/MetaHead";
 import { trackEvent } from "../lib/analytics";
 import { useEffect, useState } from "react";
@@ -19,28 +18,6 @@ import { useRouter } from "next/router";
 export default function Home() {
   const router = useRouter();
   const [name, setName] = useState("");
-  const [status, setStatus] = useState("Disconnected"); // Default to disconnected, will update on connect
-
-  useEffect(() => {
-    const onConnect = () => setStatus("Connected");
-    const onDisconnect = () => setStatus("Disconnected");
-
-    socket.on("connect", onConnect);
-    socket.on("disconnect", onDisconnect);
-
-    // Initial check for connection status
-    if (socket.connected) setStatus("Connected");
-
-    return () => {
-      socket.off("connect", onConnect);
-      socket.off("disconnect", onDisconnect);
-    };
-  }, []);
-
-  const startSingle = () => {
-    trackEvent("click_practice");
-    router.push("/game?mode=single");
-  };
 
   const [dailyStatus, setDailyStatus] = useState({ played: false, score: null });
 
@@ -53,6 +30,11 @@ export default function Home() {
       else setDailyStatus({ played: false, score: null });
     } catch (e) {}
   }, []);
+
+  const startSingle = () => {
+    trackEvent("click_practice");
+    router.push("/game?mode=single");
+  };
 
   const startPvpLobby = () => {
     trackEvent("click_pvp");
@@ -154,10 +136,6 @@ export default function Home() {
             </Button>
           </VStack>
         </Box>
-
-        <Text fontSize="sm" color="gray.500" textAlign="center">
-          Status: {status}
-        </Text>
       </VStack>
       </Container>
     </>

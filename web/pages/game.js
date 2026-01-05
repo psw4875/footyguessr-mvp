@@ -21,7 +21,7 @@ import {
   Tooltip,
   IconButton,
 } from "@chakra-ui/react";
-import { socket } from "../lib/socket";
+import { socket, connectSocket } from "../lib/socket";
 import { trackEvent } from "../lib/analytics";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/router";
@@ -1702,9 +1702,7 @@ export default function GamePage({ mode = "", code = "" }) {
         if (process.env.NODE_ENV !== "production") {
           console.info("[VISIBILITY] page visible, reconnecting if needed");
         }
-        if (!socket.connected) {
-          socket.connect();
-        }
+        connectSocket();
         // ✅ Rejoin with playerToken to resume match within grace period
         if (playerToken) {
           socket.emit("pvp:rejoin", { roomId, token: playerToken });
@@ -1717,9 +1715,7 @@ export default function GamePage({ mode = "", code = "" }) {
       if (process.env.NODE_ENV !== "production") {
         console.info("[FOCUS] window focused");
       }
-      if (!socket.connected) {
-        socket.connect();
-      }
+      connectSocket();
       if (playerToken) {
         socket.emit("pvp:rejoin", { roomId, token: playerToken });
       }
@@ -1732,9 +1728,7 @@ export default function GamePage({ mode = "", code = "" }) {
         if (process.env.NODE_ENV !== "production") {
           console.info("[PAGESHOW] bfcache restored");
         }
-        if (!socket.connected) {
-          socket.connect();
-        }
+        connectSocket();
         if (playerToken) {
           socket.emit("pvp:rejoin", { roomId, token: playerToken });
         }
@@ -1926,6 +1920,8 @@ export default function GamePage({ mode = "", code = "" }) {
       });
       throw new Error("Please enter a nickname");
     }
+    // Lazy connect socket for multiplayer
+    connectSocket();
     socket.emit("HELLO", { name: n, token: playerToken });
   };
 
