@@ -222,6 +222,9 @@ function SingleTimeAttack() {
   const [oneTeam, setOneTeam] = useState(0);
   const [personalBest, setPersonalBest] = useState(0);
   const [todayBest, setTodayBest] = useState(0);
+  const [myTodayScore, setMyTodayScore] = useState(0);
+  const [myTodaySolved, setMyTodaySolved] = useState(0);
+  const [myTodaySubmitted, setMyTodaySubmitted] = useState(false);
 
   const [teamA, setTeamA] = useState("");
   const [teamB, setTeamB] = useState("");
@@ -289,6 +292,31 @@ function SingleTimeAttack() {
     return "Anonymous";
   }, [clientId]);
 
+  const loadDailyProgress = useCallback(() => {
+    const dk = getDateKey();
+    const key = `fg_daily_${dk}`;
+    try {
+      const raw = safeGetLS(key);
+      if (raw) {
+        const data = JSON.parse(raw);
+        return {
+          score: Number(data?.score) || 0,
+          solved: Number(data?.solved) || 0,
+          submitted: Boolean(data?.submitted),
+        };
+      }
+      // Legacy fallback for older localStorage schema
+      const legacy = safeGetLS(`fta_daily_${dk}`);
+      if (legacy) {
+        const num = Number(legacy) || 0;
+        return { score: num, solved: 0, submitted: true };
+      }
+    } catch (e) {
+      // ignore and fall through
+    }
+    return { score: 0, solved: 0, submitted: false };
+  }, []);
+
   const goatSounds = useMemo(() => ["/sfx/goat1.mp3", "/sfx/goat2.mp3"], []);
 
   const getCanonicalTeam = useCallback(
@@ -344,6 +372,15 @@ function SingleTimeAttack() {
     if (!teamAValid || !teamBValid) return false;
     return normalizeTeam(teamA) === normalizeTeam(teamB);
   }, [teamA, teamB, teamAValid, teamBValid]);
+
+  // Load today's daily progress from localStorage (UTC key)
+  useEffect(() => {
+    if (!router.isReady) return;
+    const { score, solved, submitted } = loadDailyProgress();
+    setMyTodayScore(score);
+    setMyTodaySolved(solved);
+    setMyTodaySubmitted(submitted);
+  }, [router.isReady, loadDailyProgress]);
 
   // Share results handler for Single mode
   const handleShareResults = async () => {
@@ -596,8 +633,9 @@ function SingleTimeAttack() {
     ensureLocalUser();
     const dk = getDateKey();
     const deck = pickDailyDeck(questions, dk, 15);
-
-    setMyTodayScore(null);
+    setMyTodayScore(0);
+    setMyTodaySolved(0);
+    setMyTodaySubmitted(false);
 
     playGameStartSound();
     
@@ -648,13 +686,10 @@ function SingleTimeAttack() {
 
   // Auto-start daily if query param present (from Home CTA)
   useEffect(() => {
-    if (isDailyQuery && router.isReady) {
-      // only start if not already playing or played
-      const dk = getDateKey();
-      const played = safeGetLS(`fta_daily_${dk}`);
-      if (!played) startDailyChallenge();
+    if (isDailyQuery && router.isReady && !myTodaySubmitted && status === "READY") {
+      startDailyChallenge();
     }
-  }, [isDailyQuery, router.isReady]);
+  }, [isDailyQuery, router.isReady, myTodaySubmitted, status]);
 
   // Initialize stable anonymous clientId on client only
   useEffect(() => {
@@ -871,6 +906,8 @@ function SingleTimeAttack() {
     if (status === "RESULT") {
       if (dailyMode) {
         setMyTodayScore(score);
+        setMyTodaySolved(solved);
+        setMyTodaySubmitted(true);
       }
       // Track game completion event
       trackEvent("game_complete", {
@@ -895,7 +932,7 @@ function SingleTimeAttack() {
         if (dailyMode) {
           const dk = getDateKey();
           try {
-            safeSetLS(`fta_daily_${dk}`, String(score));
+            safeSetLS(`fg_daily_${dk}`, JSON.stringify({ score, solved, submitted: true }));
             // ensure user exists
             ensureLocalUser();
             const lbKey = `fta_leaderboard_${dk}`;
@@ -1202,9 +1239,8 @@ function SingleTimeAttack() {
               <Heading size="md" mb={2}>🔥 Daily Challenge</Heading>
               <Text fontSize="sm" color="gray.700" mb={3}>New puzzle daily. Compete on the global leaderboard. Resets at 00:00 UTC.</Text>
               {(() => {
-                const dk = getDateKey();
-                const played = safeGetLS(`fta_daily_${dk}`);
-                const playedScore = played ? Number(played) : null;
+                const played = myTodaySubmitted;
+                const playedScore = myTodayScore;
                 return (
                   <>
                     <HStack spacing={3} mb={3}>
@@ -1215,11 +1251,9 @@ function SingleTimeAttack() {
                         {showLeaderboardPanel ? "Hide" : "📊 Scores"}
                       </Button>
                     </HStack>
-                    {playedScore != null && (
-                      <Box mb={2}>
-                        <Text fontSize="sm">My score today: <b>{playedScore}</b></Text>
-                      </Box>
-                    )}
+                    <Box mb={2}>
+                      <Text fontSize="sm">My score today: <b>{playedScore}</b></Text>
+                    </Box>
                     {isDaily && (
                       <Box mt={3} borderTop="1px" pt={3}>
                         <Heading size="sm" mb={2}>Today’s Leaderboard</Heading>
