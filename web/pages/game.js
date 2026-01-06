@@ -293,7 +293,7 @@ function SingleTimeAttack() {
     return "Anonymous";
   }, [clientId]);
 
-  const loadDailyProgress = useCallback(() => {
+  function loadDailyProgress() {
     const dk = getDateKey();
     const key = `fg_daily_${dk}`;
     try {
@@ -316,32 +316,32 @@ function SingleTimeAttack() {
       // ignore and fall through
     }
     return { score: 0, solved: 0, submitted: false };
-  }, []);
+  }
 
   // Format display names consistently: append suffix only once
-  const formatDisplayName = useCallback((name, clientId) => {
+  function formatDisplayName(name, clientId) {
     const raw = String(name || "").trim();
     const suffix = clientId ? String(clientId).slice(-4) : "anon";
     if (!raw) return `Player#${suffix}`;
     // If already ends with #abcd (4 word chars), assume user already has suffix
     if (/#\w{4}$/.test(raw)) return raw;
     return `${raw}#${suffix}`;
-  }, []);
+  }
 
   // Open edit: initialize draft once and toggle editing
-  const handleOpenEdit = useCallback(() => {
+  function handleOpenEdit() {
     // Only initialize draft when entering edit mode
     if (!isEditingName) setDraftLeaderboardName(leaderboardName || "");
     setIsEditingName(true);
-  }, [leaderboardName, isEditingName]);
+  }
 
-  const handleCancelEdit = useCallback(() => {
+  function handleCancelEdit() {
     setDraftLeaderboardName("");
     setIsEditingName(false);
-  }, []);
+  }
 
   // Save leaderboard name (used by TodayLeaderboard and RESULT edit)
-  const handleSaveLeaderboardName = useCallback(async () => {
+  async function handleSaveLeaderboardName() {
     const trimmed = String(draftLeaderboardName || "").trim().slice(0, 12);
     if (!trimmed) {
       setDraftLeaderboardName("");
@@ -376,58 +376,49 @@ function SingleTimeAttack() {
 
     setDraftLeaderboardName("");
     setIsEditingName(false);
-  }, [clientId, draftLeaderboardName, fetchTodaysLeaderboard]);
+  }
 
   const goatSounds = useMemo(() => ["/sfx/goat1.mp3", "/sfx/goat2.mp3"], []);
 
-  const getCanonicalTeam = useCallback(
-    (value) => {
-      const norm = normalizeTeam(value);
-      if (!norm) return null;
-      if (!isValidTeam(value, teamsMap)) return null;
-      return teamsMap.get(norm) || null;
-    },
-    [teamsMap]
-  );
+  function getCanonicalTeam(value) {
+    const norm = normalizeTeam(value);
+    if (!norm) return null;
+    if (!isValidTeam(value, teamsMap)) return null;
+    return teamsMap.get(norm) || null;
+  }
 
-  const handleTeamChange = useCallback(
-    (value, setter, setValid, setError) => {
-      const canonical = getCanonicalTeam(value);
-      if (canonical) {
-        setter(canonical);
-        setValid(true);
-        setError("");
-      } else {
-        setter(value);
-        setValid(false);
-        setError("");
-      }
-    },
-    [getCanonicalTeam]
-  );
+  function handleTeamChange(value, setter, setValid, setError) {
+    const canonical = getCanonicalTeam(value);
+    if (canonical) {
+      setter(canonical);
+      setValid(true);
+      setError("");
+    } else {
+      setter(value);
+      setValid(false);
+      setError("");
+    }
+  }
 
-  const finalizeTeamField = useCallback(
-    (value, setter, setValid, setError) => {
-      const trimmed = String(value || "").trim();
-      if (!trimmed) {
-        setter("");
-        setValid(false);
-        setError("");
-        return;
-      }
-      const canonical = getCanonicalTeam(trimmed);
-      if (canonical) {
-        setter(canonical);
-        setValid(true);
-        setError("");
-      } else {
-        setter("");
-        setValid(false);
-        setError("Select a valid team from the list.");
-      }
-    },
-    [getCanonicalTeam]
-  );
+  function finalizeTeamField(value, setter, setValid, setError) {
+    const trimmed = String(value || "").trim();
+    if (!trimmed) {
+      setter("");
+      setValid(false);
+      setError("");
+      return;
+    }
+    const canonical = getCanonicalTeam(trimmed);
+    if (canonical) {
+      setter(canonical);
+      setValid(true);
+      setError("");
+    } else {
+      setter("");
+      setValid(false);
+      setError("Select a valid team from the list.");
+    }
+  }
 
   const sameTeam = useMemo(() => {
     if (!teamAValid || !teamBValid) return false;
@@ -517,7 +508,7 @@ function SingleTimeAttack() {
 
   // Fetch today's leaderboard (independent of UI visibility flag)
   // This ALWAYS runs when isDaily=true and router.isReady, regardless of showLeaderboardPanel
-  const fetchTodaysLeaderboard = useCallback(async (dateKey) => {
+  async function fetchTodaysLeaderboard(dateKey) {
     const serverUrl = API_BASE;
     const today = dateKey || getDateKey(); // YYYY-MM-DD (UTC)
 
@@ -559,10 +550,10 @@ function SingleTimeAttack() {
     } finally {
       setLeaderboardLoading(false);
     }
-  }, [clientId]);
+  }
 
   // Submit daily challenge result to leaderboard (refetch after success)
-  const submitDailyToLeaderboard = useCallback(async () => {
+  async function submitDailyToLeaderboard() {
     // Guard: only submit if in daily mode with valid client ID and completed result
     if (!dailyMode || !clientId || status !== "RESULT") return;
 
@@ -603,7 +594,7 @@ function SingleTimeAttack() {
     } catch (err) {
       console.error("[LEADERBOARD] submit error", err);
     }
-  }, [dailyMode, clientId, status, score, leaderboardName, fetchTodaysLeaderboard, solved, perfect, bothTeams, oneTeam]);
+  }
 
   const startGame = () => {
     if (!questions.length) return;
@@ -1777,7 +1768,7 @@ export default function GamePage({ mode = "", code = "" }) {
     }
   }, [phase, finalScoreboard, socket?.id]);
 
-  const handleOpponentLeft = useCallback(() => {
+  function handleOpponentLeft() {
     if (opponentLeftShownRef.current) return;
     setOpponentLeftShown(true);
     toast({
@@ -1794,9 +1785,9 @@ export default function GamePage({ mode = "", code = "" }) {
     setOpponentSubmitted(false);
     setLastResult(null);
     setTransition(null);
-  }, [toast]);
+  }
 
-  const leaveCurrentRoom = useCallback((reason = "nav", { redirect } = {}) => {
+  function leaveCurrentRoom(reason = "nav", { redirect } = {}) {
     if (!roomId || hasLeftRef.current || !inRoomRef.current) return;
     hasLeftRef.current = true;
     const finished = matchFinishedRef.current || serverPhaseRef.current === "FINISHED";
@@ -1827,7 +1818,7 @@ export default function GamePage({ mode = "", code = "" }) {
     if (redirect) {
       router.push("/");
     }
-  }, [roomId, router, phase, currentRound]);
+  }
 
   useEffect(() => {
     hasLeftRef.current = false;
@@ -1844,7 +1835,7 @@ export default function GamePage({ mode = "", code = "" }) {
     pvpStartSoundPlayedRef.current = false;
   }, [roomId]);
 
-  const goToMenu = useCallback(() => {
+  function goToMenu() {
     if (DEBUG_PVP) console.log("[PVP] Menu click", { matchFinished: matchFinishedRef.current, serverPhase: serverPhaseRef.current, roomId, phase });
     // Block menu during active gameplay (not LOBBY or GAME_END)
     const activeGamePhases = ["WAITING", "MATCHED", "TRANSITION", "IN_ROUND", "ROUND_RESULT"];
@@ -1863,7 +1854,7 @@ export default function GamePage({ mode = "", code = "" }) {
     } else {
       router.push("/");
     }
-  }, [roomId, leaveCurrentRoom, router, phase, toast]);
+  }
 
   useEffect(() => {
     if (!roomId) return;
