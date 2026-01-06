@@ -1402,9 +1402,9 @@ function SingleTimeAttack() {
                   <Box mt={5} p={4} bg="gray.50" borderRadius="md" borderWidth="1px" borderColor="gray.200">
                     <Heading size="sm" mb={3}>📊 Today's Top Scores</Heading>
                     <Text fontSize="sm" color="gray.600" mb={2}>My score today: {myTodayScore ?? "-"}</Text>
-                    {todayTopScores.length > 0 ? (
+                    {(topScores || []).length > 0 ? (
                       <VStack align="stretch" spacing={2}>
-                        {todayTopScores.slice(0, 10).map((item, idx) => {
+                        {(topScores || []).slice(0, 10).map((item, idx) => {
                           const isCurrentPlayer = clientId && item.client_id === clientId;
                           // Display name with client_id suffix
                           const displayName = (() => {
