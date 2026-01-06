@@ -270,6 +270,7 @@ function SingleTimeAttack() {
   // Leaderboard visibility toggle (UI only, does NOT gate data fetching)
   const [showLeaderboardPanel, setShowLeaderboardPanel] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
+  const [draftLeaderboardName, setDraftLeaderboardName] = useState("");
 
   // Anonymous client ID for leaderboard tracking
   const [clientId, setClientId] = useState(null);
@@ -316,6 +317,66 @@ function SingleTimeAttack() {
     }
     return { score: 0, solved: 0, submitted: false };
   }, []);
+
+  // Format display names consistently: append suffix only once
+  const formatDisplayName = useCallback((name, clientId) => {
+    const raw = String(name || "").trim();
+    const suffix = clientId ? String(clientId).slice(-4) : "anon";
+    if (!raw) return `Player#${suffix}`;
+    // If already ends with #abcd (4 word chars), assume user already has suffix
+    if (/#\w{4}$/.test(raw)) return raw;
+    return `${raw}#${suffix}`;
+  }, []);
+
+  // Open edit: initialize draft once and toggle editing
+  const handleOpenEdit = useCallback(() => {
+    // Only initialize draft when entering edit mode
+    if (!isEditingName) setDraftLeaderboardName(leaderboardName || "");
+    setIsEditingName(true);
+  }, [leaderboardName, isEditingName]);
+
+  const handleCancelEdit = useCallback(() => {
+    setDraftLeaderboardName("");
+    setIsEditingName(false);
+  }, []);
+
+  // Save leaderboard name (used by TodayLeaderboard and RESULT edit)
+  const handleSaveLeaderboardName = useCallback(async () => {
+    const trimmed = String(draftLeaderboardName || "").trim().slice(0, 12);
+    if (!trimmed) {
+      setDraftLeaderboardName("");
+      setIsEditingName(false);
+      return;
+    }
+
+    // Save locally first
+    safeSetLS("fg_leaderboard_name", trimmed);
+
+    // Update server name (non-blocking for UI)
+    if (clientId) {
+      try {
+        const resp = await fetch(`${API_BASE}/api/leaderboard/update-name`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ date: getDateKey(), client_id: clientId, name: trimmed }),
+        });
+        if (resp.ok) {
+          console.log("[LEADERBOARD] name updated successfully");
+          // Force refetch
+          leaderboardFetchedDateRef.current = null;
+          await fetchTodaysLeaderboard(getDateKey());
+        } else {
+          const data = await resp.json().catch(() => ({}));
+          console.warn("[LEADERBOARD] update-name failed", resp.status, data);
+        }
+      } catch (err) {
+        console.error("[LEADERBOARD] update-name error", err);
+      }
+    }
+
+    setDraftLeaderboardName("");
+    setIsEditingName(false);
+  }, [clientId, draftLeaderboardName, fetchTodaysLeaderboard]);
 
   const goatSounds = useMemo(() => ["/sfx/goat1.mp3", "/sfx/goat2.mp3"], []);
 
@@ -977,67 +1038,7 @@ function SingleTimeAttack() {
   }, [status, dailyMode, clientId, submitDailyToLeaderboard]);
 
   function TodayLeaderboard() {
-    // Separate state for input to prevent IME/re-render issues
-    const [inputValue, setInputValue] = useState("");
-
-    const handleOpenEdit = () => {
-      // Initialize input with current name when opening edit mode
-      setInputValue(leaderboardName);
-      setIsEditingName(true);
-    };
-
-    const handleSaveName = async () => {
-      const trimmed = inputValue.trim().slice(0, 12);
-      if (!trimmed) {
-        setInputValue("");
-        setIsEditingName(false);
-        return;
-      }
-
-      // Save to localStorage
-      safeSetLS("fg_leaderboard_name", trimmed);
-      
-      console.log("[LEADERBOARD] update-name payload", { date: getDateKey(), client_id: clientId, name: trimmed });
-
-      // Update Supabase
-      if (clientId) {
-        try {
-          const response = await fetch(`${API_BASE}/api/leaderboard/update-name`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              date: getDateKey(),
-              client_id: clientId,
-              name: trimmed,
-            }),
-          });
-          if (response.ok) {
-            console.log("[LEADERBOARD] name updated successfully");
-            // Refetch leaderboard to show updated names
-            leaderboardFetchedDateRef.current = null; // Reset to force refetch
-            await fetchTodaysLeaderboard(getDateKey());
-            setInputValue("");
-            setIsEditingName(false);
-          } else {
-            const data = await response.json();
-            console.warn("[LEADERBOARD] update-name failed status=" + response.status, data);
-            // Keep edit open on failure so user can retry
-          }
-        } catch (err) {
-          console.error("[LEADERBOARD] update-name error", err);
-          // Keep edit open on error
-        }
-      } else {
-        // No clientId yet, just close and try again next time
-        setInputValue("");
-        setIsEditingName(false);
-      }
-    };
-
-    const handleCancel = () => {
-      setInputValue("");
-      setIsEditingName(false);
-    };
+    // Uses top-level `draftLeaderboardName`, `isEditingName`, and handlers
 
     if (leaderboardLoading) {
       return <HStack><Spinner size="sm" /><Text fontSize="sm">Loading scores...</Text></HStack>;
@@ -1056,17 +1057,7 @@ function SingleTimeAttack() {
         {/* Edit Name Button */}
         <HStack justify="space-between" align="center">
           <Text fontSize="xs" color="gray.600">Your name: <b>{leaderboardName}</b></Text>
-          <Button
-            size="xs"
-            variant="outline"
-            onClick={() => {
-              if (isEditingName) {
-                handleCancel();
-              } else {
-                handleOpenEdit();
-              }
-            }}
-          >
+          <Button size="xs" variant="outline" onClick={() => { if (isEditingName) handleCancelEdit(); else handleOpenEdit(); }}>
             {isEditingName ? "✕" : "✎ Edit"}
           </Button>
         </HStack>
@@ -1077,19 +1068,19 @@ function SingleTimeAttack() {
             <Input
               size="sm"
               placeholder="Enter your name (max 12 chars)"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
+              value={draftLeaderboardName}
+              onChange={(e) => setDraftLeaderboardName(e.target.value)}
               maxLength={12}
               autoFocus
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
-                  handleSaveName();
+                  handleSaveLeaderboardName();
                 } else if (e.key === "Escape") {
-                  handleCancel();
+                  handleCancelEdit();
                 }
               }}
             />
-            <Button size="sm" colorScheme="teal" onClick={handleSaveName}>
+            <Button size="sm" colorScheme="teal" onClick={handleSaveLeaderboardName}>
               Save
             </Button>
           </HStack>
@@ -1099,9 +1090,7 @@ function SingleTimeAttack() {
         <VStack align="stretch" spacing={1}>
           {topScores.map((entry, idx) => {
             const isMyScore = entry.client_id === clientId;
-            // Display format: name#suffix or Player#suffix
-            const suffix = entry.client_id?.slice(-4) || "anon";
-            const displayName = entry.name ? `${entry.name}#${suffix}` : `Player#${suffix}`;
+            const displayName = formatDisplayName(entry.name, entry.client_id);
             
             return (
               <HStack
@@ -1402,46 +1391,7 @@ function SingleTimeAttack() {
                   <Box mt={5} p={4} bg="gray.50" borderRadius="md" borderWidth="1px" borderColor="gray.200">
                     <Heading size="sm" mb={3}>📊 Today's Top Scores</Heading>
                     <Text fontSize="sm" color="gray.600" mb={2}>My score today: {myTodayScore ?? "-"}</Text>
-                    {(topScores || []).length > 0 ? (
-                      <VStack align="stretch" spacing={2}>
-                        {(topScores || []).slice(0, 10).map((item, idx) => {
-                          const isCurrentPlayer = clientId && item.client_id === clientId;
-                          // Display name with client_id suffix
-                          const displayName = (() => {
-                            const name = item.name || "Player";
-                            const suffix = item.client_id ? item.client_id.slice(-4) : "????";
-                            if (name === "Player" || name === "Anonymous" || !name.trim()) {
-                              return `Player#${suffix}`;
-                            }
-                            return `${name}#${suffix}`;
-                          })();
-                          return (
-                            <HStack
-                              key={`${item.client_id || idx}_${idx}`}
-                              justify="space-between"
-                              p={2}
-                              bg={isCurrentPlayer ? "orange.100" : "white"}
-                              borderRadius="sm"
-                              borderWidth={isCurrentPlayer ? "2px" : "1px"}
-                              borderColor={isCurrentPlayer ? "orange.400" : "gray.200"}
-                            >
-                              <Text width="28px" fontWeight="bold">{idx + 1}</Text>
-                              <Text flex="1" isTruncated fontSize="sm">
-                                {displayName}
-                              </Text>
-                              <Text fontWeight="bold" fontSize="sm" textAlign="right" minW="45px">
-                                {item.score}
-                              </Text>
-                            </HStack>
-                          );
-                        })}
-                      </VStack>
-                    ) : (
-                      <Text fontSize="sm" color="gray.600">No scores yet.</Text>
-                    )}
-                    {leaderboardLoading && (
-                      <Spinner size="sm" mt={2} />
-                    )}
+                    <TodayLeaderboard />
                   </Box>
 
                   <HStack spacing={3} mt={4}>
