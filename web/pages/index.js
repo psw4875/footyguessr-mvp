@@ -9,6 +9,15 @@ import {
   FormControl,
   FormLabel,
   FormHelperText,
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  ModalCloseButton,
+  useToast,
 } from "@chakra-ui/react";
 import MetaHead from "../components/MetaHead";
 import { trackEvent } from "../lib/analytics";
@@ -18,6 +27,9 @@ import { useRouter } from "next/router";
 export default function Home() {
   const router = useRouter();
   const [name, setName] = useState("");
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [modalName, setModalName] = useState("");
+  const toast = useToast();
 
   const [dailyStatus, setDailyStatus] = useState({ played: false, score: null });
 
@@ -32,6 +44,14 @@ export default function Home() {
     } catch (e) {}
   }, []);
 
+  // Load persisted nickname if any
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("fta_nick") || "";
+      if (stored) setName(stored);
+    } catch (e) {}
+  }, []);
+
   const startSingle = () => {
     trackEvent("click_practice");
     router.push("/game?mode=single");
@@ -39,9 +59,30 @@ export default function Home() {
 
   const startPvpLobby = () => {
     trackEvent("click_pvp");
-    // PVP 로비로 이동 (닉네임은 game.js 로비에서 직접 입력)
-    router.push(`/game?mode=pvp&name=${encodeURIComponent(name)}`);
+    // If nickname exists use it; otherwise prompt modal
+    const stored = (localStorage.getItem("fta_nick") || name || "").trim();
+    if (stored) {
+      router.push(`/game?mode=pvp&name=${encodeURIComponent(stored)}`);
+      return;
+    }
+    // open modal to collect nickname
+    setModalName("");
+    onOpen();
   };
+
+  function handleConfirmModal() {
+    const v = String(modalName || "").trim();
+    if (!v) {
+      toast({ title: "Nickname required", description: "Please enter a nickname to continue.", status: "warning", duration: 3000, isClosable: true });
+      return;
+    }
+    try {
+      localStorage.setItem("fta_nick", v);
+    } catch (e) {}
+    setName(v);
+    onClose();
+    router.push(`/game?mode=pvp&name=${encodeURIComponent(v)}`);
+  }
 
   return (
     <>
@@ -99,21 +140,10 @@ export default function Home() {
           </VStack>
         </Box>
 
-        {/* Nickname Input + Other Modes */}
+        {/* Other Modes */}
         <Box p={6} borderWidth="1px" borderRadius="lg" boxShadow="md">
           <VStack spacing={4} align="stretch">
             <Heading as="h2" size="md">Practice</Heading>
-            <FormControl>
-              <FormLabel htmlFor="nickname">Nickname <Text as="span" color="red.500">*</Text></FormLabel>
-              <Input
-                id="nickname"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Your name"
-                size="lg"
-              />
-              <FormHelperText fontSize="sm">Shown in PvP and leaderboards.</FormHelperText>
-            </FormControl>
 
             <Button 
               colorScheme="green" 
@@ -137,6 +167,32 @@ export default function Home() {
             </Button>
           </VStack>
         </Box>
+
+        {/* PvP nickname modal (shown only when needed) */}
+        <Modal isOpen={isOpen} onClose={onClose} isCentered>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Enter a nickname</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <FormControl>
+                <Input
+                  placeholder="Your nickname"
+                  value={modalName}
+                  onChange={(e) => setModalName(e.target.value)}
+                  autoFocus
+                />
+                <FormHelperText fontSize="sm">This will be shown in PvP matches.</FormHelperText>
+              </FormControl>
+            </ModalBody>
+            <ModalFooter>
+              <Button variant="ghost" mr={3} onClick={() => { onClose(); }}>
+                Cancel
+              </Button>
+              <Button colorScheme="teal" onClick={handleConfirmModal}>Continue</Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
       </VStack>
       </Container>
     </>
