@@ -269,7 +269,8 @@ function SingleTimeAttack() {
   // Leaderboard visibility toggle (UI only, does NOT gate data fetching)
   const [showLeaderboardPanel, setShowLeaderboardPanel] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
-  const [draftName, setDraftName] = useState("");
+  const draftNameRef = useRef("");
+  const isComposingRef = useRef(false);
 
   // Anonymous client ID for leaderboard tracking
   const [clientId, setClientId] = useState(null);
@@ -331,32 +332,31 @@ function SingleTimeAttack() {
 
   // Open edit: initialize draft once and toggle editing
   function handleOpenEdit() {
-    // Only initialize draft when entering edit mode (raw name)
-    if (!isEditingName) setDraftName(myName || "");
+    // Initialize draft once when opening edit mode
+    if (!isEditingName) draftNameRef.current = myName || "";
     setIsEditingName(true);
   }
 
   function handleCancelEdit() {
-    setDraftName("");
+    draftNameRef.current = "";
+    isComposingRef.current = false;
     setIsEditingName(false);
   }
 
   // Save leaderboard name (used by TodayLeaderboard and RESULT edit)
   async function handleSaveLeaderboardName() {
-    const trimmed = String(draftName || "").trim().slice(0, 12);
+    const trimmed = String(draftNameRef.current || "").trim().slice(0, 12);
     if (!trimmed) {
-      setDraftName("");
+      draftNameRef.current = "";
       setIsEditingName(false);
       return;
     }
 
-    // Update local state first
+    // Update local state first (only on Save)
     setMyName(trimmed);
-    setDraftName("");
-    setIsEditingName(false);
-
-    // Save locally and inform server
     safeSetLS("fg_leaderboard_name", trimmed);
+    setIsEditingName(false);
+    isComposingRef.current = false;
 
     if (clientId) {
       try {
@@ -378,6 +378,8 @@ function SingleTimeAttack() {
         console.error("[LEADERBOARD] update-name error", err);
       }
     }
+    // clear draft
+    draftNameRef.current = "";
   }
 
   const goatSounds = useMemo(() => ["/sfx/goat1.mp3", "/sfx/goat2.mp3"], []);
@@ -1028,13 +1030,16 @@ function SingleTimeAttack() {
     if (!router.isReady || !clientId) return;
     const today = getDateKey();
 
+    // If user is editing name, do not fetch leaderboard while editing
+    if (isEditingName) return;
+
     // Only fetch when user opened leaderboard or is in Daily result view
     if (!showLeaderboardPanel && !isDaily) return;
 
     const ac = new AbortController();
     fetchLeaderboard(today, { signal: ac.signal });
     return () => ac.abort();
-  }, [router.isReady, clientId, showLeaderboardPanel, isDaily]);
+  }, [router.isReady, clientId, showLeaderboardPanel, isDaily, isEditingName]);
 
   // Submit daily score to backend leaderboard when Daily Challenge ends
   // After submit, refetch once to show updated scores
@@ -1078,8 +1083,10 @@ function SingleTimeAttack() {
             <Input
               size="sm"
               placeholder="Enter your name (max 12 chars)"
-              value={draftName}
-              onChange={(e) => setDraftName(e.target.value)}
+              defaultValue={draftNameRef.current || myName}
+              onCompositionStart={() => { isComposingRef.current = true; }}
+              onCompositionEnd={(e) => { isComposingRef.current = false; draftNameRef.current = e.target.value; }}
+              onChange={(e) => { if (!isComposingRef.current) draftNameRef.current = e.target.value; }}
               maxLength={12}
               autoFocus
               onKeyDown={(e) => {
