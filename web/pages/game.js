@@ -241,7 +241,6 @@ function SingleTimeAttack() {
   const goatSoundPlayedRef = useRef(false);
   const goatSelectedSrcRef = useRef(null);
   const under20SoundPlayedRef = useRef(false);
-  const leaderboardFetchedDateRef = useRef(null); // Guard: track last fetched date
 
   const imageSrc = useMemo(() => current?.imageUrl || "", [current]);
 
@@ -270,28 +269,30 @@ function SingleTimeAttack() {
   // Leaderboard visibility toggle (UI only, does NOT gate data fetching)
   const [showLeaderboardPanel, setShowLeaderboardPanel] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
-  const [draftLeaderboardName, setDraftLeaderboardName] = useState("");
+  const [draftName, setDraftName] = useState("");
 
   // Anonymous client ID for leaderboard tracking
   const [clientId, setClientId] = useState(null);
   
   // Leaderboard data states (independent of visibility)
-  const [topScores, setTopScores] = useState([]); // Array of all top scores for today
-  const [myEntry, setMyEntry] = useState(null); // This client's best score (if any)
+  const [todayTopScores, setTodayTopScores] = useState([]);
+  const [myEntry, setMyEntry] = useState(null);
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
   const [leaderboardError, setLeaderboardError] = useState(null);
+  const leaderboardFetchedDateRef = useRef(null); // track last fetched date to avoid refetch loops
+  const leaderboardInFlightRef = useRef(false);
+  const submitInFlightRef = useRef(false);
   
-  // Get leaderboard display name (nickname or Player#suffix)
-  const leaderboardName = useMemo(() => {
-    const stored = safeGetLS("fg_leaderboard_name") || "";
-    if (stored.trim()) return stored.trim();
-    // Fallback: Player# + last 4 chars of clientId
-    if (clientId) {
-      const suffix = clientId.slice(-4);
-      return `Player#${suffix}`;
+  // My raw name (stored without suffix). Display uses formatDisplayName()
+  const [myName, setMyName] = useState(() => {
+    try {
+      return safeGetLS("fg_leaderboard_name") || "";
+    } catch {
+      return "";
     }
-    return "Anonymous";
-  }, [clientId]);
+  });
+
+  const displayName = useMemo(() => formatDisplayName(myName, clientId), [myName, clientId]);
 
   function loadDailyProgress() {
     const dk = getDateKey();
@@ -330,41 +331,45 @@ function SingleTimeAttack() {
 
   // Open edit: initialize draft once and toggle editing
   function handleOpenEdit() {
-    // Only initialize draft when entering edit mode
-    if (!isEditingName) setDraftLeaderboardName(leaderboardName || "");
+    // Only initialize draft when entering edit mode (raw name)
+    if (!isEditingName) setDraftName(myName || "");
     setIsEditingName(true);
   }
 
   function handleCancelEdit() {
-    setDraftLeaderboardName("");
+    setDraftName("");
     setIsEditingName(false);
   }
 
   // Save leaderboard name (used by TodayLeaderboard and RESULT edit)
   async function handleSaveLeaderboardName() {
-    const trimmed = String(draftLeaderboardName || "").trim().slice(0, 12);
+    const trimmed = String(draftName || "").trim().slice(0, 12);
     if (!trimmed) {
-      setDraftLeaderboardName("");
+      setDraftName("");
       setIsEditingName(false);
       return;
     }
 
-    // Save locally first
+    // Update local state first
+    setMyName(trimmed);
+    setDraftName("");
+    setIsEditingName(false);
+
+    // Save locally and inform server
     safeSetLS("fg_leaderboard_name", trimmed);
 
-    // Update server name (non-blocking for UI)
     if (clientId) {
       try {
         const resp = await fetch(`${API_BASE}/api/leaderboard/update-name`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ date: getDateKey(), client_id: clientId, name: trimmed }),
+          body: JSON.stringify({ date: getDateKey(), clientId: clientId, name: trimmed }),
         });
         if (resp.ok) {
           console.log("[LEADERBOARD] name updated successfully");
-          // Force refetch
+          // Refetch once to reflect server-side changes
           leaderboardFetchedDateRef.current = null;
-          await fetchTodaysLeaderboard(getDateKey());
+          await fetchLeaderboard(getDateKey());
         } else {
           const data = await resp.json().catch(() => ({}));
           console.warn("[LEADERBOARD] update-name failed", resp.status, data);
@@ -373,9 +378,6 @@ function SingleTimeAttack() {
         console.error("[LEADERBOARD] update-name error", err);
       }
     }
-
-    setDraftLeaderboardName("");
-    setIsEditingName(false);
   }
 
   const goatSounds = useMemo(() => ["/sfx/goat1.mp3", "/sfx/goat2.mp3"], []);
@@ -508,60 +510,66 @@ function SingleTimeAttack() {
 
   // Fetch today's leaderboard (independent of UI visibility flag)
   // This ALWAYS runs when isDaily=true and router.isReady, regardless of showLeaderboardPanel
-  async function fetchTodaysLeaderboard(dateKey) {
+  async function fetchLeaderboard(dateKey, { signal } = {}) {
     const serverUrl = API_BASE;
     const today = dateKey || getDateKey(); // YYYY-MM-DD (UTC)
 
     console.log(`[LEADERBOARD_FETCH] UTC date key: ${today}`);
 
     // Prevent duplicate fetch for same date
-    if (leaderboardFetchedDateRef.current === today) {
-      return; // Already fetched, skip
+    if (leaderboardFetchedDateRef.current === today && leaderboardInFlightRef.current === false) {
+      return; // Already fetched and not stale
     }
 
-    leaderboardFetchedDateRef.current = today;
+    if (leaderboardInFlightRef.current) return; // already in flight
+    leaderboardInFlightRef.current = true;
     setLeaderboardLoading(true);
     setLeaderboardError(null);
-    
-    try {
-      const response = await fetch(
-        `${serverUrl}/api/leaderboard?mode=daily&date=${today}&limit=20`
-      );
 
-      if (response.ok) {
-        const data = await response.json();
-        const items = data.items || [];
-        setTopScores(items);
-        
-        // Extract this client's entry if present
+    try {
+      const url = `${serverUrl}/api/leaderboard?mode=daily&date=${today}&limit=20`;
+      const resp = await fetch(url, { signal });
+      if (resp.ok) {
+        const data = await resp.json();
+        const items = Array.isArray(data.items) ? data.items : data.items || [];
+        setTodayTopScores(items);
         const myScore = items.find((item) => item.client_id === clientId);
         setMyEntry(myScore || null);
+        leaderboardFetchedDateRef.current = today;
       } else {
-        console.warn("[LEADERBOARD] fetch failed, status=" + response.status);
-        setLeaderboardError(`Failed to load scores (${response.status})`);
-        setTopScores([]);
+        console.warn("[LEADERBOARD] fetch failed, status=" + resp.status);
+        setLeaderboardError(`Failed to load scores (${resp.status})`);
+        setTodayTopScores([]);
         setMyEntry(null);
       }
     } catch (err) {
-      console.error("[LEADERBOARD] fetch error:", err);
-      setLeaderboardError("Network error loading scores");
-      setTopScores([]);
-      setMyEntry(null);
+      if (err?.name === 'AbortError') {
+        console.log('[LEADERBOARD] fetch aborted');
+      } else {
+        console.error("[LEADERBOARD] fetch error:", err);
+        setLeaderboardError("Network error loading scores");
+        setTodayTopScores([]);
+        setMyEntry(null);
+      }
     } finally {
+      leaderboardInFlightRef.current = false;
       setLeaderboardLoading(false);
     }
   }
 
   // Submit daily challenge result to leaderboard (refetch after success)
   async function submitDailyToLeaderboard() {
+    if (submitInFlightRef.current) return;
     // Guard: only submit if in daily mode with valid client ID and completed result
     if (!dailyMode || !clientId || status !== "RESULT") return;
+
+    submitInFlightRef.current = true;
 
     const serverUrl = API_BASE;
     const today = getDateKey(); // YYYY-MM-DD (UTC)
 
-    console.log(`[LEADERBOARD_SUBMIT] UTC date key: ${today} | score: ${score} | name: "${leaderboardName}" | clientId: ${clientId}`);
-    
+    console.log(`[LEADERBOARD_SUBMIT] UTC date key: ${today} | score: ${score} | name: "${myName}" | clientId: ${clientId}`);
+
     try {
       const response = await fetch(`${serverUrl}/api/leaderboard/submit`, {
         method: "POST",
@@ -569,7 +577,7 @@ function SingleTimeAttack() {
         body: JSON.stringify({
           mode: "daily",
           date: today,
-          name: leaderboardName,
+          name: myName || "",
           clientId,
           score: Number(score ?? 0),
           solved: Number(solved ?? 0),
@@ -581,18 +589,25 @@ function SingleTimeAttack() {
       });
 
       if (response.ok) {
-        const data = await response.json();
+        const data = await response.json().catch(() => ({}));
         console.log("[LEADERBOARD] submit success, refetching...");
         trackEvent("leaderboard_submit", { mode: "daily", stored: data.stored });
-        // Refetch leaderboard after successful submit
-        const today = getDateKey();
+
+        // Persist local played flag so Daily cannot be replayed today
+        safeSetLS(`fta_daily_played_${today}`, "1");
+        setMyTodaySubmitted(true);
+        setMyTodayScore(score);
+
+        // Refetch leaderboard once
         leaderboardFetchedDateRef.current = null; // Reset to force refetch
-        await fetchTodaysLeaderboard(today);
+        await fetchLeaderboard(today);
       } else {
         console.warn("[LEADERBOARD] submit failed status=" + response.status);
       }
     } catch (err) {
       console.error("[LEADERBOARD] submit error", err);
+    } finally {
+      submitInFlightRef.current = false;
     }
   }
 
@@ -1008,14 +1023,18 @@ function SingleTimeAttack() {
     }
   }, [status]);
 
-  // Fetch leaderboard when in daily mode (on mount or when isDaily becomes true)
-  // This is INDEPENDENT of showLeaderboardPanel visibility
+  // Single effect that fetches leaderboard when dateKey or visibility changes
   useEffect(() => {
-    if (!isDaily || !router.isReady || !clientId) return;
-    
+    if (!router.isReady || !clientId) return;
     const today = getDateKey();
-    fetchTodaysLeaderboard(today);
-  }, [isDaily, router.isReady, clientId, fetchTodaysLeaderboard]);
+
+    // Only fetch when user opened leaderboard or is in Daily result view
+    if (!showLeaderboardPanel && !isDaily) return;
+
+    const ac = new AbortController();
+    fetchLeaderboard(today, { signal: ac.signal });
+    return () => ac.abort();
+  }, [router.isReady, clientId, showLeaderboardPanel, isDaily]);
 
   // Submit daily score to backend leaderboard when Daily Challenge ends
   // After submit, refetch once to show updated scores
@@ -1026,10 +1045,10 @@ function SingleTimeAttack() {
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [status, dailyMode, clientId, submitDailyToLeaderboard]);
+  }, [status, dailyMode, clientId]);
 
   function TodayLeaderboard() {
-    // Uses top-level `draftLeaderboardName`, `isEditingName`, and handlers
+    // Uses top-level `draftName`, `isEditingName`, and handlers
 
     if (leaderboardLoading) {
       return <HStack><Spinner size="sm" /><Text fontSize="sm">Loading scores...</Text></HStack>;
@@ -1039,7 +1058,7 @@ function SingleTimeAttack() {
       return <Text fontSize="sm" color="red.600">{leaderboardError}</Text>;
     }
 
-    if (!topScores || topScores.length === 0) {
+    if (!todayTopScores || todayTopScores.length === 0) {
       return <Text fontSize="sm" color="gray.600">No scores yet.</Text>;
     }
 
@@ -1047,7 +1066,7 @@ function SingleTimeAttack() {
       <VStack align="stretch" spacing={3}>
         {/* Edit Name Button */}
         <HStack justify="space-between" align="center">
-          <Text fontSize="xs" color="gray.600">Your name: <b>{leaderboardName}</b></Text>
+          <Text fontSize="xs" color="gray.600">Your name: <b>{displayName}</b></Text>
           <Button size="xs" variant="outline" onClick={() => { if (isEditingName) handleCancelEdit(); else handleOpenEdit(); }}>
             {isEditingName ? "✕" : "✎ Edit"}
           </Button>
@@ -1059,8 +1078,8 @@ function SingleTimeAttack() {
             <Input
               size="sm"
               placeholder="Enter your name (max 12 chars)"
-              value={draftLeaderboardName}
-              onChange={(e) => setDraftLeaderboardName(e.target.value)}
+              value={draftName}
+              onChange={(e) => setDraftName(e.target.value)}
               maxLength={12}
               autoFocus
               onKeyDown={(e) => {
@@ -1079,7 +1098,7 @@ function SingleTimeAttack() {
 
         {/* Leaderboard List */}
         <VStack align="stretch" spacing={1}>
-          {topScores.map((entry, idx) => {
+          {(todayTopScores || []).map((entry, idx) => {
             const isMyScore = entry.client_id === clientId;
             const displayName = formatDisplayName(entry.name, entry.client_id);
             
