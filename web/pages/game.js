@@ -2633,7 +2633,7 @@ export default function GamePage({ mode = "", code = "" }) {
 
             <Box p={6} borderWidth="1px" borderRadius="lg" boxShadow="base">
               <FormControl>
-                <FormLabel htmlFor="nickname">Nickname</FormLabel>
+                <FormLabel>Nickname</FormLabel>
                 <Text fontSize="lg" fontWeight="bold">
                   {String(name || "").trim() || "-"}
                 </Text>
