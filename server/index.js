@@ -384,9 +384,9 @@ const io = new Server(server, {
         console.log('[SOCKET.IO] CORS allowed for origin:', origin);
         callback(null, origin);
       } else {
-        // Properly reject with error (not callback(null, false))
+        // Properly reject with error
         console.warn('[SOCKET.IO] CORS BLOCKED origin:', origin);
-        callback(new Error('Not allowed by CORS'), false);
+        callback(new Error('Not allowed by CORS'));
       }
     },
     credentials: true,
