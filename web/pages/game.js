@@ -1580,6 +1580,15 @@ export default function GamePage({ mode = "", code = "" }) {
   // ✅ Stable image display state: keeps last loaded image visible until next loads
   const [displayImageSrc, setDisplayImageSrc] = useState("");
   const [nextImageSrc, setNextImageSrc] = useState("");
+  
+useEffect(() => {
+  console.log("[IMG] displayImageSrc changed →", displayImageSrc);
+}, [displayImageSrc]);
+
+useEffect(() => {
+  console.log("[IMG] nextImageSrc set →", nextImageSrc);
+}, [nextImageSrc]);
+
   const [imageLoading, setImageLoading] = useState(false);
   const [matchFinished, setMatchFinished] = useState(false);
   const [rematchClicked, setRematchClicked] = useState(false);
@@ -1603,6 +1612,19 @@ export default function GamePage({ mode = "", code = "" }) {
   // Image preload sequencing and dedup guards
   const preloadSeqRef = useRef(0);
   const lastNextRef = useRef("");
+  // Transparent 1x1 pixel to keep Image mounted before first real src
+  const TRANSPARENT_PIXEL = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=";
+
+  // Debug wrapper to detect Image remounts
+  const DebugImage = (props) => {
+    useEffect(() => {
+      if (DEBUG_PVP) console.log("[IMAGE_DEBUG] Image mounted");
+      return () => {
+        if (DEBUG_PVP) console.log("[IMAGE_DEBUG] Image unmounted");
+      };
+    }, []);
+    return <Image {...props} />;
+  };
 
   // ✅ Persist playerToken for reconnection
   const [playerToken, setPlayerToken] = useState(() => {
@@ -3137,33 +3159,25 @@ export default function GamePage({ mode = "", code = "" }) {
                 transition="all 300ms ease-in-out"
               >
                 <Box pos="absolute" top="0" left="0" right="0" bottom="0" style={{ aspectRatio: "16/9" }}>
-                  {displayImageSrc ? (
-                    <>
-                      <Image
-                        src={displayImageSrc}
-                        alt="match"
-                        fill
-                        style={{ objectFit: "contain" }}
-                        sizes="(max-width: 768px) 100vw, 900px"
-                        quality={75}
-                        priority={currentRound === 1}
-                        placeholder="blur"
-                        blurDataURL={BLUR_PLACEHOLDER}
-                      />
-                      {imageLoading && (
-                        <Box position="absolute" top="2" right="2">
-                          <Spinner size="md" color="whiteAlpha.800" />
-                        </Box>
-                      )}
-                    </>
-                  ) : (
+                  <DebugImage
+                    src={displayImageSrc || TRANSPARENT_PIXEL}
+                    alt="match"
+                    fill
+                    style={{ objectFit: "contain" }}
+                    sizes="(max-width: 768px) 100vw, 900px"
+                    quality={75}
+                    priority={currentRound === 1}
+                    placeholder="blur"
+                    blurDataURL={BLUR_PLACEHOLDER}
+                  />
+                  {(imageLoading || !displayImageSrc) && (
                     <Box
                       position="absolute"
                       top="50%"
                       left="50%"
                       transform="translate(-50%, -50%)"
                     >
-                      <Spinner size="xl" color="white" />
+                      <Spinner size={displayImageSrc ? "md" : "xl"} color="white" />
                     </Box>
                   )}
                 </Box>
