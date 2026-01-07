@@ -1573,6 +1573,9 @@ export default function GamePage({ mode = "", code = "" }) {
   const [finalScoreboard, setFinalScoreboard] = useState(null);
   const [finishedResult, setFinishedResult] = useState(null);
   const [serverPhase, setServerPhase] = useState(null);
+  // ✅ Prevent repeated error handling/toast when room becomes invalid
+  const roomErrorShownRef = useRef(false);
+  const ROOM_ERROR_TOAST_ID = "room_not_found";
 
   // ✅ Stable image display state: keeps last loaded image visible until next loads
   const [displayImageSrc, setDisplayImageSrc] = useState("");
@@ -2536,26 +2539,34 @@ export default function GamePage({ mode = "", code = "" }) {
     };
 
     const onRoomStateFail = () => {
-      toast({
-        title: "Room not found",
-        description: "The match is no longer active.",
-        status: "warning",
-        duration: 4000,
-        isClosable: true,
-      });
+      // Guard: handle this error only once
+      if (roomErrorShownRef.current) return;
+      roomErrorShownRef.current = true;
+
+      // Single toast only; prevent spam
+      if (!toast.isActive(ROOM_ERROR_TOAST_ID)) {
+        toast({
+          id: ROOM_ERROR_TOAST_ID,
+          title: "Room not found",
+          description: "The match is no longer active.",
+          status: "warning",
+          duration: 4000,
+          isClosable: true,
+        });
+      }
+
+      // Stop timers and mark match finished; avoid further emits
+      clearInterval(timerRef.current);
       hasLeftRef.current = true;
-      setPhase("LOBBY");
-      setRoomMode("ALL");
-      setRound(null);
-      setPlayers([]);
-      setCurrentRound(0);
-      setMaxRounds(3);
-      setSubmitted(false);
-      setOpponentSubmitted(false);
+      setMatchFinished(true);
+      matchFinishedRef.current = true;
+      setServerPhase("FINISHED");
+
+      // Move to safe state once; avoid wiping round/image immediately
       setTransition(null);
-      setLastResult(null);
-      setFinalScoreboard(null);
-      setFinishedResult(null);
+      setPhase("LOBBY");
+
+      // Optional: navigate back to menu only once
       router.replace("/");
     };
 
