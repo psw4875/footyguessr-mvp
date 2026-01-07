@@ -2633,10 +2633,14 @@ export default function GamePage({ mode = "", code = "" }) {
 
             <Box p={6} borderWidth="1px" borderRadius="lg" boxShadow="base">
               <FormControl>
-                <FormLabel>Nickname</FormLabel>
-                <Text fontSize="lg" fontWeight="bold">
-                  {String(name || "").trim() || "-"}
+                <Text fontSize="sm" fontWeight="600" color="gray.600" mb={1}>
+                  Nickname
                 </Text>
+                <Box p={3} borderWidth="1px" borderRadius="md" bg="gray.50">
+                  <Text fontSize="lg" fontWeight="bold">
+                    {String(name || "").trim() || "-"}
+                  </Text>
+                </Box>
                 <FormHelperText>
                   Shown to opponent. To change nickname, go back to Menu.
                 </FormHelperText>
