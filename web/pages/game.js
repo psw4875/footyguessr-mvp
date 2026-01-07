@@ -1870,7 +1870,7 @@ useEffect(() => {
     }
   }, [phase, finalScoreboard, socket?.id]);
 
-  const handleOpponentLeft = useCallback(() => {
+  function handleOpponentLeft() {
     if (opponentLeftShownRef.current) return;
     setOpponentLeftShown(true);
     toast({
@@ -1887,10 +1887,9 @@ useEffect(() => {
     setOpponentSubmitted(false);
     setLastResult(null);
     setTransition(null);
-  
-  }, [toast]);
+  }
 
-  const leaveCurrentRoom = useCallback((reason = "nav", { redirect } = {}) => {
+  function leaveCurrentRoom(reason = "nav", { redirect } = {}) {
     if (!roomId || hasLeftRef.current || !inRoomRef.current) return;
     hasLeftRef.current = true;
     const finished = matchFinishedRef.current || serverPhaseRef.current === "FINISHED";
@@ -1921,8 +1920,7 @@ useEffect(() => {
     if (redirect) {
       router.push("/");
     }
-  
-  }, [roomId, phase, currentRound, router]);
+  }
 
   useEffect(() => {
     hasLeftRef.current = false;
@@ -2479,27 +2477,10 @@ useEffect(() => {
       setRound((prev) => {
         const incoming = s.round;
         if (!incoming) return prev; // round 필드가 없으면 기존 유지
-
         const merged = { ...(prev || {}), ...incoming };
-
-        // imageUrl이 간헐적으로 빠질 수 있어 prev 값을 유지
         const prevUrl = (prev && prev.imageUrl) || "";
         const nextUrl = incoming.imageUrl || prevUrl;
         merged.imageUrl = nextUrl;
-
-        // ✅ 의미있는 변화가 없으면 prev 그대로 반환해서 불필요한 리렌더를 막음
-        if (
-          prev &&
-          merged.roundId === prev.roundId &&
-          merged.imageUrl === prev.imageUrl &&
-          merged.startedAt === prev.startedAt &&
-          merged.durationMs === prev.durationMs &&
-          merged.status === prev.status &&
-          merged.phase === prev.phase
-        ) {
-          return prev;
-        }
-
         return merged;
       });
       if (s.currentRound != null) setCurrentRound(s.currentRound);
@@ -3182,12 +3163,17 @@ useEffect(() => {
                     src={displayImageSrc || TRANSPARENT_PIXEL}
                     alt="match"
                     fill
-                    style={{ objectFit: "contain" }}
+                    // NOTE:
+                    // - We intentionally keep objectFit="contain" so players see the whole frame.
+                    // - For portrait/narrow images, this creates letterboxing (side bars).
+                    // - Using Next/Image blur placeholder can momentarily render a bright/white blurred
+                    //   frame across the entire box while the real image is loading, which feels like a
+                    //   "white flash". We disable blur placeholder here and force a dark background.
+                    style={{ objectFit: "contain", backgroundColor: "rgb(26, 32, 44)" }}
                     sizes="(max-width: 768px) 100vw, 900px"
                     quality={75}
                     priority={currentRound === 1}
-                    placeholder="blur"
-                    blurDataURL={BLUR_PLACEHOLDER}
+                    placeholder="empty"
                   />
                   {(imageLoading || !displayImageSrc) && (
                     <Box
