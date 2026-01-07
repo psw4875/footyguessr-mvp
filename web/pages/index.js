@@ -59,14 +59,13 @@ export default function Home() {
 
   const startPvpLobby = () => {
     trackEvent("click_pvp");
-    // If nickname exists use it; otherwise prompt modal
-    const stored = (localStorage.getItem("fta_nick") || name || "").trim();
-    if (stored) {
-      router.push(`/game?mode=pvp&name=${encodeURIComponent(stored)}`);
-      return;
+    // Always open modal so nickname can be reviewed/edited before PvP
+    try {
+      const stored = (localStorage.getItem("fta_nick") || name || "").trim();
+      setModalName(stored);
+    } catch (e) {
+      setModalName(name || "");
     }
-    // open modal to collect nickname
-    setModalName("");
     onOpen();
   };
 
