@@ -1600,6 +1600,9 @@ export default function GamePage({ mode = "", code = "" }) {
   const opponentLeftShownRef = useRef(false);
   const youWinSoundPlayedRef = useRef(false);
   const pvpStartSoundPlayedRef = useRef(false);
+  // Image preload sequencing and dedup guards
+  const preloadSeqRef = useRef(0);
+  const lastNextRef = useRef("");
 
   // ✅ Persist playerToken for reconnection
   const [playerToken, setPlayerToken] = useState(() => {
@@ -1668,57 +1671,38 @@ export default function GamePage({ mode = "", code = "" }) {
     }
   }, [round?.roundId, round?.imageUrl]);
 
-  // ✅ Stable image loading: update nextImageSrc when question changes
+  // ✅ Stable image loading: only react to valid imageUrl changes
   useEffect(() => {
-    if (!round?.imageUrl) return;
-    const newSrc = round.imageUrl;
-    
-    if (DEBUG_PVP) {
-      console.log("[IMAGE_DEBUG] New question image", {
-        phase,
-        roundIndex: currentRound,
-        imageUrl: newSrc,
-        currentDisplay: displayImageSrc,
-        timestamp: Date.now(),
-      });
-    }
-
-    // Set next image src and mark as loading
-    setNextImageSrc(newSrc);
+    const raw = (round?.imageUrl || "").trim();
+    const invalid = !raw || raw === "(no url)" || raw === "no url";
+    if (invalid) return; // ignore invalid URLs entirely
+    if (raw === lastNextRef.current) return; // dedupe identical requests
+    lastNextRef.current = raw;
+    setNextImageSrc(raw);
     setImageLoading(true);
-  }, [round?.imageUrl, currentRound, phase]);
+  }, [round?.imageUrl]);
 
-  // ✅ Swap to new image only after it loads (using preloader)
+  // ✅ Preload and swap using sequence guard; never swap on error
   useEffect(() => {
-    if (!nextImageSrc || nextImageSrc === displayImageSrc) return;
-
-    // Preload the image before swapping
+    if (!nextImageSrc) return;
+    const seq = ++preloadSeqRef.current;
     const img = new window.Image();
     img.onload = () => {
-      if (DEBUG_PVP) {
-        console.log("[IMAGE_DEBUG] Image loaded, swapping display", {
-          newSrc: nextImageSrc,
-          oldSrc: displayImageSrc,
-        });
-      }
+      if (seq !== preloadSeqRef.current) return; // only latest request wins
       setDisplayImageSrc(nextImageSrc);
       setImageLoading(false);
     };
     img.onerror = () => {
-      if (DEBUG_PVP) {
-        console.log("[IMAGE_DEBUG] Image load failed", { src: nextImageSrc });
-      }
-      // Still swap to show the error, but mark as not loading
-      setDisplayImageSrc(nextImageSrc);
+      if (seq !== preloadSeqRef.current) return; // only latest request considered
+      // Do not swap on error to avoid flicker/broken image
       setImageLoading(false);
     };
     img.src = nextImageSrc;
-
     return () => {
       img.onload = null;
       img.onerror = null;
     };
-  }, [nextImageSrc, displayImageSrc]);
+  }, [nextImageSrc]);
 
   // Socket connection health monitoring (debug mode only)
   useEffect(() => {
@@ -3154,17 +3138,24 @@ export default function GamePage({ mode = "", code = "" }) {
               >
                 <Box pos="absolute" top="0" left="0" right="0" bottom="0" style={{ aspectRatio: "16/9" }}>
                   {displayImageSrc ? (
-                    <Image
-                      src={displayImageSrc}
-                      alt="match"
-                      fill
-                      style={{ objectFit: "contain" }}
-                      sizes="(max-width: 768px) 100vw, 900px"
-                      quality={75}
-                      priority={currentRound === 1}
-                      placeholder="blur"
-                      blurDataURL={BLUR_PLACEHOLDER}
-                    />
+                    <>
+                      <Image
+                        src={displayImageSrc}
+                        alt="match"
+                        fill
+                        style={{ objectFit: "contain" }}
+                        sizes="(max-width: 768px) 100vw, 900px"
+                        quality={75}
+                        priority={currentRound === 1}
+                        placeholder="blur"
+                        blurDataURL={BLUR_PLACEHOLDER}
+                      />
+                      {imageLoading && (
+                        <Box position="absolute" top="2" right="2">
+                          <Spinner size="md" color="whiteAlpha.800" />
+                        </Box>
+                      )}
+                    </>
                   ) : (
                     <Box
                       position="absolute"
