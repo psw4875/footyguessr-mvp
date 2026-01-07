@@ -2464,8 +2464,16 @@ export default function GamePage({ mode = "", code = "" }) {
       }
       const playerList = s.players || [];
       setPlayers(playerList);
-      // 항상 서버에서 전달된 round로 덮어쓰기(재대결 시 이전 라운드가 남는 문제 방지)
-      setRound(s.round || null);
+      // PvP 라운드 병합: incoming.round가 없거나 imageUrl이 없으면 기존 값을 유지
+      setRound((prev) => {
+        const incoming = s.round;
+        if (!incoming) return prev; // round 필드가 없으면 기존 유지
+        const merged = { ...(prev || {}), ...incoming };
+        const prevUrl = (prev && prev.imageUrl) || "";
+        const nextUrl = incoming.imageUrl || prevUrl;
+        merged.imageUrl = nextUrl;
+        return merged;
+      });
       if (s.currentRound != null) setCurrentRound(s.currentRound);
       if (s.maxRounds != null) setMaxRounds(s.maxRounds);
       if (s.status) setPhase(s.status);
