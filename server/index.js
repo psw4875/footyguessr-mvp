@@ -1596,12 +1596,25 @@ socket.on("JOIN_ROOM", ({ code }, ack) => {
 });
 
 
-  socket.on("disconnect", () => {
-    console.log("disconnected", socket.id);
+  socket.on("disconnect", (reason) => {
+    console.log('[SOCKET.IO] Client disconnected:', {
+      socketId: socket.id,
+      reason,
+      transport: socket.conn?.transport?.name || 'unknown',
+    });
     // Remove from all queues
     removeFromAllQueues(socket.id);
 
     handleLeaveOrDisconnect(socket, { isDisconnect: true });
+  });
+
+  // ✅ Socket error logging
+  socket.on("error", (err) => {
+    console.error('[SOCKET.IO] Socket error:', {
+      socketId: socket.id,
+      error: err.message,
+      stack: err.stack,
+    });
   });
 });
 
@@ -1609,13 +1622,21 @@ app.get('/', (_, res) => {
   res.status(200).send('FootyGuessr server alive');
 });
 
+// ✅ Reliable health check for AWS ELB
 app.get('/health', (_, res) => {
+  // Always return 200 OK - ELB needs fast, reliable health checks
+  res.status(200).send('ok');
+});
+
+// ✅ Detailed status endpoint (not for ELB health check)
+app.get('/status', (_, res) => {
   res.json({
     status: 'ok',
     uptime: process.uptime(),
     env: process.env.NODE_ENV || 'development',
     rooms: rooms.size || 0,
     timestamp: Date.now(),
+    memory: process.memoryUsage(),
   });
 });
 
