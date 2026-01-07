@@ -374,20 +374,49 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: (origin, callback) => {
-      // Allow requests with no origin
-      if (!origin) return callback(null, true);
+      // Allow requests with no origin (like mobile apps, curl, Postman)
+      if (!origin) {
+        console.log('[SOCKET.IO] Allowing request with no origin');
+        return callback(null, true);
+      }
       if (allowedOrigins.includes(origin)) {
         // Return the specific requesting origin (not just true)
+        console.log('[SOCKET.IO] CORS allowed for origin:', origin);
         callback(null, origin);
       } else {
-        callback(null, false);
+        // Properly reject with error (not callback(null, false))
+        console.warn('[SOCKET.IO] CORS BLOCKED origin:', origin);
+        callback(new Error('Not allowed by CORS'), false);
       }
     },
     credentials: true,
     methods: ["GET", "POST"],
   },
-  transports: ["websocket", "polling"],
+  // Allow both transports, polling first for firewall/proxy compatibility
+  transports: ["polling", "websocket"],
   allowEIO3: true, // Backward compatibility
+  // Increase ping timeout for slow connections
+  pingTimeout: 60000,
+  pingInterval: 25000,
+});
+
+// ✅ Socket.IO connection debugging and error logging
+io.engine.on("initial_headers", (headers, req) => {
+  if (DEBUG_PVP) {
+    console.log('[SOCKET.IO] initial_headers', {
+      origin: req.headers.origin,
+      referer: req.headers.referer,
+      userAgent: req.headers['user-agent'],
+    });
+  }
+});
+
+io.engine.on("connection_error", (err) => {
+  console.error('[SOCKET.IO] connection_error:', {
+    message: err.message,
+    code: err.code,
+    context: err.context,
+  });
 });
 
 // If REDIS_URL is set, wire the socket.io redis adapter dynamically
@@ -1146,6 +1175,15 @@ function makeRoomCode() {
 
 
 io.on("connection", (socket) => {
+  // ✅ Log successful connection with detailed handshake info
+  console.log('[SOCKET.IO] Client connected:', {
+    socketId: socket.id,
+    origin: socket.handshake.headers.origin,
+    referer: socket.handshake.headers.referer,
+    transport: socket.conn.transport.name,
+    address: socket.handshake.address,
+  });
+
   console.log("connected", socket.id);
   console.log("[META] TEAM_OPTIONS length:", TEAM_OPTIONS.length); 
   console.log("[META] sample:", TEAM_OPTIONS.slice(0, 5));

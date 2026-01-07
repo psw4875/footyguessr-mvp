@@ -1573,6 +1573,11 @@ export default function GamePage({ mode = "", code = "" }) {
   const [finalScoreboard, setFinalScoreboard] = useState(null);
   const [finishedResult, setFinishedResult] = useState(null);
   const [serverPhase, setServerPhase] = useState(null);
+
+  // ✅ Stable image display state: keeps last loaded image visible until next loads
+  const [displayImageSrc, setDisplayImageSrc] = useState("");
+  const [nextImageSrc, setNextImageSrc] = useState("");
+  const [imageLoading, setImageLoading] = useState(false);
   const [matchFinished, setMatchFinished] = useState(false);
   const [rematchClicked, setRematchClicked] = useState(false);
   const [opponentLeftNotice, setOpponentLeftNotice] = useState(null);
@@ -1649,6 +1654,58 @@ export default function GamePage({ mode = "", code = "" }) {
       console.log("[ROUND_CHANGE] Reset input fields", { roundKey });
     }
   }, [round?.roundId, round?.imageUrl]);
+
+  // ✅ Stable image loading: update nextImageSrc when question changes
+  useEffect(() => {
+    if (!round?.imageUrl) return;
+    const newSrc = round.imageUrl;
+    
+    if (DEBUG_PVP) {
+      console.log("[IMAGE_DEBUG] New question image", {
+        phase,
+        roundIndex: currentRound,
+        imageUrl: newSrc,
+        currentDisplay: displayImageSrc,
+        timestamp: Date.now(),
+      });
+    }
+
+    // Set next image src and mark as loading
+    setNextImageSrc(newSrc);
+    setImageLoading(true);
+  }, [round?.imageUrl, currentRound, phase]);
+
+  // ✅ Swap to new image only after it loads (using preloader)
+  useEffect(() => {
+    if (!nextImageSrc || nextImageSrc === displayImageSrc) return;
+
+    // Preload the image before swapping
+    const img = new window.Image();
+    img.onload = () => {
+      if (DEBUG_PVP) {
+        console.log("[IMAGE_DEBUG] Image loaded, swapping display", {
+          newSrc: nextImageSrc,
+          oldSrc: displayImageSrc,
+        });
+      }
+      setDisplayImageSrc(nextImageSrc);
+      setImageLoading(false);
+    };
+    img.onerror = () => {
+      if (DEBUG_PVP) {
+        console.log("[IMAGE_DEBUG] Image load failed", { src: nextImageSrc });
+      }
+      // Still swap to show the error, but mark as not loading
+      setDisplayImageSrc(nextImageSrc);
+      setImageLoading(false);
+    };
+    img.src = nextImageSrc;
+
+    return () => {
+      img.onload = null;
+      img.onerror = null;
+    };
+  }, [nextImageSrc, displayImageSrc]);
 
   // Socket connection health monitoring (debug mode only)
   useEffect(() => {
@@ -3038,17 +3095,28 @@ export default function GamePage({ mode = "", code = "" }) {
                 transition="all 300ms ease-in-out"
               >
                 <Box pos="absolute" top="0" left="0" right="0" bottom="0" style={{ aspectRatio: "16/9" }}>
-                  <Image
-                    src={round.imageUrl}
-                    alt="match"
-                    fill
-                    style={{ objectFit: "contain" }}
-                    sizes="(max-width: 768px) 100vw, 900px"
-                    quality={75}
-                    priority={currentRound === 1}
-                    placeholder="blur"
-                    blurDataURL={BLUR_PLACEHOLDER}
-                  />
+                  {displayImageSrc ? (
+                    <Image
+                      src={displayImageSrc}
+                      alt="match"
+                      fill
+                      style={{ objectFit: "contain" }}
+                      sizes="(max-width: 768px) 100vw, 900px"
+                      quality={75}
+                      priority={currentRound === 1}
+                      placeholder="blur"
+                      blurDataURL={BLUR_PLACEHOLDER}
+                    />
+                  ) : (
+                    <Box
+                      position="absolute"
+                      top="50%"
+                      left="50%"
+                      transform="translate(-50%, -50%)"
+                    >
+                      <Spinner size="xl" color="white" />
+                    </Box>
+                  )}
                 </Box>
               </Box>
 

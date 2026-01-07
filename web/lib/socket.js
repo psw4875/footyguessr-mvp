@@ -51,15 +51,17 @@ export const getSocket = () => {
   if (!socketInstance && typeof window !== "undefined") {
     socketInstance = io(socketUrl, {
       autoConnect: false, // Lazy: do not connect on creation
-      transports: ["polling", "websocket"], // Polling first for robustness, then try websocket
-      upgrade: true,
-      rememberUpgrade: true,
-      withCredentials: true, // Include CORS credentials
+      transports: ["polling", "websocket"], // Polling first for firewall/proxy compatibility
+      upgrade: true, // Allow upgrade from polling to websocket
+      rememberUpgrade: true, // Remember successful upgrade
+      withCredentials: true, // Include CORS credentials (cookies, auth headers)
       reconnection: true,
       reconnectionDelay: 500,
       reconnectionDelayMax: 5000,
       reconnectionAttempts: 5,
-      timeout: 10000,
+      timeout: 20000, // Increased from 10s for slow connections
+      // Force polling path to be explicit
+      path: "/socket.io/",
     });
 
     setupSocketLogging(socketInstance);
