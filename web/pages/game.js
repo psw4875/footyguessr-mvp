@@ -1614,11 +1614,21 @@ export default function GamePage({ mode = "", code = "" }) {
   });
 
   // 메인에서 name 넘겨준 거 받기 + 링크 code 자동 세팅
- 
+  // ✅ Load saved nickname from localStorage on mount
   useEffect(() => {
     if (urlCode) setJoinCode(urlCode.toUpperCase());
     const qname = router.query.name ?? router.query.nickname ?? null;
-    if (qname) setName(String(qname));
+    if (qname) {
+      setName(String(qname));
+    } else {
+      // Load from localStorage if no query param
+      try {
+        const savedName = localStorage.getItem("fg_name");
+        if (savedName) setName(savedName);
+      } catch {
+        // Ignore localStorage errors
+      }
+    }
   }, [urlCode]);
 
   // META 수신
@@ -2004,6 +2014,15 @@ export default function GamePage({ mode = "", code = "" }) {
         isClosable: true,
       });
       return;
+    }
+    // ✅ Save nickname to localStorage before joining
+    const trimmedName = String(name || "").trim();
+    if (trimmedName) {
+      try {
+        localStorage.setItem("fg_name", trimmedName);
+      } catch {
+        // Ignore localStorage errors
+      }
     }
     try {
       hello();
@@ -2689,18 +2708,38 @@ export default function GamePage({ mode = "", code = "" }) {
             </Box>
 
             <Box p={6} borderWidth="1px" borderRadius="lg" boxShadow="base">
-              <FormControl>
+              <FormControl isRequired={Boolean(urlCode)}>
                 <Text fontSize="sm" fontWeight="600" color="gray.600" mb={1}>
                   Nickname
                 </Text>
-                <Box p={3} borderWidth="1px" borderRadius="md" bg="gray.50">
-                  <Text fontSize="lg" fontWeight="bold">
-                    {String(name || "").trim() || "-"}
-                  </Text>
-                </Box>
-                <FormHelperText>
-                  Shown to opponent. To change nickname, go back to Menu.
-                </FormHelperText>
+                {urlCode ? (
+                  // ✅ Invite flow: editable nickname input
+                  <>
+                    <Input
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Enter your nickname"
+                      size="lg"
+                      maxLength={20}
+                      autoFocus
+                    />
+                    <FormHelperText>
+                      This will be shown to your opponent.
+                    </FormHelperText>
+                  </>
+                ) : (
+                  // Normal flow: read-only display
+                  <>
+                    <Box p={3} borderWidth="1px" borderRadius="md" bg="gray.50">
+                      <Text fontSize="lg" fontWeight="bold">
+                        {String(name || "").trim() || "-"}
+                      </Text>
+                    </Box>
+                    <FormHelperText>
+                      Shown to opponent. To change nickname, go back to Menu.
+                    </FormHelperText>
+                  </>
+                )}
               </FormControl>
             </Box>
 
