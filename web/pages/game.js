@@ -2632,20 +2632,14 @@ export default function GamePage({ mode = "", code = "" }) {
             </Box>
 
             <Box p={6} borderWidth="1px" borderRadius="lg" boxShadow="base">
-              <FormControl isRequired isInvalid={nameTouched && !String(name || "").trim()}>
+              <FormControl>
                 <FormLabel htmlFor="nickname">Nickname</FormLabel>
-                <Input
-                  id="nickname"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  onBlur={() => setNameTouched(true)}
-                  placeholder="Your name"
-                  size="lg"
-                />
+                <Text fontSize="lg" fontWeight="bold">
+                  {String(name || "").trim() || "-"}
+                </Text>
                 <FormHelperText>
-                  Shown to opponent.
+                  Shown to opponent. To change nickname, go back to Menu.
                 </FormHelperText>
-                <FormErrorMessage>Enter a nickname to play.</FormErrorMessage>
               </FormControl>
             </Box>
 
