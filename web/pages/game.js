@@ -1585,6 +1585,10 @@ export default function GamePage({ mode = "", code = "" }) {
   useEffect(() => {
     displayImageSrcRef.current = displayImageSrc;
   }, [displayImageSrc]);
+  // Latch for unlock state per round
+  const [roundUnlocked, setRoundUnlocked] = useState(false);
+  const prevPhaseRef = useRef(phase);
+  const prevServerPhaseRef = useRef(serverPhase);
   
 useEffect(() => {
   console.log("[IMG] displayImageSrc changed →", displayImageSrc);
@@ -1697,6 +1701,11 @@ useEffect(() => {
       console.log("[ROUND_CHANGE] Reset input fields", { roundKey });
     }
   }, [round?.roundId, round?.imageUrl]);
+
+  // Reset unlock latch when round changes
+  useEffect(() => {
+    setRoundUnlocked(false);
+  }, [round?.roundId]);
 
   // ✅ Stable image loading: only react to valid imageUrl changes
   useEffect(() => {
@@ -2735,7 +2744,49 @@ useEffect(() => {
     return () => clearInterval(timerRef.current);
   }, [round]);
 
+  const canAnswerNow =
+    round &&
+    Date.now() >= (round.startedAt ?? 0) &&
+    (phase === "IN_ROUND" || phase === "IN_GAME" || serverPhase === "IN_ROUND" || serverPhase === "IN_GAME");
+
   const canAnswer = round && Date.now() >= (round.startedAt ?? 0) && phase === "IN_ROUND";
+
+  // Latch: once answerable, stay unlocked until round changes
+  useEffect(() => {
+    if (canAnswerNow && !roundUnlocked) {
+      setRoundUnlocked(true);
+      if (debugMode) {
+        console.log("[ROUND_DEBUG] roundUnlocked latched", {
+          roundId: round?.roundId,
+          startedAt: round?.startedAt,
+          phase,
+          serverPhase,
+        });
+      }
+    }
+  }, [canAnswerNow, roundUnlocked, round?.roundId, round?.startedAt, phase, serverPhase, debugMode]);
+
+  useEffect(() => {
+    if (!debugMode) return;
+    console.log("[ROUND_DEBUG] roundUnlocked state", { value: roundUnlocked, roundId: round?.roundId });
+  }, [roundUnlocked, round?.roundId, debugMode]);
+
+  // Debug logs for phase/serverPhase changes
+  useEffect(() => {
+    if (!debugMode) return;
+    if (phase !== prevPhaseRef.current) {
+      console.log("[ROUND_DEBUG] phase change", { prev: prevPhaseRef.current, next: phase });
+      prevPhaseRef.current = phase;
+    }
+  }, [phase, debugMode]);
+
+  useEffect(() => {
+    if (!debugMode) return;
+    if (serverPhase !== prevServerPhaseRef.current) {
+      console.log("[ROUND_DEBUG] serverPhase change", { prev: prevServerPhaseRef.current, next: serverPhase });
+      prevServerPhaseRef.current = serverPhase;
+    }
+  }, [serverPhase, debugMode]);
 
   // Determine if Menu button should be disabled (during active gameplay)
   const isMenuDisabled = roomId && ["WAITING", "MATCHED", "TRANSITION", "IN_ROUND", "ROUND_RESULT"].includes(phase);
@@ -3207,9 +3258,8 @@ useEffect(() => {
                   right="0" 
                   bottom="0" 
                   style={{ aspectRatio: "16/9" }}
-                  filter={canAnswer ? "none" : "blur(8px)"}
-                  opacity={canAnswer ? 1 : 0.4}
-                  transition="filter 300ms ease-in-out, opacity 300ms ease-in-out"
+                    opacity={roundUnlocked ? 1 : 0.4}
+                    transition="opacity 300ms ease-in-out"
                 >
                   <DebugImage
                     // Keep the same component instance across swaps (no `key`),
@@ -3230,6 +3280,18 @@ useEffect(() => {
                     placeholder="blur"
                     blurDataURL={BLUR_PLACEHOLDER}
                   />
+                  {!roundUnlocked && (
+                    <Box
+                      position="absolute"
+                      top="0"
+                      left="0"
+                      right="0"
+                      bottom="0"
+                      bg="rgba(0,0,0,0.35)"
+                      pointerEvents="none"
+                      transition="opacity 200ms ease-in-out"
+                    />
+                  )}
                   {(imageLoading || !displayImageSrc) && (
                     <Box
                       position="absolute"
