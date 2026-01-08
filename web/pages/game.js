@@ -264,6 +264,12 @@ function SingleTimeAttack() {
     const q = router.query || {};
     return q.daily === "1" || q.daily === 1;
   }, [router.query]);
+  const isLeaderboardOnly = useMemo(() => {
+    const q = router.query || {};
+    const daily = q.daily === "1" || q.daily === 1;
+    const lb = q.leaderboard === "1" || q.leaderboard === 1;
+    return Boolean(daily && lb);
+  }, [router.query]);
   const isDaily = dailyMode || isDailyQuery;
 
   // Leaderboard visibility toggle (UI only, does NOT gate data fetching)
@@ -755,10 +761,10 @@ function SingleTimeAttack() {
 
   // Auto-start daily if query param present (from Home CTA)
   useEffect(() => {
-    if (isDailyQuery && router.isReady && !myTodaySubmitted && status === "READY") {
+    if (isDailyQuery && !isLeaderboardOnly && router.isReady && !myTodaySubmitted && status === "READY") {
       startDailyChallenge();
     }
-  }, [isDailyQuery, router.isReady, myTodaySubmitted, status]);
+  }, [isDailyQuery, isLeaderboardOnly, router.isReady, myTodaySubmitted, status]);
 
   // Initialize stable anonymous clientId on client only
   useEffect(() => {
@@ -1198,82 +1204,124 @@ function SingleTimeAttack() {
 
           {status === "READY" && (
             <>
-            <Box p={6} borderWidth="1px" borderRadius="md" bg="gray.50">
-              <Heading size="md" mb={1}>⚡ 60s Rush</Heading>
-              <Text fontSize="sm" color="gray.600" mb={2}>Beat your best in 60 seconds.</Text>
+              {isLeaderboardOnly ? (
+                <Box mt={2} p={5} borderWidth="2px" borderRadius="md" bg="orange.50" borderColor="orange.400">
+                  <HStack justify="space-between" align="center" mb={2}>
+                    <Heading size="md">🏆 Today’s Leaderboard</Heading>
+                    <Text fontSize="sm" color="gray.600">Resets at 00:00 UTC</Text>
+                  </HStack>
 
-              <HStack mb={3} spacing={3}>
-                <Text fontSize="sm" color="gray.600">Mode:</Text>
-                <Select size="sm" value={filterType} onChange={(e) => setFilterType(e.target.value)} maxW="200px">
-                  <option value="ALL">ALL</option>
-                  <option value="INTERNATIONAL">INTERNATIONAL</option>
-                  <option value="CLUB">CLUB</option>
-                </Select>
-              </HStack>
+                  {/* Optional action: allow starting Daily from leaderboard-only view */}
+                  {!myTodaySubmitted ? (
+                    <Button
+                      colorScheme="orange"
+                      onClick={() => router.push("/game?mode=single&daily=1")}
+                      w="100%"
+                      size="lg"
+                      mb={3}
+                    >
+                      🔥 Play Daily Challenge
+                    </Button>
+                  ) : (
+                    <Button
+                      colorScheme="gray"
+                      variant="outline"
+                      isDisabled
+                      w="100%"
+                      size="lg"
+                      mb={3}
+                      _disabled={{ opacity: 1, cursor: "not-allowed" }}
+                    >
+                      ✓ Done ({myTodayScore ?? 0} pts)
+                    </Button>
+                  )}
 
-              <VStack align="stretch" spacing={3} mb={4}>
-                <Box as="ul" pl={4} m={0} color="gray.700" spacing={1}>
-                  <Text as="li" fontSize="sm">One team correct: +2 pts</Text>
-                  <Text as="li" fontSize="sm">Both teams correct: +5 pts</Text>
-                  <Text as="li" fontSize="sm">Exact score (with both teams): +10 pts</Text>
-                  <Text as="li" fontSize="sm">Difficulty adapts to you</Text>
+                  <TodayLeaderboard />
                 </Box>
-              </VStack>
+              ) : isDailyQuery ? (
+                <Box mt={2} p={5} borderWidth="2px" borderRadius="md" bg="orange.50" borderColor="orange.400">
+                  <Heading size="md" mb={2}>🔥 Daily Challenge</Heading>
+                  <Text fontSize="sm" color="gray.700" mb={3}>
+                    New puzzle daily. Compete on the global leaderboard. Resets at 00:00 UTC.
+                  </Text>
 
-              <Button onClick={startGame} isDisabled={loadingQ || !questions.length} colorScheme="teal" w="100%" size="lg" py={6} fontSize="md" fontWeight="bold">
-                Start
-              </Button>
+                  {(() => {
+                    const played = myTodaySubmitted;
+                    const playedScore = myTodayScore;
+                    return (
+                      <>
+                        <HStack spacing={3} mb={3}>
+                          <Button
+                            colorScheme="orange"
+                            onClick={() => startDailyChallenge()}
+                            isDisabled={!!played || loadingQ || !questions.length}
+                            w="100%"
+                            size="lg"
+                          >
+                            {played ? "✓ Done" : "🏆 Play Daily"}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setShowLeaderboardPanel(true);
+                              router.push("/game?mode=single&daily=1&leaderboard=1");
+                            }}
+                            w="100%"
+                            size="lg"
+                          >
+                            📊 Scores
+                          </Button>
+                        </HStack>
 
-              <HStack mt={3} spacing={4} justify="space-between">
-                <Box>
-                  <Text fontSize="sm" color="gray.600">Personal Best</Text>
-                  <Text fontWeight="bold">{personalBest} pts</Text>
+                        <Text fontSize="sm" color="gray.700" mb={2}>
+                          My score today: <b>{playedScore ?? 0}</b>
+                        </Text>
+                      </>
+                    );
+                  })()}
                 </Box>
-                <Box textAlign="right">
-                  <Text fontSize="sm" color="gray.600">Best Today</Text>
-                  <Text fontWeight="bold">{todayBest} pts</Text>
-                </Box>
-              </HStack>
+              ) : (
+                <Box p={6} borderWidth="1px" borderRadius="md" bg="gray.50">
+                  <Heading size="md" mb={1}>⚡ 60s Rush</Heading>
+                  <Text fontSize="sm" color="gray.600" mb={2}>Beat your best in 60 seconds.</Text>
 
-              <Box mt={4} p={3} borderWidth="1px" borderRadius="md" bg="white">
-                <Text fontSize="sm" color="gray.600" mb={1}>💡 Tip</Text>
-                <Text fontSize="sm">Type teams first—guessing score is a bonus.</Text>
-              </Box>
-            </Box>
+                  <HStack mb={3} spacing={3}>
+                    <Text fontSize="sm" color="gray.600">Mode:</Text>
+                    <Select size="sm" value={filterType} onChange={(e) => setFilterType(e.target.value)} maxW="200px">
+                      <option value="ALL">ALL</option>
+                      <option value="INTERNATIONAL">INTERNATIONAL</option>
+                      <option value="CLUB">CLUB</option>
+                    </Select>
+                  </HStack>
 
-            <Box mt={4} p={5} borderWidth="2px" borderRadius="md" bg="orange.50" borderColor="orange.400">
-              <Heading size="md" mb={2}>🔥 Daily Challenge</Heading>
-              <Text fontSize="sm" color="gray.700" mb={3}>New puzzle daily. Compete on the global leaderboard. Resets at 00:00 UTC.</Text>
-              {(() => {
-                const played = myTodaySubmitted;
-                const playedScore = myTodayScore;
-                return (
-                  <>
-                    <HStack spacing={3} mb={3}>
-                      <Button colorScheme="orange" onClick={() => startDailyChallenge()} isDisabled={!!played || loadingQ || !questions.length} w="100%" size="lg">
-                        {played ? "✓ Done" : "🏆 Play Daily"}
-                      </Button>
-                      <Button variant="outline" onClick={() => setShowLeaderboardPanel((v) => !v)} w="100%" size="lg">
-                        {showLeaderboardPanel ? "Hide" : "📊 Scores"}
-                      </Button>
-                    </HStack>
-                    <Box mb={2}>
-                      <Text fontSize="sm">My score today: <b>{playedScore}</b></Text>
+                  <VStack align="stretch" spacing={3} mb={4}>
+                    <Text fontSize="sm">• One team correct: +2 pts</Text>
+                    <Text fontSize="sm">• Both teams correct: +5 pts</Text>
+                    <Text fontSize="sm">• Exact score (with both teams): +10 pts</Text>
+                    <Text fontSize="sm">• Difficulty adapts to you</Text>
+                  </VStack>
+
+                  <Button onClick={startGame} isDisabled={loadingQ || !questions.length} colorScheme="teal" w="100%" size="lg" py={6} fontWeight="bold">
+                    Start
+                  </Button>
+
+                  <HStack mt={3} spacing={4} justify="space-between">
+                    <Box>
+                      <Text fontSize="sm" color="gray.600">Personal Best</Text>
+                      <Text fontWeight="bold">{personalBest} pts</Text>
                     </Box>
-                    {isDaily && (
-                      <Box mt={3} borderTop="1px" pt={3}>
-                        <Heading size="sm" mb={2}>Today’s Leaderboard</Heading>
-                        {showLeaderboardPanel ? (
-                          <TodayLeaderboard />
-                        ) : (
-                          <Text fontSize="xs" color="gray.500">Click "📊 Scores" to view</Text>
-                        )}
-                      </Box>
-                    )}
-                  </>
-                );
-              })()}
-            </Box>
+                    <Box textAlign="right">
+                      <Text fontSize="sm" color="gray.600">Best Today</Text>
+                      <Text fontWeight="bold">{todayBest} pts</Text>
+                    </Box>
+                  </HStack>
+
+                  <Box mt={4} p={3} borderWidth="1px" borderRadius="md" bg="white">
+                    <Text fontSize="sm" color="gray.600" mb={1}>💡 Tip</Text>
+                    <Text fontSize="sm">Type teams first—guessing score is a bonus.</Text>
+                  </Box>
+                </Box>
+              )}
             </>
           )}
 
@@ -1483,11 +1531,29 @@ function SingleTimeAttack() {
             </Box>
           ) : (
             <Box p={4} borderWidth="1px" borderRadius="lg" boxShadow="base" bg="gray.50">
-              <Heading size="md" mb={3}>About This Mode</Heading>
+              <Heading size="md" mb={3}>
+                {isLeaderboardOnly ? "Daily Leaderboard" : isDailyQuery ? "Daily Challenge" : "About This Mode"}
+              </Heading>
               <VStack align="stretch" spacing={2}>
-                <Text fontSize="sm">- Solve as many as possible in 60 seconds to beat your best.</Text>
-                <Text fontSize="sm">- Difficulty adjusts automatically.</Text>
-                <Text fontSize="sm">- Quick tips and your personal best appear on the left.</Text>
+                {isLeaderboardOnly ? (
+                  <>
+                    <Text fontSize="sm">- See today’s top scores (UTC reset).</Text>
+                    <Text fontSize="sm">- Your nickname can be edited in the leaderboard panel.</Text>
+                    <Text fontSize="sm">- Play the Daily Challenge once per day.</Text>
+                  </>
+                ) : isDailyQuery ? (
+                  <>
+                    <Text fontSize="sm">- Same puzzle every day for everyone.</Text>
+                    <Text fontSize="sm">- One attempt per day (UTC reset).</Text>
+                    <Text fontSize="sm">- Compare your score on today’s leaderboard.</Text>
+                  </>
+                ) : (
+                  <>
+                    <Text fontSize="sm">- Solve as many as possible in 60 seconds to beat your best.</Text>
+                    <Text fontSize="sm">- Difficulty adjusts automatically.</Text>
+                    <Text fontSize="sm">- Quick tips and your personal best appear on the left.</Text>
+                  </>
+                )}
               </VStack>
               <Box mt={4} p={3} borderWidth="1px" borderRadius="md" bg="white" textAlign="center">
                 <Text fontSize="sm" color="gray.500">Ad space (reserved)</Text>
