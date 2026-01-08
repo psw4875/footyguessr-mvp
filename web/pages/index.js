@@ -25,6 +25,41 @@ import { trackEvent } from "../lib/analytics";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
+function getUtcDateKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function readDailyStatus() {
+  // Prefer the newer schema written by game.js: fg_daily_YYYY-MM-DD = {score, solved, submitted}
+  // Fallback to legacy schema: fta_daily_YYYY-MM-DD = "<score>"
+  const dk = getUtcDateKey();
+  try {
+    const raw = localStorage.getItem(`fg_daily_${dk}`);
+    if (raw) {
+      const data = JSON.parse(raw);
+      const submitted = Boolean(data?.submitted);
+      const score = Number(data?.score);
+      if (submitted) return { played: true, score: Number.isFinite(score) ? score : 0 };
+      // If not submitted, treat as not played.
+      return { played: false, score: null };
+    }
+  } catch (e) {
+    // ignore
+  }
+
+  try {
+    const legacy = localStorage.getItem(`fta_daily_${dk}`);
+    if (legacy != null) {
+      const score = Number(legacy);
+      return { played: true, score: Number.isFinite(score) ? score : 0 };
+    }
+  } catch (e) {
+    // ignore
+  }
+
+  return { played: false, score: null };
+}
+
 export default function Home() {
   const router = useRouter();
   const toast = useToast();
@@ -37,13 +72,10 @@ export default function Home() {
 
   useEffect(() => {
     try {
-      // UTC date key for global consistency
-      const dk = new Date().toISOString().slice(0, 10);
-      const key = `fta_daily_${dk}`;
-      const raw = localStorage.getItem(key);
-      if (raw) setDailyStatus({ played: true, score: Number(raw) });
-      else setDailyStatus({ played: false, score: null });
-    } catch (e) {}
+      setDailyStatus(readDailyStatus());
+    } catch (e) {
+      setDailyStatus({ played: false, score: null });
+    }
   }, []);
 
   function openPvp(intent) {
@@ -65,6 +97,8 @@ export default function Home() {
   };
 
   const startDaily = () => {
+    // If already completed, don't navigate (button is disabled anyway)
+    if (dailyStatus.played) return;
     trackEvent("click_daily_challenge");
     router.push("/game?mode=single&daily=1");
   };
@@ -165,22 +199,49 @@ export default function Home() {
                   Same puzzle for everyone · Resets at 00:00 UTC.
                 </Text>
 
-                <Button
-                  colorScheme={dailyStatus.played ? "gray" : "orange"}
-                  size="lg"
-                  w="100%"
-                  py={6}
-                  fontWeight="bold"
-                  onClick={startDaily}
-                >
-                  {dailyStatus.played
-                    ? `✓ Completed (${dailyStatus.score ?? "-"} pts)`
-                    : "🏆 Start Daily Challenge"}
-                </Button>
-
-                <Button variant="outline" mt={3} w="100%" onClick={viewDailyLeaderboard}>
-                  📊 View Today’s Leaderboard
-                </Button>
+                {/* ✅ Completed state: primary CTA becomes "View Leaderboard", Start becomes disabled status */}
+                {dailyStatus.played ? (
+                  <VStack align="stretch" spacing={3}>
+                    <Button
+                      colorScheme="orange"
+                      size="lg"
+                      w="100%"
+                      py={6}
+                      fontWeight="bold"
+                      onClick={viewDailyLeaderboard}
+                    >
+                      📊 View Today’s Leaderboard
+                    </Button>
+                    <Button
+                      colorScheme="gray"
+                      variant="outline"
+                      size="lg"
+                      w="100%"
+                      py={6}
+                      fontWeight="bold"
+                      isDisabled
+                      _disabled={{ opacity: 1, cursor: "not-allowed" }}
+                    >
+                      ✓ Completed ({dailyStatus.score ?? 0} pts)
+                    </Button>
+                  </VStack>
+                ) : (
+                  <VStack align="stretch" spacing={3}>
+                    <Button
+                      colorScheme="orange"
+                      size="lg"
+                      w="100%"
+                      py={6}
+                      fontWeight="bold"
+                      onClick={startDaily}
+                    >
+                      🏆 Start Daily Challenge
+                    </Button>
+                    <Button variant="outline" w="100%" onClick={viewDailyLeaderboard}>
+                      📊 View Today’s Leaderboard
+                    </Button>
+                  </VStack>
+                )}
               </Box>
             </VStack>
           </Box>
