@@ -270,6 +270,9 @@ function SingleTimeAttack() {
     const lb = q.leaderboard === "1" || q.leaderboard === 1;
     return Boolean(daily && lb);
   }, [router.query]);
+
+  // ✅ Daily Challenge anti-scouting: lock Menu only while actively playing Daily (not leaderboard-only)
+  const isDailyMenuLocked = isDaily && status === "PLAYING" && !isLeaderboardOnly;
   const isDaily = dailyMode || isDailyQuery;
 
   // Leaderboard visibility toggle (UI only, does NOT gate data fetching)
@@ -1183,9 +1186,18 @@ function SingleTimeAttack() {
           {/* Left Column: Main Game Area */}
           <VStack spacing={4} align="stretch">
             <HStack>
-              <Button onClick={() => router.push("/")} variant="outline" size={{ base: "sm", md: "md" }}>
-                ← Menu
-              </Button>
+              <Tooltip label="Finish Daily Challenge to return to menu" isDisabled={!isDailyMenuLocked}>
+                <span>
+                  <Button
+                    onClick={() => router.push("/")}
+                    variant="outline"
+                    size={{ base: "sm", md: "md" }}
+                    isDisabled={isDailyMenuLocked}
+                  >
+                    ← Menu
+                  </Button>
+                </span>
+              </Tooltip>
               <Heading as="h2" size={{ base: "md", md: "lg" }} isTruncated>
                 60s Rush — Single
               </Heading>
