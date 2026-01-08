@@ -1580,6 +1580,11 @@ export default function GamePage({ mode = "", code = "" }) {
   // ✅ Stable image display state: keeps last loaded image visible until next loads
   const [displayImageSrc, setDisplayImageSrc] = useState("");
   const [nextImageSrc, setNextImageSrc] = useState("");
+  // Track current display image without re-render to compare in loaders
+  const displayImageSrcRef = useRef("");
+  useEffect(() => {
+    displayImageSrcRef.current = displayImageSrc;
+  }, [displayImageSrc]);
   
 useEffect(() => {
   console.log("[IMG] displayImageSrc changed →", displayImageSrc);
@@ -1698,28 +1703,46 @@ useEffect(() => {
     const raw = (round?.imageUrl || "").trim();
     const invalid = !raw || raw === "(no url)" || raw === "no url";
     if (invalid) return; // ignore invalid URLs entirely
+
+    // Avoid toggling loading for the same URL already displayed or being loaded
+    if (raw === displayImageSrcRef.current || raw === nextImageSrc) {
+      lastNextRef.current = raw; // keep dedupe baseline consistent
+      return;
+    }
+
     if (raw === lastNextRef.current) return; // dedupe identical requests
     lastNextRef.current = raw;
     setNextImageSrc(raw);
     setImageLoading(true);
   }, [round?.imageUrl]);
 
-  // ✅ Preload and swap using sequence guard; never swap on error
+  // ✅ Preload and swap using sequence guard; allow older success to swap if different
   useEffect(() => {
     if (!nextImageSrc) return;
     const seq = ++preloadSeqRef.current;
+    const targetSrc = nextImageSrc;
     const img = new window.Image();
     img.onload = () => {
-      if (seq !== preloadSeqRef.current) return; // only latest request wins
-      setDisplayImageSrc(nextImageSrc);
+      // If not latest, still allow swap when target differs from current display
+      if (seq !== preloadSeqRef.current) {
+        if (targetSrc && targetSrc !== displayImageSrcRef.current) {
+          setDisplayImageSrc(targetSrc);
+        }
+        return;
+      }
+      if (targetSrc && targetSrc !== displayImageSrcRef.current) {
+        setDisplayImageSrc(targetSrc);
+      }
+      // Only latest request controls loading flag
       setImageLoading(false);
     };
     img.onerror = () => {
-      if (seq !== preloadSeqRef.current) return; // only latest request considered
-      // Do not swap on error to avoid flicker/broken image
-      setImageLoading(false);
+      // Only latest request controls loading flag; never clear display on error
+      if (seq === preloadSeqRef.current) {
+        setImageLoading(false);
+      }
     };
-    img.src = nextImageSrc;
+    img.src = targetSrc;
     return () => {
       img.onload = null;
       img.onerror = null;
