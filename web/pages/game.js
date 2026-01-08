@@ -1632,7 +1632,29 @@ useEffect(() => {
         if (DEBUG_PVP) console.log("[IMAGE_DEBUG] Image unmounted");
       };
     }, []);
-    return <Image {...props} />;
+    const { src, alt, style, onLoad, onError } = props || {};
+    // Use a plain <img> for PvP to avoid Next/Image internal swaps that can
+    // cause white flashes during frequent re-renders.
+    return (
+      <img
+        src={src}
+        alt={alt || ""}
+        draggable={false}
+        onLoad={onLoad}
+        onError={onError}
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: (style && style.objectFit) || "contain",
+          objectPosition: (style && style.objectPosition) || "center",
+          display: "block",
+          backgroundColor: (style && style.backgroundColor) || "#1A202C",
+          ...style,
+        }}
+      />
+    );
   };
 
   // ✅ Persist playerToken for reconnection
