@@ -2382,7 +2382,8 @@ useEffect(() => {
       setScoreA("");
       setScoreB("");
 
-      if (!pvpStartSoundPlayedRef.current) {
+      // Play game start SFX only once per match, at the first round
+      if (cr === 1 && !pvpStartSoundPlayedRef.current) {
         playGameStartSound();
         pvpStartSoundPlayedRef.current = true;
       }
@@ -2561,6 +2562,8 @@ useEffect(() => {
       setTransition(null);
       setRound(null);
       setFinalScoreboard(scoreboard || []);
+      // Reset SFX flag so it can play again in next match
+      pvpStartSoundPlayedRef.current = false;
     };
 
     const onRoomStateFail = () => {
@@ -3173,11 +3176,18 @@ useEffect(() => {
                 borderRadius="lg"
                 overflow="hidden"
                 boxShadow="lg"
-                filter={canAnswer ? "none" : "blur(8px)"}
-                opacity={canAnswer ? 1 : 0.4}
-                transition="all 300ms ease-in-out"
               >
-                <Box pos="absolute" top="0" left="0" right="0" bottom="0" style={{ aspectRatio: "16/9" }}>
+                <Box 
+                  pos="absolute" 
+                  top="0" 
+                  left="0" 
+                  right="0" 
+                  bottom="0" 
+                  style={{ aspectRatio: "16/9" }}
+                  filter={canAnswer ? "none" : "blur(8px)"}
+                  opacity={canAnswer ? 1 : 0.4}
+                  transition="filter 300ms ease-in-out, opacity 300ms ease-in-out"
+                >
                   <DebugImage
                     // Keep the same component instance across swaps (no `key`),
                     // and disable Next.js image optimization so our manual preload
