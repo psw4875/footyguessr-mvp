@@ -268,6 +268,16 @@ function SingleTimeAttack() {
 
   // Leaderboard visibility toggle (UI only, does NOT gate data fetching)
   const [showLeaderboardPanel, setShowLeaderboardPanel] = useState(false);
+
+  // Open leaderboard panel by default when navigated with &leaderboard=1 (Daily only)
+  useEffect(() => {
+    if (!router.isReady) return;
+    if (!isDailyQuery) return;
+    const q = router.query || {};
+    const open = q.leaderboard === "1" || q.leaderboard === 1;
+    if (open) setShowLeaderboardPanel(true);
+  }, [router.isReady, router.query, isDailyQuery]);
+
   const [isEditingName, setIsEditingName] = useState(false);
   const draftNameRef = useRef("");
   const isComposingRef = useRef(false);
@@ -277,9 +287,15 @@ function SingleTimeAttack() {
   
   // Leaderboard data states (independent of visibility)
   const [todayTopScores, setTodayTopScores] = useState([]);
+  const [lbPage, setLbPage] = useState(1);
   const [myEntry, setMyEntry] = useState(null);
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
   const [leaderboardError, setLeaderboardError] = useState(null);
+
+  // Reset leaderboard pagination when scores change
+  useEffect(() => {
+    setLbPage(1);
+  }, [todayTopScores?.length]);
   const leaderboardFetchedDateRef = useRef(null); // track last fetched date to avoid refetch loops
   const leaderboardInFlightRef = useRef(false);
   const submitInFlightRef = useRef(false);
@@ -529,7 +545,7 @@ function SingleTimeAttack() {
     setLeaderboardError(null);
 
     try {
-      const url = `${serverUrl}/api/leaderboard?mode=daily&date=${today}&limit=20`;
+      const url = `${serverUrl}/api/leaderboard?mode=daily&date=${today}&limit=200`;
       const resp = await fetch(url, { signal });
       if (resp.ok) {
         const data = await resp.json();
@@ -1052,49 +1068,85 @@ function SingleTimeAttack() {
     }
   }, [status, dailyMode, clientId]);
 
-  function TodayLeaderboard() {
-    // Uses top-level `draftName`, `isEditingName`, and handlers
-
+  
+function TodayLeaderboard() {
     if (leaderboardLoading) {
-      return <HStack><Spinner size="sm" /><Text fontSize="sm">Loading scores...</Text></HStack>;
+      return (
+        <HStack>
+          <Spinner size="sm" />
+          <Text fontSize="sm">Loading scores...</Text>
+        </HStack>
+      );
     }
 
     if (leaderboardError) {
-      return <Text fontSize="sm" color="red.600">{leaderboardError}</Text>;
+      return (
+        <Text fontSize="sm" color="red.600">
+          {leaderboardError}
+        </Text>
+      );
     }
 
-    if (!todayTopScores || todayTopScores.length === 0) {
-      return <Text fontSize="sm" color="gray.600">No scores yet.</Text>;
+    const list = Array.isArray(todayTopScores) ? todayTopScores : [];
+    if (list.length === 0) {
+      return (
+        <Text fontSize="sm" color="gray.600">
+          No scores yet.
+        </Text>
+      );
     }
+
+    const pageSize = 10;
+    const totalPages = Math.max(1, Math.ceil(list.length / pageSize));
+    const page = Math.min(Math.max(1, lbPage), totalPages);
+    const start = (page - 1) * pageSize;
+    const end = start + pageSize;
+    const pageItems = list.slice(start, end);
+
+    const myIdx = clientId ? list.findIndex((e) => e.client_id === clientId) : -1;
+    const myRank = myIdx >= 0 ? myIdx + 1 : null;
+    const myScore = myIdx >= 0 ? list[myIdx] : null;
 
     return (
       <VStack align="stretch" spacing={3}>
-        {/* Edit Name Button */}
+        {/* Edit Name */}
         <HStack justify="space-between" align="center">
-          <Text fontSize="xs" color="gray.600">Your name: <b>{displayName}</b></Text>
-          <Button size="xs" variant="outline" onClick={() => { if (isEditingName) handleCancelEdit(); else handleOpenEdit(); }}>
+          <Text fontSize="xs" color="gray.600">
+            Your name: <b>{displayName}</b>
+          </Text>
+          <Button
+            size="xs"
+            variant="outline"
+            onClick={() => {
+              if (isEditingName) handleCancelEdit();
+              else handleOpenEdit();
+            }}
+          >
             {isEditingName ? "✕" : "✎ Edit"}
           </Button>
         </HStack>
 
-        {/* Edit Name Input */}
         {isEditingName && (
           <HStack spacing={2} w="100%">
             <Input
               size="sm"
               placeholder="Enter your name (max 12 chars)"
               defaultValue={draftNameRef.current || myName}
-              onCompositionStart={() => { isComposingRef.current = true; }}
-              onCompositionEnd={(e) => { isComposingRef.current = false; draftNameRef.current = e.target.value; }}
-              onChange={(e) => { if (!isComposingRef.current) draftNameRef.current = e.target.value; }}
+              onCompositionStart={() => {
+                isComposingRef.current = true;
+              }}
+              onCompositionEnd={(e) => {
+                isComposingRef.current = false;
+                draftNameRef.current = e.target.value;
+              }}
+              onChange={(e) => {
+                if (!isComposingRef.current) draftNameRef.current = e.target.value;
+              }}
               maxLength={12}
               autoFocus
               onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleSaveLeaderboardName();
-                } else if (e.key === "Escape") {
-                  handleCancelEdit();
-                }
+                if (e.key === "Enter") handleSaveLeaderboardName();
+                else if (e.key === "Escape") handleCancelEdit();
               }}
             />
             <Button size="sm" colorScheme="teal" onClick={handleSaveLeaderboardName}>
@@ -1103,15 +1155,20 @@ function SingleTimeAttack() {
           </HStack>
         )}
 
-        {/* Leaderboard List */}
+        <Text fontSize="xs" color="gray.500">
+          Resets at 00:00 UTC · Showing {pageItems.length} of {list.length}
+        </Text>
+
+        {/* Leaderboard (paged) */}
         <VStack align="stretch" spacing={1}>
-          {(todayTopScores || []).map((entry, idx) => {
+          {pageItems.map((entry, i) => {
+            const absoluteRank = start + i + 1;
             const isMyScore = entry.client_id === clientId;
-            const displayName = formatDisplayName(entry.name, entry.client_id);
-            
+            const name = formatDisplayName(entry.name, entry.client_id);
+
             return (
               <HStack
-                key={`${entry.client_id}_${idx}`}
+                key={`${entry.client_id}_${absoluteRank}`}
                 justify="space-between"
                 px={2}
                 py={1}
@@ -1120,16 +1177,84 @@ function SingleTimeAttack() {
                 borderLeft={isMyScore ? "3px solid" : undefined}
                 borderLeftColor={isMyScore ? "orange.500" : undefined}
               >
-                <Text w="28px" fontSize="sm" fontWeight="bold">#{idx + 1}</Text>
-                <Text flex="1" fontSize="sm" isTruncated>{displayName}</Text>
-                <Text fontSize="sm" fontWeight="bold">{entry.score}</Text>
+                <Text w="44px" fontSize="sm" fontWeight="bold">
+                  #{absoluteRank}
+                </Text>
+                <Text flex="1" fontSize="sm" isTruncated>
+                  {name}
+                </Text>
+                <Text fontSize="sm" fontWeight="bold">
+                  {entry.score}
+                </Text>
               </HStack>
             );
           })}
         </VStack>
+
+        {/* Always show your position if not on current page */}
+        {myRank && (myRank < start + 1 || myRank > end) && (
+          <Box pt={2} borderTop="1px solid" borderColor="gray.200">
+            <Text fontSize="xs" color="gray.500" mb={1}>
+              Your position
+            </Text>
+            <HStack
+              justify="space-between"
+              px={2}
+              py={1}
+              borderRadius="sm"
+              bg="orange.100"
+              borderLeft="3px solid"
+              borderLeftColor="orange.500"
+            >
+              <Text w="44px" fontSize="sm" fontWeight="bold">
+                #{myRank}
+              </Text>
+              <Text flex="1" fontSize="sm" isTruncated>
+                {displayName}
+              </Text>
+              <Text fontSize="sm" fontWeight="bold">
+                {myScore?.score ?? "-"}
+              </Text>
+            </HStack>
+          </Box>
+        )}
+
+        {/* Pagination: -1-  -2- style */}
+        {totalPages > 1 && (
+          <HStack justify="center" spacing={3} pt={1}>
+            {page > 1 ? (
+              <Button
+                size="xs"
+                variant="link"
+                onClick={() => setLbPage((p) => Math.max(1, p - 1))}
+              >
+                ← -{page - 1}-
+              </Button>
+            ) : (
+              <Box w="54px" />
+            )}
+
+            <Text fontSize="sm" fontWeight="bold">
+              -{page}-
+            </Text>
+
+            {page < totalPages ? (
+              <Button
+                size="xs"
+                variant="link"
+                onClick={() => setLbPage((p) => Math.min(totalPages, p + 1))}
+              >
+                -{page + 1}- →
+              </Button>
+            ) : (
+              <Box w="54px" />
+            )}
+          </HStack>
+        )}
       </VStack>
     );
   }
+
 
   const percent = Math.round((timeLeftMs / 60000) * 100);
   const singleTimeRatio = timeLeftMs / 60000;
@@ -1198,84 +1323,139 @@ function SingleTimeAttack() {
 
           {status === "READY" && (
             <>
-            <Box p={6} borderWidth="1px" borderRadius="md" bg="gray.50">
-              <Heading size="md" mb={1}>⚡ 60s Rush</Heading>
-              <Text fontSize="sm" color="gray.600" mb={2}>Beat your best in 60 seconds.</Text>
+              {isDaily ? (
+                <Box
+                  p={6}
+                  borderWidth="2px"
+                  borderRadius="lg"
+                  bg="orange.50"
+                  borderColor="orange.400"
+                  boxShadow="md"
+                >
+                  <Heading size="md" mb={1}>
+                    🔥 Daily Challenge
+                  </Heading>
+                  <Text fontSize="sm" color="gray.700" mb={3}>
+                    One attempt per day. Same puzzle for everyone. Resets at 00:00 UTC.
+                  </Text>
 
-              <HStack mb={3} spacing={3}>
-                <Text fontSize="sm" color="gray.600">Mode:</Text>
-                <Select size="sm" value={filterType} onChange={(e) => setFilterType(e.target.value)} maxW="200px">
-                  <option value="ALL">ALL</option>
-                  <option value="INTERNATIONAL">INTERNATIONAL</option>
-                  <option value="CLUB">CLUB</option>
-                </Select>
-              </HStack>
+                  <VStack align="stretch" spacing={3}>
+                    <Button
+                      colorScheme={myTodaySubmitted ? "gray" : "orange"}
+                      onClick={() => startDailyChallenge()}
+                      isDisabled={!!myTodaySubmitted || loadingQ || !questions.length}
+                      w="100%"
+                      size="lg"
+                    >
+                      {myTodaySubmitted
+                        ? `✓ Completed (${myTodayScore || 0} pts)`
+                        : "🏆 Start Daily Challenge"}
+                    </Button>
 
-              <VStack align="stretch" spacing={3} mb={4}>
-                <Box as="ul" pl={4} m={0} color="gray.700" spacing={1}>
-                  <Text as="li" fontSize="sm">One team correct: +2 pts</Text>
-                  <Text as="li" fontSize="sm">Both teams correct: +5 pts</Text>
-                  <Text as="li" fontSize="sm">Exact score (with both teams): +10 pts</Text>
-                  <Text as="li" fontSize="sm">Difficulty adapts to you</Text>
-                </Box>
-              </VStack>
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowLeaderboardPanel((v) => !v)}
+                      w="100%"
+                      size="lg"
+                    >
+                      {showLeaderboardPanel ? "Hide Leaderboard" : "📊 View Today’s Leaderboard"}
+                    </Button>
 
-              <Button onClick={startGame} isDisabled={loadingQ || !questions.length} colorScheme="teal" w="100%" size="lg" py={6} fontSize="md" fontWeight="bold">
-                Start
-              </Button>
-
-              <HStack mt={3} spacing={4} justify="space-between">
-                <Box>
-                  <Text fontSize="sm" color="gray.600">Personal Best</Text>
-                  <Text fontWeight="bold">{personalBest} pts</Text>
-                </Box>
-                <Box textAlign="right">
-                  <Text fontSize="sm" color="gray.600">Best Today</Text>
-                  <Text fontWeight="bold">{todayBest} pts</Text>
-                </Box>
-              </HStack>
-
-              <Box mt={4} p={3} borderWidth="1px" borderRadius="md" bg="white">
-                <Text fontSize="sm" color="gray.600" mb={1}>💡 Tip</Text>
-                <Text fontSize="sm">Type teams first—guessing score is a bonus.</Text>
-              </Box>
-            </Box>
-
-            <Box mt={4} p={5} borderWidth="2px" borderRadius="md" bg="orange.50" borderColor="orange.400">
-              <Heading size="md" mb={2}>🔥 Daily Challenge</Heading>
-              <Text fontSize="sm" color="gray.700" mb={3}>New puzzle daily. Compete on the global leaderboard. Resets at 00:00 UTC.</Text>
-              {(() => {
-                const played = myTodaySubmitted;
-                const playedScore = myTodayScore;
-                return (
-                  <>
-                    <HStack spacing={3} mb={3}>
-                      <Button colorScheme="orange" onClick={() => startDailyChallenge()} isDisabled={!!played || loadingQ || !questions.length} w="100%" size="lg">
-                        {played ? "✓ Done" : "🏆 Play Daily"}
-                      </Button>
-                      <Button variant="outline" onClick={() => setShowLeaderboardPanel((v) => !v)} w="100%" size="lg">
-                        {showLeaderboardPanel ? "Hide" : "📊 Scores"}
-                      </Button>
+                    <HStack justify="space-between">
+                      <Text fontSize="sm">
+                        My score today: <b>{myTodayScore || 0}</b>
+                      </Text>
+                      <Text fontSize="sm" color="gray.600">
+                        Resets: <b>00:00 UTC</b>
+                      </Text>
                     </HStack>
-                    <Box mb={2}>
-                      <Text fontSize="sm">My score today: <b>{playedScore}</b></Text>
-                    </Box>
-                    {isDaily && (
-                      <Box mt={3} borderTop="1px" pt={3}>
-                        <Heading size="sm" mb={2}>Today’s Leaderboard</Heading>
-                        {showLeaderboardPanel ? (
-                          <TodayLeaderboard />
-                        ) : (
-                          <Text fontSize="xs" color="gray.500">Click "📊 Scores" to view</Text>
-                        )}
+
+                    {showLeaderboardPanel && (
+                      <Box mt={2} borderTop="1px" pt={3}>
+                        <Heading size="sm" mb={2}>
+                          🏆 Today’s Leaderboard
+                        </Heading>
+                        <TodayLeaderboard />
                       </Box>
                     )}
-                  </>
-                );
-              })()}
-            </Box>
+                  </VStack>
+                </Box>
+              ) : (
+                <Box p={6} borderWidth="1px" borderRadius="md" bg="gray.50">
+                  <Heading size="md" mb={1}>
+                    ⚡ 60s Rush
+                  </Heading>
+                  <Text fontSize="sm" color="gray.600" mb={2}>
+                    Beat your best in 60 seconds.
+                  </Text>
+
+                  <HStack mb={3} spacing={3}>
+                    <Text fontSize="sm" color="gray.600">
+                      Mode:
+                    </Text>
+                    <Select
+                      size="sm"
+                      value={filterType}
+                      onChange={(e) => setFilterType(e.target.value)}
+                      maxW="200px"
+                    >
+                      <option value="ALL">ALL</option>
+                      <option value="INTERNATIONAL">INTERNATIONAL</option>
+                      <option value="CLUB">CLUB</option>
+                    </Select>
+                  </HStack>
+
+                  <VStack align="stretch" spacing={2} mb={4}>
+                    <Text fontSize="sm" color="gray.700">
+                      • One team correct: <b>+2</b>
+                    </Text>
+                    <Text fontSize="sm" color="gray.700">
+                      • Both teams correct: <b>+5</b>
+                    </Text>
+                    <Text fontSize="sm" color="gray.700">
+                      • Exact score (with both teams): <b>+10</b>
+                    </Text>
+                    <Text fontSize="sm" color="gray.700">
+                      • Difficulty adapts to you
+                    </Text>
+                  </VStack>
+
+                  <Button
+                    onClick={() => startGame()}
+                    isDisabled={loadingQ || !questions.length}
+                    colorScheme="teal"
+                    w="100%"
+                    size="lg"
+                  >
+                    🎮 Start 60s Rush
+                  </Button>
+
+                  <HStack mt={3} spacing={4} justify="space-between">
+                    <Box>
+                      <Text fontSize="sm" color="gray.600">
+                        Personal Best
+                      </Text>
+                      <Text fontWeight="bold">{personalBest} pts</Text>
+                    </Box>
+                    <Box textAlign="right">
+                      <Text fontSize="sm" color="gray.600">
+                        Best Today
+                      </Text>
+                      <Text fontWeight="bold">{todayBest} pts</Text>
+                    </Box>
+                  </HStack>
+
+                  <Box mt={4} p={3} borderWidth="1px" borderRadius="md" bg="white">
+                    <Text fontSize="sm" color="gray.600" mb={1}>
+                      💡 Tip
+                    </Text>
+                    <Text fontSize="sm">Type teams first—guessing score is a bonus.</Text>
+                  </Box>
+                </Box>
+              )}
             </>
           )}
+
 
           {status === "PLAYING" && current && (
             <>
