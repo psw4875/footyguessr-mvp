@@ -271,9 +271,10 @@ function SingleTimeAttack() {
     return Boolean(daily && lb);
   }, [router.query]);
 
+  const isDaily = dailyMode || isDailyQuery;
+
   // ✅ Daily Challenge anti-scouting: lock Menu only while actively playing Daily (not leaderboard-only)
   const isDailyMenuLocked = isDaily && status === "PLAYING" && !isLeaderboardOnly;
-  const isDaily = dailyMode || isDailyQuery;
 
   // Leaderboard visibility toggle (UI only, does NOT gate data fetching)
   const [showLeaderboardPanel, setShowLeaderboardPanel] = useState(false);
