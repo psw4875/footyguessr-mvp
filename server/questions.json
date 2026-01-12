@@ -4094,7 +4094,7 @@
     "imageUrl": "/matches/liv-roma-2018.jpg",
     "correct": {
       "teamA": "Liverpool",
-      "teamB": "Roma",
+      "teamB": "AS Roma",
       "score": "5-2"
     },
     "meta": {
@@ -4119,7 +4119,7 @@
         "type": "CLUB"
       },
       "away": {
-        "name": "Roma",
+        "name": "AS Roma",
         "type": "CLUB"
       }
     },
@@ -4141,7 +4141,7 @@
     "id": "roma-bar-2018",
     "imageUrl": "/matches/roma-bar-2018.jpg",
     "correct": {
-      "teamA": "Roma",
+      "teamA": "AS Roma",
       "teamB": "Barcelona",
       "score": "3-0"
     },
@@ -4163,7 +4163,7 @@
     },
     "teams": {
       "home": {
-        "name": "Roma",
+        "name": "AS Roma",
         "type": "CLUB"
       },
       "away": {
