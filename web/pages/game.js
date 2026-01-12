@@ -1600,16 +1600,19 @@ export default function GamePage({ mode = "", code = "" }) {
   const isInvite = resolvedMode === "pvp" && Boolean(resolvedCode);
   const ogTitle = isInvite ? `FootyGuessr — Private Match (${resolvedCode})` : "FootyGuessr";
   const ogDescription = isInvite ? `Join my private match. Code: ${resolvedCode}` : "Guess the match in one photo.";
+  // ogUrl includes query params for social sharing (invite links are special case)
   const ogUrl = isInvite
     ? `${origin}/game?mode=pvp&code=${encodeURIComponent(resolvedCode)}`
     : `${origin}/game`;
+  // Canonical URL is always clean (no query params) to prevent SEO dilution
+  const canonicalUrl = `${origin}/game`;
   const ogImage = `${origin}/og/og-default.png`;
 
   // Single은 그냥 렌더
   if (resolvedMode === "single")
     return (
       <>
-        <MetaHead title={ogTitle} description={ogDescription} url={ogUrl} image={ogImage} />
+        <MetaHead title={ogTitle} description={ogDescription} url={ogUrl} canonicalUrl={canonicalUrl} image={ogImage} />
         <SingleTimeAttack />
       </>
     );
@@ -2949,7 +2952,7 @@ useEffect(() => {
 
     return (
       <>
-        <MetaHead title={ogTitle} description={ogDescription} url={ogUrl} image={ogImage} />
+        <MetaHead title={ogTitle} description={ogDescription} url={ogUrl} canonicalUrl={canonicalUrl} image={ogImage} />
         <Container maxW="container.lg" p={4}>
           <Button onClick={goToMenu} mb={6} variant="outline">
             ← Menu
@@ -3213,7 +3216,7 @@ useEffect(() => {
 
     return (
       <>
-        <MetaHead title={ogTitle} description={ogDescription} url={ogUrl} image={ogImage} />
+        <MetaHead title={ogTitle} description={ogDescription} url={ogUrl} canonicalUrl={canonicalUrl} image={ogImage} />
         <Container maxW="container.lg" p={4}>
         <Tooltip label="Finish the match to return to menu" isDisabled={!isMenuDisabled}>
           <Button onClick={goToMenu} mb={6} variant="outline" isDisabled={isMenuDisabled}>
@@ -3324,7 +3327,7 @@ useEffect(() => {
 
   return (
     <>
-      <MetaHead title={ogTitle} description={ogDescription} url={ogUrl} image={ogImage} />
+      <MetaHead title={ogTitle} description={ogDescription} url={ogUrl} canonicalUrl={canonicalUrl} image={ogImage} />
       {/* Mobile-only sticky timer for PvP IN_ROUND phase */}
       {phase === "IN_ROUND" && round && (
         (() => {

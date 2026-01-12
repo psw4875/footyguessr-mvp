@@ -10,11 +10,68 @@ import {
   ListItem,
   Divider,
 } from "@chakra-ui/react";
+import Head from "next/head";
 import MetaHead from "../components/MetaHead";
 import { useRouter } from "next/router";
 
 export default function FootballQuizLanding() {
   const router = useRouter();
+
+  // FAQ Schema markup for rich snippets
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How do I play FootyGuessr?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Each round shows you a photo from a famous football match. Type in the two teams and optionally guess the final score. You earn +5 points for correct teams and +10 points for an exact score match. The faster you answer, the more you can score."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What's the difference between Solo and PvP modes?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Solo mode gives you 60 seconds to answer as many questions as possible with adaptive difficulty. PvP mode is a real-time 1v1 battle where you compete against another player over 3 rounds—whoever scores the most points wins."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the Daily Challenge?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Every day, all players worldwide get the same set of match puzzles. Complete it once per day and see how you rank on the global leaderboard. It's a great way to test your skills against the community."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is FootyGuessr free to play?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes! FootyGuessr is completely free. No downloads, no sign-ups required for casual play. Just visit the site and start guessing matches immediately."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What types of matches are featured?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Our database includes World Cup finals and key matches, Champions League finals, international tournaments, historic club matches, and iconic football moments spanning multiple decades and competitions."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I play on mobile?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Absolutely! FootyGuessr works on all devices—desktop, tablet, and mobile. The interface is fully responsive and optimized for touch screens."
+        }
+      }
+    ]
+  };
 
   return (
     <>
@@ -23,6 +80,9 @@ export default function FootballQuizLanding() {
         description="Challenge yourself with our free football trivia quiz! Identify legendary matches, World Cup finals, and historic moments from a single photo. Play solo, battle in PvP, or compete in daily challenges."
         url="https://footyguessr.io/football-quiz"
       />
+      <Head>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      </Head>
       <Container maxW="container.lg" p={6}>
         <VStack spacing={8} align="stretch">
           {/* Hero Section */}
